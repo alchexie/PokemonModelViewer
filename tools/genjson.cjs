@@ -58,6 +58,7 @@ function getFormDirs(pokemonId) {
 
 /**
  * 转换单个文件为 JSON
+ * 输出文件名保留原始扩展名，如 pm0004_00_00.trmsh -> pm0004_00_00.trmsh.json
  */
 function convertToJson(inputFile, schemaFile, outputDir) {
   const schemaPath = path.join(SCHEMA_DIR, schemaFile);
@@ -74,6 +75,18 @@ function convertToJson(inputFile, schemaFile, outputDir) {
   try {
     const cmd = `"${FLATC_PATH}" --json --raw-binary -o "${outputDir}" -I "${SCHEMA_DIR}" "${schemaPath}" -- "${inputFile}"`;
     execSync(cmd, { stdio: 'pipe' });
+    
+    // flatc 输出的文件名是去掉扩展名后加 .json
+    // 我们需要重命名为保留原始扩展名的格式
+    const baseName = path.basename(inputFile);
+    const nameWithoutExt = baseName.substring(0, baseName.lastIndexOf('.'));
+    const flatcOutput = path.join(outputDir, `${nameWithoutExt}.json`);
+    const desiredOutput = path.join(outputDir, `${baseName}.json`);
+    
+    if (fs.existsSync(flatcOutput) && flatcOutput !== desiredOutput) {
+      fs.renameSync(flatcOutput, desiredOutput);
+    }
+    
     return true;
   } catch (error) {
     console.warn(`  警告: 转换失败 ${path.basename(inputFile)}`);
