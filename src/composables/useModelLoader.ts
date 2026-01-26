@@ -18,13 +18,14 @@ import {
   type ParsedModelData
 } from '../services/modelLoader'
 import {
-  createGeometry,
+  createAllGeometries,
   type GeometryGroup
 } from '../services/meshConverter'
 import {
-  createAllMaterials,
+  createMaterial,
   createDefaultMaterial,
-  disposeAllMaterials
+  disposeAllMaterials,
+  findMaterialByName
 } from '../services/textureLoader'
 
 /**
@@ -256,52 +257,78 @@ export function useModelLoader(): UseModelLoaderReturn {
       
       updateProgress(LoadingStage.PARSING_DATA, 1)
       
-      // 阶段 3: 创建几何体
+      // 阶段 3: 创建几何体（处理所有 mesh）
       updateProgress(LoadingStage.CREATING_GEOMETRY, 0)
       
-      const { geometry, groups } = createGeometry(
+      // 创建所有 mesh 的几何体
+      const geometryResults = createAllGeometries(
         modelData.trmsh,
-        modelData.trmbf,
-        0 // 使用第一个网格
+        modelData.trmbf
       )
+      
+      if (geometryResults.length === 0) {
+        throw new Error('没有可用的几何体数据')
+      }
       
       updateProgress(LoadingStage.CREATING_GEOMETRY, 1)
       
       // 阶段 4: 加载纹理并创建材质
       updateProgress(LoadingStage.LOADING_TEXTURES, 0)
       
-      let materials: THREE.MeshStandardMaterial[] = []
-      
-      if (modelData.trmtr) {
-        try {
-          materials = await createAllMaterials(modelData.trmtr, modelData.basePath)
-        } catch (materialError) {
-          console.warn('材质创建失败，使用默认材质:', materialError)
-          // 为每个几何体组创建默认材质
-          materials = groups.map(() => createDefaultMaterial())
-        }
-      } else {
-        // 没有材质数据，使用默认材质
-        materials = groups.map(() => createDefaultMaterial())
-      }
-      
-      // 保存材质引用用于后续清理
-      currentMaterials = materials
-      
-      updateProgress(LoadingStage.LOADING_TEXTURES, 1)
-      
-      // 阶段 5: 创建网格对象
-      updateProgress(LoadingStage.CREATING_MESH, 0)
-      
       // 创建模型组
       const modelGroup = new THREE.Group()
       modelGroup.name = formId
       
-      // 创建网格
-      const mesh = createMeshWithMaterials(geometry, groups, materials)
-      mesh.name = `${formId}_mesh`
+      // 为每个 mesh 创建对应的 Three.js Mesh
+      const totalMeshes = geometryResults.length
       
-      modelGroup.add(mesh)
+      for (let meshIdx = 0; meshIdx < totalMeshes; meshIdx++) {
+        const { geometry, groups } = geometryResults[meshIdx]
+        
+        // 更新纹理加载进度
+        updateProgress(LoadingStage.LOADING_TEXTURES, meshIdx / totalMeshes)
+        
+        // 为这个 mesh 的每个材质组创建材质
+        const meshMaterials: THREE.MeshStandardMaterial[] = []
+        
+        for (const group of groups) {
+          const materialName = group.materialName
+          let material: THREE.MeshStandardMaterial
+          
+          if (materialName && modelData.trmtr) {
+            // 根据材质名称查找 TRMTR 中的材质定义
+            const trmtrMaterial = findMaterialByName(modelData.trmtr, materialName)
+            
+            if (trmtrMaterial) {
+              try {
+                material = await createMaterial(trmtrMaterial, modelData.basePath)
+              } catch (materialError) {
+                console.warn(`材质 ${materialName} 创建失败，使用默认材质:`, materialError)
+                material = createDefaultMaterial()
+              }
+            } else {
+              console.warn(`未找到材质定义: ${materialName}，使用默认材质`)
+              material = createDefaultMaterial()
+            }
+          } else {
+            material = createDefaultMaterial()
+          }
+          
+          meshMaterials.push(material)
+          currentMaterials.push(material)
+        }
+        
+        // 创建网格
+        const mesh = createMeshWithMaterials(geometry, groups, meshMaterials)
+        mesh.name = `${formId}_mesh_${meshIdx}`
+        
+        modelGroup.add(mesh)
+      }
+      
+      updateProgress(LoadingStage.LOADING_TEXTURES, 1)
+      
+      // 阶段 5: 完成
+      updateProgress(LoadingStage.CREATING_MESH, 0)
       
       // 更新状态
       currentModel.value = modelGroup
@@ -310,13 +337,22 @@ export function useModelLoader(): UseModelLoaderReturn {
       updateProgress(LoadingStage.CREATING_MESH, 1)
       updateProgress(LoadingStage.COMPLETE)
       
-      console.log(`useModelLoader: 模型 ${formId} 加载完成`)
+      console.log(`useModelLoader: 模型 ${formId} 加载完成，包含 ${modelGroup.children.length} 个网格`)
       
     } catch (err) {
       // 处理错误
+      // @validates 需求 8.5: 发生错误时在控制台记录详细错误信息用于调试
       const errorMessage = formatError(err)
       error.value = errorMessage
-      console.error('useModelLoader: 模型加载失败:', err)
+      
+      console.error('[useModelLoader] 模型加载失败:', {
+        formId,
+        errorType: err instanceof ModelLoadError ? err.type : 'unknown',
+        errorMessage,
+        originalError: err,
+        errorStack: err instanceof Error ? err.stack : undefined,
+        timestamp: new Date().toISOString()
+      })
       
       // 清理可能已创建的资源
       disposeModel()

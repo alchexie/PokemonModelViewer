@@ -52,8 +52,7 @@ const {
   getCamera, 
   getControls,
   addToScene, 
-  removeFromScene,
-  removeTestObjects 
+  removeFromScene
 } = useThreeScene({
   container: containerRef
 })
@@ -72,9 +71,6 @@ const {
 
 // 场景是否已初始化
 const sceneInitialized = ref(false)
-
-// 是否已移除测试对象
-const testObjectsRemoved = ref(false)
 
 // 计算属性：是否有有效的模型路径
 const hasValidModelPath = computed(() => {
@@ -98,12 +94,6 @@ async function loadAndDisplayModel(pokemonId: string, formId: string): Promise<v
   // 移除之前的模型
   if (currentModel.value) {
     removeFromScene(currentModel.value)
-  }
-
-  // 首次加载模型时移除测试对象
-  if (!testObjectsRemoved.value) {
-    removeTestObjects()
-    testObjectsRemoved.value = true
   }
 
   try {

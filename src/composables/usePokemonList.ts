@@ -125,7 +125,7 @@ export function usePokemonList(): UsePokemonListReturn {
   async function loadPokemonList(): Promise<void> {
     // 如果正在加载，忽略重复请求
     if (loading.value) {
-      console.warn('usePokemonList: 列表正在加载中，忽略重复请求')
+      console.warn('[usePokemonList] 列表正在加载中，忽略重复请求')
       return
     }
     
@@ -169,12 +169,19 @@ export function usePokemonList(): UsePokemonListReturn {
       
       pokemons.value = pokemonList
       
-      console.log(`usePokemonList: 加载了 ${pokemonList.length} 个宝可梦`)
+      console.log(`[usePokemonList] 加载了 ${pokemonList.length} 个宝可梦`)
       
     } catch (err) {
       const errorMessage = formatError(err)
       error.value = errorMessage
-      console.error('usePokemonList: 加载宝可梦列表失败:', err)
+      
+      // @validates 需求 8.5: 发生错误时在控制台记录详细错误信息用于调试
+      console.error('[usePokemonList] 加载宝可梦列表失败:', {
+        errorMessage,
+        originalError: err,
+        errorStack: err instanceof Error ? err.stack : undefined,
+        timestamp: new Date().toISOString()
+      })
       
       // 清空列表
       pokemons.value = []

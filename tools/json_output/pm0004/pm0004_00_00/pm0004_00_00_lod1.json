@@ -1,0 +1,477 @@
+{
+  meshes: [
+    {
+      mesh_shape_name: "pm0004_00_00_eye_mesh_shape_lod1",
+      bounds: {
+        min: {
+          x: -0.090233,
+          y: 0.447529,
+          z: 0.063002
+        },
+        max: {
+          x: 0.090233,
+          y: 0.528214,
+          z: 0.118595
+        }
+      },
+      polygon_type: "UINT16",
+      attributes: [
+        {
+          attrs: [
+            {
+              attr_0: 0,
+              attribute: "POSITION",
+              type: "RGB_32_FLOAT"
+            },
+            {
+              attr_0: 0,
+              attribute: "NORMAL",
+              type: "RGBA_16_FLOAT",
+              position: 12
+            },
+            {
+              attr_0: 0,
+              attribute: "TANGENT",
+              type: "RGBA_16_FLOAT",
+              position: 20
+            },
+            {
+              attr_0: 0,
+              attribute: "TEXCOORD",
+              type: "RG_32_FLOAT",
+              position: 28
+            },
+            {
+              attr_0: 0,
+              attribute: "BLEND_INDICES",
+              type: "RGBA_8_UNSIGNED",
+              position: 36
+            },
+            {
+              attr_0: 0,
+              attribute: "BLEND_WEIGHTS",
+              type: "RGBA_16_UNORM",
+              position: 40
+            }
+          ],
+          size: [
+            {
+              size: 48
+            }
+          ]
+        }
+      ],
+      materials: [
+        {
+          poly_count: 24,
+          material_name: "r_eye",
+          sh_unk4: 0
+        },
+        {
+          poly_count: 24,
+          poly_offset: 24,
+          material_name: "l_eye",
+          sh_unk4: 0
+        }
+      ],
+      clip_sphere: {
+        x: 0.0,
+        y: 0.487871,
+        z: 0.090799,
+        radius: 0.101909
+      },
+      influence: [
+        {
+          index: 4,
+          scale: 20.0
+        }
+      ],
+      vis_shapes: [
+
+      ],
+      mesh_name: "pm0004_00_00_eye_mesh_lod1",
+      morph_shape: [
+
+      ]
+    },
+    {
+      mesh_shape_name: "pm0004_00_00_body_mesh_shape_lod1",
+      bounds: {
+        min: {
+          x: -0.268598,
+          y: -0.001191,
+          z: -0.52976
+        },
+        max: {
+          x: 0.268598,
+          y: 0.597887,
+          z: 0.189362
+        }
+      },
+      polygon_type: "UINT16",
+      attributes: [
+        {
+          attrs: [
+            {
+              attr_0: 0,
+              attribute: "POSITION",
+              type: "RGB_32_FLOAT"
+            },
+            {
+              attr_0: 0,
+              attribute: "NORMAL",
+              type: "RGBA_16_FLOAT",
+              position: 12
+            },
+            {
+              attr_0: 0,
+              attribute: "TANGENT",
+              type: "RGBA_16_FLOAT",
+              position: 20
+            },
+            {
+              attr_0: 0,
+              attribute: "TEXCOORD",
+              type: "RG_32_FLOAT",
+              position: 28
+            },
+            {
+              attr_0: 0,
+              attribute: "BLEND_INDICES",
+              type: "RGBA_8_UNSIGNED",
+              position: 36
+            },
+            {
+              attr_0: 0,
+              attribute: "BLEND_WEIGHTS",
+              type: "RGBA_16_UNORM",
+              position: 40
+            }
+          ],
+          size: [
+            {
+              size: 48
+            }
+          ]
+        }
+      ],
+      materials: [
+        {
+          poly_count: 1356,
+          material_name: "body",
+          sh_unk4: 0
+        }
+      ],
+      clip_sphere: {
+        x: 0.0,
+        y: 0.298348,
+        z: -0.170199,
+        radius: 0.418543
+      },
+      influence: [
+        {
+          index: 4,
+          scale: 66.719986
+        },
+        {
+          index: 5,
+          scale: 17.779999
+        },
+        {
+          index: 34,
+          scale: 16.441
+        },
+        {
+          index: 38,
+          scale: 15.686998
+        },
+        {
+          index: 42,
+          scale: 15.686998
+        },
+        {
+          index: 37,
+          scale: 7.49
+        },
+        {
+          index: 41,
+          scale: 7.49
+        },
+        {
+          index: 39,
+          scale: 6.375
+        },
+        {
+          index: 35,
+          scale: 6.374
+        },
+        {
+          index: 7,
+          scale: 5.93
+        },
+        {
+          index: 10,
+          scale: 5.93
+        },
+        {
+          index: 15,
+          scale: 5.081
+        },
+        {
+          index: 26,
+          scale: 5.08
+        },
+        {
+          index: 11,
+          scale: 4.92
+        },
+        {
+          index: 8,
+          scale: 4.92
+        },
+        {
+          index: 3,
+          scale: 4.033
+        },
+        {
+          index: 36,
+          scale: 4.01
+        },
+        {
+          index: 40,
+          scale: 4.01
+        },
+        {
+          index: 25,
+          scale: 3.688
+        },
+        {
+          index: 14,
+          scale: 3.688
+        },
+        {
+          index: 13,
+          scale: 3.676
+        },
+        {
+          index: 24,
+          scale: 3.676
+        },
+        {
+          index: 1,
+          scale: 3.349
+        },
+        {
+          index: 23,
+          scale: 3.327
+        },
+        {
+          index: 12,
+          scale: 3.324
+        },
+        {
+          index: 46,
+          scale: 3.24
+        },
+        {
+          index: 2,
+          scale: 2.939
+        },
+        {
+          index: 47,
+          scale: 2.72
+        },
+        {
+          index: 44,
+          scale: 2.589
+        },
+        {
+          index: 6,
+          scale: 2.03
+        },
+        {
+          index: 9,
+          scale: 2.03
+        },
+        {
+          index: 48,
+          scale: 1.88
+        },
+        {
+          index: 45,
+          scale: 1.558
+        },
+        {
+          index: 27,
+          scale: 1.536
+        },
+        {
+          index: 16,
+          scale: 1.536
+        },
+        {
+          index: 20,
+          scale: 1.315
+        },
+        {
+          index: 31,
+          scale: 1.315
+        },
+        {
+          index: 30,
+          scale: 1.205
+        },
+        {
+          index: 19,
+          scale: 1.205
+        },
+        {
+          index: 33,
+          scale: 1.008
+        },
+        {
+          index: 22,
+          scale: 1.008
+        },
+        {
+          index: 29,
+          scale: 1.0
+        },
+        {
+          index: 18,
+          scale: 1.0
+        },
+        {
+          index: 43,
+          scale: 0.893
+        },
+        {
+          index: 32,
+          scale: 0.11
+        },
+        {
+          index: 21,
+          scale: 0.11
+        },
+        {
+          index: 28,
+          scale: 0.044
+        },
+        {
+          index: 17,
+          scale: 0.043
+        }
+      ],
+      vis_shapes: [
+
+      ],
+      mesh_name: "pm0004_00_00_body_mesh_lod1",
+      morph_shape: [
+
+      ]
+    },
+    {
+      mesh_shape_name: "pm0004_00_00_fire_mesh_shape_lod1",
+      bounds: {
+        min: {
+          x: -0.04301,
+          y: 0.075052,
+          z: -0.562656
+        },
+        max: {
+          x: 0.04301,
+          y: 0.277809,
+          z: -0.476636
+        }
+      },
+      polygon_type: "UINT16",
+      attributes: [
+        {
+          attrs: [
+            {
+              attr_0: 0,
+              attribute: "POSITION",
+              type: "RGB_32_FLOAT"
+            },
+            {
+              attr_0: 0,
+              attribute: "NORMAL",
+              type: "RGBA_16_FLOAT",
+              position: 12
+            },
+            {
+              attr_0: 0,
+              attribute: "TANGENT",
+              type: "RGBA_16_FLOAT",
+              position: 20
+            },
+            {
+              attr_0: 0,
+              attribute: "TEXCOORD",
+              type: "RG_32_FLOAT",
+              position: 28
+            },
+            {
+              attr_0: 0,
+              attribute: "COLOR",
+              type: "RGBA_8_UNORM",
+              position: 36
+            },
+            {
+              attr_0: 0,
+              attribute: "BLEND_INDICES",
+              type: "RGBA_8_UNSIGNED",
+              position: 40
+            },
+            {
+              attr_0: 0,
+              attribute: "BLEND_WEIGHTS",
+              type: "RGBA_16_UNORM",
+              position: 44
+            }
+          ],
+          size: [
+            {
+              size: 52
+            }
+          ]
+        }
+      ],
+      materials: [
+        {
+          poly_count: 96,
+          material_name: "fire",
+          sh_unk4: 0
+        }
+      ],
+      clip_sphere: {
+        x: 0.0,
+        y: 0.176431,
+        z: -0.519646,
+        radius: 0.101389
+      },
+      influence: [
+        {
+          index: 51,
+          scale: 8.16
+        },
+        {
+          index: 49,
+          scale: 7.2
+        },
+        {
+          index: 50,
+          scale: 2.64
+        }
+      ],
+      vis_shapes: [
+
+      ],
+      mesh_name: "pm0004_00_00_fire_mesh_lod1",
+      morph_shape: [
+
+      ]
+    }
+  ],
+  buffer_name: "pm0004_00_00_lod1.trmbf"
+}

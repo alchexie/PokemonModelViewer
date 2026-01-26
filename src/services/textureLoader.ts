@@ -148,7 +148,15 @@ export async function loadTextures(
       
       return { name: textureRef.filename, texture }
     } catch (error) {
-      console.warn(`Failed to load texture ${textureRef.filename}:`, error)
+      // @validates 需求 8.5: 发生错误时在控制台记录详细错误信息用于调试
+      // @validates 需求 8.3: 纹理加载失败时继续渲染模型但使用默认材质
+      console.warn('[TextureLoader] 纹理加载失败，将使用默认材质:', {
+        filename: textureRef.filename,
+        fullPath,
+        textureType: textureRef.type,
+        error: error instanceof Error ? error.message : String(error),
+        timestamp: new Date().toISOString()
+      })
       return null
     }
   })
@@ -163,6 +171,16 @@ export async function loadTextures(
   }
   
   return textureMap
+}
+
+/**
+ * 将 .bntx 扩展名转换为 .png
+ * 
+ * @param filename - 原始文件名
+ * @returns 转换后的文件名
+ */
+function convertBntxToPng(filename: string): string {
+  return filename.replace(/\.bntx$/i, '.png')
 }
 
 /**
@@ -186,12 +204,15 @@ export function extractTextureReferences(material: TRMTRMaterial): TextureRefere
     const textureName = texture.textureName() || ''
     const textureSlot = texture.textureSlot()
     
+    // 将 .bntx 扩展名转换为 .png
+    const pngFilename = convertBntxToPng(textureFile)
+    
     // 根据文件名确定纹理类型
-    const textureType = getTextureType(textureFile)
+    const textureType = getTextureType(pngFilename)
     
     references.push({
       type: textureType,
-      filename: textureFile,
+      filename: pngFilename,
       name: textureName,
       slot: textureSlot
     })
@@ -254,7 +275,11 @@ export async function createMaterial(
   
   // 如果没有纹理引用，返回默认材质
   if (textureRefs.length === 0) {
-    console.warn(`Material "${material.name()}" has no textures, using default material`)
+    // @validates 需求 8.5: 发生错误时在控制台记录详细错误信息用于调试
+    console.warn('[TextureLoader] 材质没有纹理引用，使用默认材质:', {
+      materialName: material.name(),
+      timestamp: new Date().toISOString()
+    })
     return createDefaultMaterial(mergedOptions)
   }
   
@@ -262,8 +287,14 @@ export async function createMaterial(
   const textureMap = await loadTextures(textureRefs, basePath)
   
   // 如果所有纹理都加载失败，返回默认材质
+  // @validates 需求 8.3: 纹理加载失败时继续渲染模型但使用默认材质
   if (textureMap.size === 0) {
-    console.warn(`All textures failed to load for material "${material.name()}", using default material`)
+    console.warn('[TextureLoader] 所有纹理加载失败，使用默认材质:', {
+      materialName: material.name(),
+      textureCount: textureRefs.length,
+      basePath,
+      timestamp: new Date().toISOString()
+    })
     return createDefaultMaterial(mergedOptions)
   }
   
@@ -388,7 +419,13 @@ export async function createAllMaterials(
       const threeMaterial = await createMaterial(material, basePath, options)
       materials.push(threeMaterial)
     } catch (error) {
-      console.warn(`Failed to create material at index ${i}:`, error)
+      // @validates 需求 8.3: 纹理加载失败时继续渲染模型但使用默认材质
+      // @validates 需求 8.5: 发生错误时在控制台记录详细错误信息用于调试
+      console.warn('[TextureLoader] 材质创建失败，使用默认材质:', {
+        materialIndex: i,
+        error: error instanceof Error ? error.message : String(error),
+        timestamp: new Date().toISOString()
+      })
       materials.push(createDefaultMaterial(options))
     }
   }

@@ -3,10 +3,9 @@
  * 
  * 封装 Three.js 场景的初始化和管理逻辑
  * 
- * Requirements: 2.1, 2.5, 4.3, 4.4, 3.1, 3.2, 3.3, 3.4, 3.5
+ * 功能：
  * - 初始化 Scene、Camera、Renderer
- * - 配置 renderer antialias
- * - 设置场景背景颜色
+ * - 创建 World 对象（参考平面网格 + 坐标轴）
  * - 集成 OrbitControls 实现摄像机控制
  * - 响应窗口调整，更新 canvas 尺寸和摄像机宽高比
  */
@@ -35,12 +34,14 @@ export interface UseThreeSceneReturn {
   getCamera: () => THREE.PerspectiveCamera | null
   /** 获取控制器对象 */
   getControls: () => OrbitControls | null
+  /** 获取 World 对象 */
+  getWorld: () => THREE.Group | null
   /** 添加对象到场景 */
   addToScene: (object: THREE.Object3D) => void
   /** 从场景移除对象 */
   removeFromScene: (object: THREE.Object3D) => void
-  /** 移除测试立方体和网格辅助线 */
-  removeTestObjects: () => void
+  /** 设置 World 可见性 */
+  setWorldVisible: (visible: boolean) => void
 }
 
 /**
@@ -51,15 +52,14 @@ interface SceneState {
   camera: THREE.PerspectiveCamera | null
   renderer: THREE.WebGLRenderer | null
   controls: OrbitControls | null
-  cube: THREE.Mesh | null
-  gridHelper: THREE.GridHelper | null
+  world: THREE.Group | null
   ambientLight: THREE.AmbientLight | null
   directionalLight: THREE.DirectionalLight | null
   animationId: number | null
 }
 
 /**
- * 配置常量（来自设计文档）
+ * 配置常量
  */
 const CONFIG = {
   // 场景配置
@@ -68,47 +68,48 @@ const CONFIG = {
   },
   // 摄像机配置
   camera: {
-    fov: 75,
-    near: 0.1,
-    far: 1000,
-    position: { x: 0, y: 0, z: 5 }
+    fov: 45,
+    near: 0.01,
+    far: 100,
+    position: { x: 2, y: 1.5, z: 3 }
   },
   // 渲染器配置
   renderer: {
     antialias: true
   },
   // 控制器配置
-  // Requirements: 3.1, 3.2, 3.3, 3.4, 3.5
   controls: {
-    enableDamping: true,      // 启用阻尼，默认 true
-    dampingFactor: 0.05,      // 阻尼系数，默认 0.05
-    minDistance: 2,           // 最小距离，默认 2
-    maxDistance: 20,          // 最大距离，默认 20
-    enablePan: true           // 启用平移，默认 true
+    enableDamping: true,
+    dampingFactor: 0.05,
+    minDistance: 0.5,
+    maxDistance: 50,
+    enablePan: true,
+    target: { x: 0, y: 0.5, z: 0 }  // 默认看向模型中心偏上
   },
-  // 立方体配置
-  cube: {
-    size: 1,
-    color: 0x00d4ff
-  },
-  // 网格辅助线配置
-  grid: {
-    size: 10,           // 网格大小
-    divisions: 10,      // 网格分割数
-    colorCenterLine: 0x444444,  // 中心线颜色
-    colorGrid: 0x333333         // 网格线颜色
+  // World 配置
+  world: {
+    // 网格平面配置
+    grid: {
+      size: 4,
+      divisions: 20,
+      colorCenterLine: 0x444444,
+      colorGrid: 0x333333
+    },
+    // 坐标轴配置
+    axes: {
+      size: 1
+    }
   },
   // 光照配置
-  // Requirements: 4.1 - 场景应有适当的光照来照亮立方体
   lighting: {
     ambient: {
       color: 0xffffff,
-      intensity: 0.5
+      intensity: 0.6
     },
     directional: {
       color: 0xffffff,
-      intensity: 1,
-      position: { x: 5, y: 5, z: 5 }
+      intensity: 0.8,
+      position: { x: 5, y: 10, z: 7 }
     }
   }
 } as const
@@ -117,7 +118,7 @@ const CONFIG = {
  * Three.js 场景管理 composable
  * 
  * @param options - 配置选项，包含容器元素引用
- * @returns init 和 dispose 方法
+ * @returns 场景管理方法
  */
 export function useThreeScene(options: UseThreeSceneOptions): UseThreeSceneReturn {
   const { container } = options
@@ -128,26 +129,57 @@ export function useThreeScene(options: UseThreeSceneOptions): UseThreeSceneRetur
     camera: null,
     renderer: null,
     controls: null,
-    cube: null,
-    gridHelper: null,
+    world: null,
     ambientLight: null,
     directionalLight: null,
     animationId: null
   }
 
   /**
+   * 创建 World 对象
+   * 包含参考平面网格和坐标轴
+   */
+  function createWorld(): THREE.Group {
+    const world = new THREE.Group()
+    world.name = 'World'
+
+    // 创建网格平面
+    const gridHelper = new THREE.GridHelper(
+      CONFIG.world.grid.size,
+      CONFIG.world.grid.divisions,
+      CONFIG.world.grid.colorCenterLine,
+      CONFIG.world.grid.colorGrid
+    )
+    gridHelper.name = 'GridHelper'
+    world.add(gridHelper)
+
+    // 创建坐标轴（禁用深度测试避免 Z-fighting 闪烁）
+    const axesHelper = new THREE.AxesHelper(CONFIG.world.axes.size)
+    axesHelper.name = 'AxesHelper'
+    // 设置渲染顺序，确保坐标轴在网格之上
+    axesHelper.renderOrder = 1
+    // 禁用深度测试，彻底解决 Z-fighting 问题
+    axesHelper.traverse((child) => {
+      if (child instanceof THREE.Line) {
+        const material = child.material as THREE.LineBasicMaterial
+        material.depthTest = false
+      }
+    })
+    world.add(axesHelper)
+
+    return world
+  }
+
+  /**
    * 初始化 Three.js 场景
    */
   function init(): void {
-    // 检查容器是否存在
     if (!container.value) {
       console.warn('useThreeScene: 容器元素不存在，无法初始化场景')
       return
     }
 
     const containerElement = container.value
-
-    // 获取容器尺寸
     const width = containerElement.clientWidth
     const height = containerElement.clientHeight
 
@@ -175,46 +207,19 @@ export function useThreeScene(options: UseThreeSceneOptions): UseThreeSceneRetur
     })
     state.renderer.setSize(width, height)
     state.renderer.setPixelRatio(window.devicePixelRatio)
-
-    // 将 canvas 添加到容器
     containerElement.appendChild(state.renderer.domElement)
 
-    // 4. 创建立方体
-    // Requirements: 2.2, 2.3, 4.2
-    // - 创建 BoxGeometry
-    // - 创建支持光照的材质 (MeshStandardMaterial)
-    // - 将 Mesh 添加到场景
-    const geometry = new THREE.BoxGeometry(
-      CONFIG.cube.size,
-      CONFIG.cube.size,
-      CONFIG.cube.size
-    )
-    const material = new THREE.MeshStandardMaterial({
-      color: CONFIG.cube.color
-    })
-    state.cube = new THREE.Mesh(geometry, material)
-    state.scene.add(state.cube)
-
-    // 4.5 添加网格辅助线
-    // 帮助显示模型空间和方向
-    state.gridHelper = new THREE.GridHelper(
-      CONFIG.grid.size,
-      CONFIG.grid.divisions,
-      CONFIG.grid.colorCenterLine,
-      CONFIG.grid.colorGrid
-    )
-    state.scene.add(state.gridHelper)
+    // 4. 创建 World 对象（网格 + 坐标轴）
+    state.world = createWorld()
+    state.scene.add(state.world)
 
     // 5. 添加光照系统
-    // Requirements: 4.1 - 场景应有适当的光照来照亮立方体
-    // 环境光 - 提供基础的均匀照明，使立方体各面都有基本亮度
     state.ambientLight = new THREE.AmbientLight(
       CONFIG.lighting.ambient.color,
       CONFIG.lighting.ambient.intensity
     )
     state.scene.add(state.ambientLight)
 
-    // 方向光 - 提供定向照明，使立方体有明暗面，增强立体感
     state.directionalLight = new THREE.DirectionalLight(
       CONFIG.lighting.directional.color,
       CONFIG.lighting.directional.intensity
@@ -227,31 +232,23 @@ export function useThreeScene(options: UseThreeSceneOptions): UseThreeSceneRetur
     state.scene.add(state.directionalLight)
 
     // 6. 初始化 OrbitControls
-    // Requirements: 3.1, 3.2, 3.3, 3.4, 3.5
-    // - 左键拖拽旋转摄像机
-    // - 滚轮缩放
-    // - 右键拖拽平移
-    // - 平滑阻尼效果
-    // - 缩放范围限制
     state.controls = new OrbitControls(state.camera, state.renderer.domElement)
-    
-    // 配置阻尼效果 (Requirements: 3.4)
     state.controls.enableDamping = CONFIG.controls.enableDamping
     state.controls.dampingFactor = CONFIG.controls.dampingFactor
-    
-    // 配置缩放范围限制 (Requirements: 3.5)
     state.controls.minDistance = CONFIG.controls.minDistance
     state.controls.maxDistance = CONFIG.controls.maxDistance
-    
-    // 配置平移 (Requirements: 3.3)
     state.controls.enablePan = CONFIG.controls.enablePan
+    state.controls.target.set(
+      CONFIG.controls.target.x,
+      CONFIG.controls.target.y,
+      CONFIG.controls.target.z
+    )
+    state.controls.update()
 
     // 7. 添加窗口调整事件监听器
-    // Requirements: 2.5 - 当浏览器窗口调整大小时，渲染器应调整 canvas 尺寸和摄像机宽高比
     window.addEventListener('resize', handleResize)
 
     // 8. 启动渲染循环
-    // Requirements: 2.4 - 渲染器应以浏览器刷新率持续渲染场景
     animate()
 
     console.log('useThreeScene: 场景初始化完成')
@@ -259,42 +256,30 @@ export function useThreeScene(options: UseThreeSceneOptions): UseThreeSceneRetur
 
   /**
    * 处理窗口调整事件
-   * Requirements: 2.5 - 当浏览器窗口调整大小时，渲染器应调整 canvas 尺寸和摄像机宽高比
    */
   function handleResize(): void {
-    // 检查容器和必要对象是否存在
     if (!container.value || !state.camera || !state.renderer) {
       return
     }
 
-    // 获取容器的新尺寸
     const width = container.value.clientWidth
     const height = container.value.clientHeight
 
-    // 更新摄像机宽高比
     state.camera.aspect = width / height
-    // 更新摄像机投影矩阵（宽高比改变后必须调用）
     state.camera.updateProjectionMatrix()
-
-    // 更新渲染器尺寸
     state.renderer.setSize(width, height)
   }
 
   /**
    * 渲染循环
-   * 使用 requestAnimationFrame 实现持续渲染
-   * Requirements: 2.4, 3.4
    */
   function animate(): void {
     state.animationId = requestAnimationFrame(animate)
     
-    // 更新控制器（阻尼效果需要在每帧调用）
-    // Requirements: 3.4 - 平滑阻尼效果
     if (state.controls) {
       state.controls.update()
     }
     
-    // 渲染场景
     if (state.renderer && state.scene && state.camera) {
       state.renderer.render(state.scene, state.camera)
     }
@@ -304,37 +289,27 @@ export function useThreeScene(options: UseThreeSceneOptions): UseThreeSceneRetur
    * 清理 Three.js 资源
    */
   function dispose(): void {
-    // 1. 首先取消动画循环
-    // Requirements: 2.4 - 组件卸载时清理资源
     if (state.animationId !== null) {
       cancelAnimationFrame(state.animationId)
       state.animationId = null
     }
 
-    // 2. 移除窗口调整事件监听器
-    // Requirements: 2.5 - 组件卸载时移除监听器
     window.removeEventListener('resize', handleResize)
 
-    // 3. 销毁 OrbitControls
-    // Requirements: 3.1-3.5 - 清理控制器资源
     if (state.controls) {
       state.controls.dispose()
       state.controls = null
     }
 
-    // 4. 清理渲染器
     if (state.renderer) {
       state.renderer.dispose()
-      // 从 DOM 中移除 canvas
       if (state.renderer.domElement.parentElement) {
         state.renderer.domElement.parentElement.removeChild(state.renderer.domElement)
       }
       state.renderer = null
     }
 
-    // 5. 清理场景
     if (state.scene) {
-      // 遍历并清理场景中的所有对象
       state.scene.traverse((object) => {
         if (object instanceof THREE.Mesh) {
           object.geometry.dispose()
@@ -348,47 +323,30 @@ export function useThreeScene(options: UseThreeSceneOptions): UseThreeSceneRetur
       state.scene = null
     }
 
-    // 6. 清理摄像机引用
     state.camera = null
-
-    // 清理光照引用
+    state.world = null
     state.ambientLight = null
     state.directionalLight = null
-
-    // 清理网格辅助线引用
-    state.gridHelper = null
 
     console.log('useThreeScene: 资源已清理')
   }
 
-  /**
-   * 获取场景对象
-   * @returns Three.js 场景对象或 null
-   */
   function getScene(): THREE.Scene | null {
     return state.scene
   }
 
-  /**
-   * 获取摄像机对象
-   * @returns Three.js 透视摄像机对象或 null
-   */
   function getCamera(): THREE.PerspectiveCamera | null {
     return state.camera
   }
 
-  /**
-   * 获取控制器对象
-   * @returns OrbitControls 对象或 null
-   */
   function getControls(): OrbitControls | null {
     return state.controls
   }
 
-  /**
-   * 添加对象到场景
-   * @param object - 要添加的 Three.js 对象
-   */
+  function getWorld(): THREE.Group | null {
+    return state.world
+  }
+
   function addToScene(object: THREE.Object3D): void {
     if (state.scene) {
       state.scene.add(object)
@@ -397,10 +355,6 @@ export function useThreeScene(options: UseThreeSceneOptions): UseThreeSceneRetur
     }
   }
 
-  /**
-   * 从场景移除对象
-   * @param object - 要移除的 Three.js 对象
-   */
   function removeFromScene(object: THREE.Object3D): void {
     if (state.scene) {
       state.scene.remove(object)
@@ -408,27 +362,11 @@ export function useThreeScene(options: UseThreeSceneOptions): UseThreeSceneRetur
   }
 
   /**
-   * 移除测试立方体和网格辅助线
-   * 用于在加载真实模型时清理测试对象
+   * 设置 World 可见性
    */
-  function removeTestObjects(): void {
-    if (state.scene) {
-      // 移除测试立方体
-      if (state.cube) {
-        state.scene.remove(state.cube)
-        state.cube.geometry.dispose()
-        if (state.cube.material instanceof THREE.Material) {
-          state.cube.material.dispose()
-        }
-        state.cube = null
-      }
-      
-      // 移除网格辅助线
-      if (state.gridHelper) {
-        state.scene.remove(state.gridHelper)
-        state.gridHelper.dispose()
-        state.gridHelper = null
-      }
+  function setWorldVisible(visible: boolean): void {
+    if (state.world) {
+      state.world.visible = visible
     }
   }
 
@@ -438,8 +376,9 @@ export function useThreeScene(options: UseThreeSceneOptions): UseThreeSceneRetur
     getScene,
     getCamera,
     getControls,
+    getWorld,
     addToScene,
     removeFromScene,
-    removeTestObjects
+    setWorldVisible
   }
 }
