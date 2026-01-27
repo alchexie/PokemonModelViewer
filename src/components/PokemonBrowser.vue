@@ -17,7 +17,7 @@
  * @validates 需求 8.4: 网络请求失败时显示重试选项
  * @validates 需求 8.5: 发生错误时在控制台记录详细错误信息用于调试
  */
-import { ref, computed, onMounted, watch } from 'vue'
+import { ref, onMounted, watch } from 'vue'
 import { usePokemonList, type PokemonEntry, type FormEntry } from '../composables/usePokemonList'
 import ErrorDisplay from './ErrorDisplay.vue'
 
@@ -29,17 +29,11 @@ interface Props {
   selectedPokemon?: string | null
   /** 当前选中的形态 ID */
   selectedForm?: string | null
-  /** 模型加载进度 (0-100) */
-  loadingProgress?: number
-  /** 是否正在加载模型 */
-  isModelLoading?: boolean
 }
 
 const props = withDefaults(defineProps<Props>(), {
   selectedPokemon: null,
-  selectedForm: null,
-  loadingProgress: 0,
-  isModelLoading: false
+  selectedForm: null
 })
 
 /**
@@ -53,6 +47,9 @@ const emit = defineEmits<{
 // 使用宝可梦列表 composable
 const { pokemons, loading, error, loadPokemonList } = usePokemonList()
 
+// 宝可梦名字映射
+const pokemonNames = ref<Record<string, string>>({})
+
 // 当前选中的宝可梦（用于显示形态选择器）
 const currentPokemon = ref<PokemonEntry | null>(null)
 
@@ -60,29 +57,13 @@ const currentPokemon = ref<PokemonEntry | null>(null)
 const currentFormId = ref<string | null>(null)
 
 /**
- * 获取当前宝可梦的形态列表
- */
-const currentForms = computed<FormEntry[]>(() => {
-  if (!currentPokemon.value) return []
-  return currentPokemon.value.forms
-})
-
-/**
- * 是否显示形态选择器
- * 只有当宝可梦有多个形态时才显示
- * @validates 需求 6.4: 宝可梦有多个形态时显示形态选择器
- */
-const showFormSelector = computed<boolean>(() => {
-  return currentForms.value.length > 1
-})
-
-/**
- * 格式化宝可梦编号显示
+ * 获取宝可梦名字
  * @param number - 图鉴编号
- * @returns 格式化后的编号字符串，如 "#0001"
+ * @returns 宝可梦名字
  */
-function formatPokemonNumber(number: number): string {
-  return `#${number.toString().padStart(4, '0')}`
+function getPokemonName(number: number): string {
+  const name = pokemonNames.value[number.toString()]
+  return name || `宝可梦 ${number}`
 }
 
 /**
@@ -114,19 +95,63 @@ function handlePokemonClick(pokemon: PokemonEntry): void {
 }
 
 /**
- * 处理形态选择变化
+ * 处理形态选择变化（针对每个条目的选择器）
  * @param event - 选择事件
+ * @param pokemon - 对应的宝可梦
  * @validates 需求 6.5: 用户选择不同形态时切换显示对应形态的模型
  */
-function handleFormChange(event: Event): void {
+function handleFormChangeForItem(event: Event, pokemon: PokemonEntry): void {
   const target = event.target as HTMLSelectElement
   const formId = target.value
   
-  if (formId && currentPokemon.value) {
+  if (formId) {
+    currentPokemon.value = pokemon
     currentFormId.value = formId
-    emit('select', currentPokemon.value.id, formId)
+    emit('select', pokemon.id, formId)
   }
 }
+
+/**
+ * 加载宝可梦名字数据
+ */
+async function loadPokemonNames(): Promise<void> {
+  try {
+    const response = await fetch('/pokemon/names.json')
+    if (!response.ok) {
+      throw new Error(`加载宝可梦名字失败: HTTP ${response.status}`)
+    }
+    const data = await response.json()
+    pokemonNames.value = data.names
+    console.log('[PokemonBrowser] 宝可梦名字加载成功')
+  } catch (err) {
+    console.error('[PokemonBrowser] 宝可梦名字加载失败:', err)
+    // 使用默认名字作为后备
+    pokemonNames.value = {
+      '1': '妙蛙种子',
+      '2': '妙蛙草',
+      '3': '妙蛙花',
+      '4': '小火龙',
+      '5': '火恐龙',
+      '6': '喷火龙'
+    }
+  }
+}
+
+// 监听 props 变化，同步内部状态
+watch(() => props.selectedPokemon, (newPokemonId) => {
+  if (newPokemonId) {
+    const pokemon = pokemons.value.find(p => p.id === newPokemonId)
+    if (pokemon) {
+      currentPokemon.value = pokemon
+    }
+  }
+}, { immediate: true })
+
+watch(() => props.selectedForm, (newFormId) => {
+  if (newFormId) {
+    currentFormId.value = newFormId
+  }
+}, { immediate: true })
 
 /**
  * 处理重试按钮点击
@@ -134,13 +159,16 @@ function handleFormChange(event: Event): void {
  * @validates 需求 8.5: 发生错误时在控制台记录详细错误信息用于调试
  */
 async function handleRetry(): Promise<void> {
-  console.log('[PokemonBrowser] 用户点击重试，重新加载宝可梦列表')
+  console.log('[PokemonBrowser] 用户点击重试，重新加载数据')
   try {
-    await loadPokemonList()
-    console.log('[PokemonBrowser] 宝可梦列表重新加载成功')
+    await Promise.all([
+      loadPokemonList(),
+      loadPokemonNames()
+    ])
+    console.log('[PokemonBrowser] 数据重新加载成功')
   } catch (err) {
     // @validates 需求 8.5: 在控制台记录详细错误信息用于调试
-    console.error('[PokemonBrowser] 宝可梦列表重新加载失败:', {
+    console.error('[PokemonBrowser] 数据重新加载失败:', {
       error: err,
       errorMessage: err instanceof Error ? err.message : String(err),
       errorStack: err instanceof Error ? err.stack : undefined,
@@ -168,31 +196,18 @@ function handleThumbnailError(event: Event): void {
   img.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="96" height="96" viewBox="0 0 96 96"><rect fill="%23333" width="96" height="96"/><text fill="%23666" font-size="12" x="50%" y="50%" text-anchor="middle" dy=".3em">?</text></svg>'
 }
 
-// 监听 props 变化，同步内部状态
-watch(() => props.selectedPokemon, (newPokemonId) => {
-  if (newPokemonId) {
-    const pokemon = pokemons.value.find(p => p.id === newPokemonId)
-    if (pokemon) {
-      currentPokemon.value = pokemon
-    }
-  }
-}, { immediate: true })
-
-watch(() => props.selectedForm, (newFormId) => {
-  if (newFormId) {
-    currentFormId.value = newFormId
-  }
-}, { immediate: true })
-
-// 组件挂载时加载宝可梦列表
+// 组件挂载时加载宝可梦列表和名字数据
 onMounted(async () => {
-  console.log('[PokemonBrowser] 组件已挂载，开始加载宝可梦列表')
+  console.log('[PokemonBrowser] 组件已挂载，开始加载数据')
   try {
-    await loadPokemonList()
-    console.log(`[PokemonBrowser] 宝可梦列表加载成功，共 ${pokemons.value.length} 个宝可梦`)
+    await Promise.all([
+      loadPokemonList(),
+      loadPokemonNames()
+    ])
+    console.log(`[PokemonBrowser] 数据加载成功，共 ${pokemons.value.length} 个宝可梦`)
   } catch (err) {
     // @validates 需求 8.5: 在控制台记录详细错误信息用于调试
-    console.error('[PokemonBrowser] 宝可梦列表加载失败:', {
+    console.error('[PokemonBrowser] 数据加载失败:', {
       error: err,
       errorMessage: err instanceof Error ? err.message : String(err),
       errorStack: err instanceof Error ? err.stack : undefined,
@@ -207,36 +222,6 @@ onMounted(async () => {
     <!-- 头部区域 -->
     <div class="browser-header">
       <h2 class="browser-title">宝可梦图鉴</h2>
-      
-      <!-- 形态选择器 -->
-      <div v-if="showFormSelector" class="form-selector">
-        <label for="form-select" class="form-label">形态:</label>
-        <select
-          id="form-select"
-          :value="currentFormId"
-          class="form-select"
-          @change="handleFormChange"
-        >
-          <option
-            v-for="form in currentForms"
-            :key="form.id"
-            :value="form.id"
-          >
-            {{ formatFormName(form) }}
-          </option>
-        </select>
-      </div>
-    </div>
-    
-    <!-- 加载进度指示器 -->
-    <div v-if="isModelLoading" class="loading-indicator">
-      <div class="loading-bar">
-        <div 
-          class="loading-progress" 
-          :style="{ width: `${loadingProgress}%` }"
-        ></div>
-      </div>
-      <span class="loading-text">加载中... {{ loadingProgress }}%</span>
     </div>
     
     <!-- 列表加载状态 -->
@@ -255,17 +240,17 @@ onMounted(async () => {
       />
     </div>
     
-    <!-- 宝可梦网格列表 -->
-    <div v-else class="pokemon-grid">
+    <!-- 宝可梦列表 -->
+    <div v-else class="pokemon-list">
       <div
         v-for="pokemon in pokemons"
         :key="pokemon.id"
-        class="pokemon-card"
+        class="pokemon-item"
         :class="{ 'selected': pokemon.id === currentPokemon?.id }"
         @click="handlePokemonClick(pokemon)"
       >
-        <!-- 缩略图 -->
-        <div class="pokemon-thumbnail">
+        <!-- 左侧图标 -->
+        <div class="pokemon-icon">
           <img
             :src="pokemon.thumbnail"
             :alt="`Pokemon ${pokemon.number}`"
@@ -274,14 +259,27 @@ onMounted(async () => {
           />
         </div>
         
-        <!-- 编号 -->
-        <div class="pokemon-number">
-          {{ formatPokemonNumber(pokemon.number) }}
+        <!-- 中间名字 -->
+        <div class="pokemon-name">
+          {{ getPokemonName(pokemon.number) }}
         </div>
         
-        <!-- 形态数量标记 -->
-        <div v-if="pokemon.forms.length > 1" class="form-badge">
-          {{ pokemon.forms.length }}
+        <!-- 右侧形态选择器 -->
+        <div v-if="pokemon.forms.length > 1" class="pokemon-form-selector">
+          <select
+            :value="currentPokemon?.id === pokemon.id ? currentFormId : pokemon.forms[0].id"
+            class="form-select"
+            @change="handleFormChangeForItem($event, pokemon)"
+            @click.stop
+          >
+            <option
+              v-for="form in pokemon.forms"
+              :key="form.id"
+              :value="form.id"
+            >
+              {{ formatFormName(form) }}
+            </option>
+          </select>
         </div>
       </div>
     </div>
@@ -345,34 +343,6 @@ onMounted(async () => {
   border-color: #e94560;
 }
 
-/* 加载进度指示器 */
-.loading-indicator {
-  padding: 12px 16px;
-  background-color: #16213e;
-  border-bottom: 1px solid #0f3460;
-  flex-shrink: 0;
-}
-
-.loading-bar {
-  height: 4px;
-  background-color: #0f3460;
-  border-radius: 2px;
-  overflow: hidden;
-  margin-bottom: 8px;
-}
-
-.loading-progress {
-  height: 100%;
-  background: linear-gradient(90deg, #e94560, #ff6b6b);
-  border-radius: 2px;
-  transition: width 0.3s ease;
-}
-
-.loading-text {
-  font-size: 0.75rem;
-  color: #a0a0a0;
-}
-
 /* 列表加载状态 */
 .list-loading {
   display: flex;
@@ -408,23 +378,21 @@ onMounted(async () => {
   padding: 16px;
 }
 
-/* 宝可梦网格列表 */
-.pokemon-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-  gap: 12px;
+/* 宝可梦列表 */
+.pokemon-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
   padding: 16px;
   overflow-y: auto;
   flex: 1;
 }
 
-/* 宝可梦卡片 */
-.pokemon-card {
-  position: relative;
+/* 宝可梦条目 */
+.pokemon-item {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  padding: 12px 8px;
+  padding: 12px;
   background-color: #16213e;
   border: 2px solid transparent;
   border-radius: 8px;
@@ -432,77 +400,85 @@ onMounted(async () => {
   transition: all 0.2s ease;
 }
 
-.pokemon-card:hover {
+.pokemon-item:hover {
   background-color: #1f2b4a;
   border-color: #0f3460;
-  transform: translateY(-2px);
+  transform: translateY(-1px);
 }
 
-.pokemon-card.selected {
+.pokemon-item.selected {
   background-color: #0f3460;
   border-color: #e94560;
 }
 
-/* 缩略图 */
-.pokemon-thumbnail {
-  width: 72px;
-  height: 72px;
+/* 左侧图标 */
+.pokemon-icon {
+  width: 48px;
+  height: 48px;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 8px;
+  margin-right: 12px;
+  flex-shrink: 0;
 }
 
-.pokemon-thumbnail img {
+.pokemon-icon img {
   max-width: 100%;
   max-height: 100%;
   object-fit: contain;
   image-rendering: pixelated;
 }
 
-/* 编号 */
-.pokemon-number {
-  font-size: 0.75rem;
+/* 中间名字 */
+.pokemon-name {
+  flex: 1;
+  font-size: 1rem;
   font-weight: 500;
-  color: #a0a0a0;
-}
-
-.pokemon-card.selected .pokemon-number {
   color: #fff;
 }
 
-/* 形态数量标记 */
-.form-badge {
-  position: absolute;
-  top: 4px;
-  right: 4px;
-  min-width: 18px;
-  height: 18px;
-  padding: 0 4px;
-  font-size: 0.625rem;
-  font-weight: 600;
-  line-height: 18px;
-  text-align: center;
-  background-color: #e94560;
+.pokemon-item.selected .pokemon-name {
+  color: #e94560;
+}
+
+/* 右侧形态选择器 */
+.pokemon-form-selector {
+  margin-left: 12px;
+  flex-shrink: 0;
+}
+
+.pokemon-form-selector .form-select {
+  padding: 4px 8px;
+  font-size: 0.75rem;
+  background-color: #0f3460;
   color: #fff;
-  border-radius: 9px;
+  border: 1px solid #1a1a2e;
+  border-radius: 4px;
+  cursor: pointer;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.pokemon-form-selector .form-select:hover,
+.pokemon-form-selector .form-select:focus {
+  border-color: #e94560;
 }
 
 /* 滚动条样式 */
-.pokemon-grid::-webkit-scrollbar {
+.pokemon-list::-webkit-scrollbar {
   width: 8px;
 }
 
-.pokemon-grid::-webkit-scrollbar-track {
+.pokemon-list::-webkit-scrollbar-track {
   background: #16213e;
 }
 
-.pokemon-grid::-webkit-scrollbar-thumb {
+.pokemon-list::-webkit-scrollbar-thumb {
   background: #0f3460;
   border-radius: 4px;
 }
 
-.pokemon-grid::-webkit-scrollbar-thumb:hover {
+.pokemon-list::-webkit-scrollbar-thumb:hover {
   background: #1a4a7a;
 }
 </style>

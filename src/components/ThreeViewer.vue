@@ -17,6 +17,7 @@
  * @validates 需求 8.5: 发生错误时在控制台记录详细错误信息用于调试
  */
 import { ref, watch, onMounted, onUnmounted, computed } from 'vue'
+import * as THREE from 'three'
 import { useThreeScene } from '../composables/useThreeScene'
 import { useModelLoader } from '../composables/useModelLoader'
 import { fitCameraToModel } from '../utils/cameraUtils'
@@ -52,7 +53,11 @@ const {
   getCamera, 
   getControls,
   addToScene, 
-  removeFromScene
+  removeFromScene,
+  setVertexNormalsVisible,
+  setWireframeMode,
+  handleMouseClick,
+  highlightSelectedTriangle
 } = useThreeScene({
   container: containerRef
 })
@@ -71,6 +76,23 @@ const {
 
 // 场景是否已初始化
 const sceneInitialized = ref(false)
+
+// 是否显示顶点法线
+const showVertexNormals = ref(false)
+
+// 是否显示网格线框
+const showWireframe = ref(false)
+
+// 选中的三角形信息
+const selectedTriangle = ref<{
+  mesh: THREE.Mesh | null
+  faceIndex: number | null
+  vertices: Array<{
+    position: THREE.Vector3
+    normal: THREE.Vector3
+    uv?: THREE.Vector2
+  }> | null
+} | null>(null)
 
 // 计算属性：是否有有效的模型路径
 const hasValidModelPath = computed(() => {
@@ -120,6 +142,12 @@ async function loadAndDisplayModel(pokemonId: string, formId: string): Promise<v
       // 触发模型加载完成事件
       emit('model-loaded', formId)
       console.log(`[ThreeViewer] 模型加载完成: ${formId}`)
+
+      // 根据当前设置显示顶点法线用于调试
+      setVertexNormalsVisible(showVertexNormals.value, currentModel.value || undefined)
+
+      // 根据当前设置应用线框模式
+      setWireframeMode(showWireframe.value, currentModel.value || undefined)
     }
   } catch (err) {
     // @validates 需求 8.5: 在控制台记录详细错误信息用于调试
@@ -177,11 +205,27 @@ watch(error, (newError) => {
   emit('error', newError)
 })
 
+// 监听法线显示状态变化
+watch(showVertexNormals, (newShow) => {
+  setVertexNormalsVisible(newShow, currentModel.value || undefined)
+})
+
+// 监听网格线框显示状态变化
+watch(showWireframe, (newShow) => {
+  setWireframeMode(newShow, currentModel.value || undefined)
+})
+
 onMounted(() => {
   // 初始化 Three.js 场景
   init()
   sceneInitialized.value = true
   console.log('[ThreeViewer] 组件已挂载，场景已初始化')
+
+  // 添加鼠标点击事件监听器
+  const container = containerRef.value
+  if (container) {
+    container.addEventListener('click', handleContainerClick)
+  }
 
   // 如果已有有效的模型路径，立即加载
   if (hasValidModelPath.value && props.pokemonId && props.formId) {
@@ -189,7 +233,38 @@ onMounted(() => {
   }
 })
 
+/**
+ * 处理容器点击事件
+ */
+function handleContainerClick(event: MouseEvent): void {
+  if (!currentModel.value) {
+    return
+  }
+
+  const result = handleMouseClick(event, currentModel.value)
+  if (result) {
+    selectedTriangle.value = {
+      mesh: result.mesh,
+      faceIndex: result.faceIndex!,
+      vertices: result.vertices!
+    }
+    // 高亮显示选中的三角形
+    highlightSelectedTriangle(result.mesh, result.faceIndex)
+    console.log('[ThreeViewer] 选中三角形:', selectedTriangle.value)
+  } else {
+    selectedTriangle.value = null
+    // 清除高亮
+    highlightSelectedTriangle(null, null)
+  }
+}
+
 onUnmounted(() => {
+  // 移除鼠标点击事件监听器
+  const container = containerRef.value
+  if (container) {
+    container.removeEventListener('click', handleContainerClick)
+  }
+
   // 清理模型资源
   disposeModel()
   // 清理 Three.js 资源
@@ -222,6 +297,49 @@ defineExpose({
 <template>
   <div ref="containerRef" class="three-viewer-container">
     <!-- Three.js 将在此容器中创建 canvas 元素 -->
+    
+    <!-- 控制面板 -->
+    <div class="control-panel">
+      <label class="control-item">
+        <input 
+          type="checkbox" 
+          v-model="showVertexNormals"
+          class="control-checkbox"
+        />
+        <span class="control-label">显示顶点法线</span>
+      </label>
+      <label class="control-item">
+        <input 
+          type="checkbox" 
+          v-model="showWireframe"
+          class="control-checkbox"
+        />
+        <span class="control-label">显示网格线框</span>
+      </label>
+    </div>
+    
+    <!-- 三角形信息面板 -->
+    <div v-if="selectedTriangle" class="triangle-info-panel">
+      <h4 class="triangle-info-title">选中三角形信息</h4>
+      <div class="triangle-info-content">
+        <div class="triangle-info-item">
+          <strong>Mesh:</strong> {{ selectedTriangle.mesh?.name || 'Unnamed' }}
+        </div>
+        <div class="triangle-info-item">
+          <strong>Face Index:</strong> {{ selectedTriangle.faceIndex }}
+        </div>
+        <div class="triangle-vertices">
+          <div class="vertex-info" v-for="(vertex, index) in selectedTriangle.vertices" :key="index">
+            <h5>顶点 {{ index + 1 }}</h5>
+            <div class="vertex-detail">
+              <div><strong>位置:</strong> ({{ vertex.position.x.toFixed(3) }}, {{ vertex.position.y.toFixed(3) }}, {{ vertex.position.z.toFixed(3) }})</div>
+              <div><strong>法线:</strong> ({{ vertex.normal.x.toFixed(3) }}, {{ vertex.normal.y.toFixed(3) }}, {{ vertex.normal.z.toFixed(3) }})</div>
+              <div v-if="vertex.uv"><strong>UV:</strong> ({{ vertex.uv.x.toFixed(3) }}, {{ vertex.uv.y.toFixed(3) }})</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
     
     <!-- 加载进度指示器 -->
     <div v-if="loading" class="loading-overlay">
@@ -262,6 +380,94 @@ defineExpose({
   display: block;
   width: 100%;
   height: 100%;
+}
+
+/* 控制面板 */
+.control-panel {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background-color: rgba(0, 0, 0, 0.7);
+  padding: 10px;
+  border-radius: 5px;
+  z-index: 50;
+}
+
+.control-item {
+  display: flex;
+  align-items: center;
+  color: #ffffff;
+  font-size: 14px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.control-checkbox {
+  margin-right: 8px;
+  cursor: pointer;
+}
+
+.control-label {
+  cursor: pointer;
+}
+
+/* 三角形信息面板 */
+.triangle-info-panel {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  background-color: rgba(0, 0, 0, 0.8);
+  padding: 15px;
+  border-radius: 5px;
+  max-width: 400px;
+  max-height: 500px;
+  overflow-y: auto;
+  z-index: 50;
+  color: #ffffff;
+  font-size: 12px;
+}
+
+.triangle-info-title {
+  margin: 0 0 10px 0;
+  font-size: 14px;
+  font-weight: bold;
+  color: #00d4ff;
+}
+
+.triangle-info-content {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.triangle-info-item {
+  margin-bottom: 5px;
+}
+
+.triangle-vertices {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.vertex-info {
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 8px;
+  border-radius: 3px;
+}
+
+.vertex-info h5 {
+  margin: 0 0 5px 0;
+  color: #00ff88;
+  font-size: 13px;
+}
+
+.vertex-detail {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-family: monospace;
 }
 
 /* 加载进度覆盖层 */

@@ -89,8 +89,6 @@ function handleModelLoaded(formId: string): void {
       <PokemonBrowser
         :selected-pokemon="selectedPokemon"
         :selected-form="selectedForm"
-        :loading-progress="loadingProgress"
-        :is-model-loading="isModelLoading"
         @select="handlePokemonSelect"
       />
     </aside>

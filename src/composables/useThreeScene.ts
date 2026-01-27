@@ -42,6 +42,22 @@ export interface UseThreeSceneReturn {
   removeFromScene: (object: THREE.Object3D) => void
   /** 设置 World 可见性 */
   setWorldVisible: (visible: boolean) => void
+  /** 显示/隐藏顶点法线 */
+  setVertexNormalsVisible: (visible: boolean, model?: THREE.Object3D) => void
+  /** 设置线框模式 */
+  setWireframeMode: (enabled: boolean, model?: THREE.Object3D) => void
+  /** 处理鼠标点击事件 */
+  handleMouseClick: (event: MouseEvent, model?: THREE.Object3D) => {
+    mesh: THREE.Mesh | null
+    faceIndex: number | null
+    vertices: Array<{
+      position: THREE.Vector3
+      normal: THREE.Vector3
+      uv?: THREE.Vector2
+    }> | null
+  } | null
+  /** 高亮显示选中的三角形 */
+  highlightSelectedTriangle: (mesh: THREE.Mesh | null, faceIndex: number | null) => void
 }
 
 /**
@@ -56,6 +72,8 @@ interface SceneState {
   ambientLight: THREE.AmbientLight | null
   directionalLight: THREE.DirectionalLight | null
   animationId: number | null
+  vertexNormalsGroup: THREE.Group | null
+  selectedTriangleHighlight: THREE.Mesh | null
 }
 
 /**
@@ -132,7 +150,9 @@ export function useThreeScene(options: UseThreeSceneOptions): UseThreeSceneRetur
     world: null,
     ambientLight: null,
     directionalLight: null,
-    animationId: null
+    animationId: null,
+    vertexNormalsGroup: null,
+    selectedTriangleHighlight: null
   }
 
   /**
@@ -327,6 +347,8 @@ export function useThreeScene(options: UseThreeSceneOptions): UseThreeSceneRetur
     state.world = null
     state.ambientLight = null
     state.directionalLight = null
+    state.vertexNormalsGroup = null
+    state.selectedTriangleHighlight = null
 
     console.log('useThreeScene: 资源已清理')
   }
@@ -370,6 +392,318 @@ export function useThreeScene(options: UseThreeSceneOptions): UseThreeSceneRetur
     }
   }
 
+  /**
+   * 显示/隐藏顶点法线
+   */
+  function setVertexNormalsVisible(visible: boolean, model?: THREE.Object3D): void {
+    // 如果有现有的法线组，先移除
+    if (state.vertexNormalsGroup) {
+      removeFromScene(state.vertexNormalsGroup)
+      state.vertexNormalsGroup = null
+    }
+
+    if (!visible || !model) {
+      return
+    }
+
+    // 创建新的法线组
+    const normalsGroup = new THREE.Group()
+    normalsGroup.name = 'VertexNormals'
+
+    // 遍历模型中的所有Mesh
+    model.traverse((child) => {
+      if (child instanceof THREE.Mesh && child.geometry) {
+        const geometry = child.geometry
+        const positions = geometry.attributes.position
+        const normals = geometry.attributes.normal
+
+        if (!positions || !normals) {
+          return
+        }
+
+        // 创建材质用于绘制法线
+        const material = new THREE.LineBasicMaterial({ color: 0x00ff00 }) // 绿色法线
+
+        // 为每个顶点创建法线线条
+        for (let i = 0; i < positions.count; i++) {
+          const position = new THREE.Vector3().fromBufferAttribute(positions, i)
+          const normal = new THREE.Vector3().fromBufferAttribute(normals, i)
+
+          // 将顶点位置转换到世界坐标
+          const worldPosition = child.localToWorld(position.clone())
+
+          // 计算法线终点
+          const normalLength = 0.05 // 法线长度，调整为更合适的大小
+          const endPosition = worldPosition.clone().add(normal.clone().multiplyScalar(normalLength))
+
+          // 创建线条几何体
+          const lineGeometry = new THREE.BufferGeometry().setFromPoints([worldPosition, endPosition])
+          const line = new THREE.Line(lineGeometry, material)
+
+          normalsGroup.add(line)
+        }
+      }
+    })
+
+    // 添加到场景
+    addToScene(normalsGroup)
+    state.vertexNormalsGroup = normalsGroup
+  }
+
+  /**
+   * 设置线框模式
+   */
+  function setWireframeMode(enabled: boolean, model?: THREE.Object3D): void {
+    if (!model) {
+      return
+    }
+
+    // 遍历模型中的所有Mesh，设置wireframe模式
+    model.traverse((child) => {
+      if (child instanceof THREE.Mesh && child.material) {
+        if (Array.isArray(child.material)) {
+          child.material.forEach((material) => {
+            if (material instanceof THREE.MeshStandardMaterial || material instanceof THREE.MeshBasicMaterial) {
+              material.wireframe = enabled
+            }
+          })
+        } else {
+          if (child.material instanceof THREE.MeshStandardMaterial || child.material instanceof THREE.MeshBasicMaterial) {
+            child.material.wireframe = enabled
+          }
+        }
+      }
+    })
+  }
+
+  /**
+   * 处理鼠标点击事件，返回点击的三角形信息
+   */
+  function handleMouseClick(event: MouseEvent, model?: THREE.Object3D): {
+    mesh: THREE.Mesh | null
+    faceIndex: number | null
+    vertices: Array<{
+      position: THREE.Vector3
+      normal: THREE.Vector3
+      uv?: THREE.Vector2
+    }> | null
+  } | null {
+    if (!state.renderer || !state.camera || !model) {
+      return null
+    }
+
+    // 获取canvas元素
+    const canvas = state.renderer.domElement
+    const rect = canvas.getBoundingClientRect()
+
+    // 计算鼠标在canvas中的标准化坐标
+    const mouse = new THREE.Vector2()
+    mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1
+    mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1
+
+    // 创建Raycaster
+    const raycaster = new THREE.Raycaster()
+    raycaster.setFromCamera(mouse, state.camera)
+
+    // 获取所有可点击的mesh
+    const meshes: THREE.Mesh[] = []
+    model.traverse((child) => {
+      if (child instanceof THREE.Mesh) {
+        meshes.push(child)
+      }
+    })
+
+    // 检测射线与mesh的交点
+    const intersects = raycaster.intersectObjects(meshes)
+
+    if (intersects.length > 0) {
+      const intersect = intersects[0]
+      const mesh = intersect.object as THREE.Mesh
+      const faceIndex = intersect.faceIndex
+
+      if (faceIndex !== undefined && mesh.geometry) {
+        const geometry = mesh.geometry
+        const positionAttribute = geometry.attributes.position
+        const normalAttribute = geometry.attributes.normal
+        const uvAttribute = geometry.attributes.uv
+
+        // 获取三角形的三个顶点索引
+        const a = intersect.face!.a
+        const b = intersect.face!.b
+        const c = intersect.face!.c
+
+        // 辅助函数：安全地从buffer attribute获取向量数据
+        const getVector3FromAttribute = (attribute: THREE.BufferAttribute | THREE.InterleavedBufferAttribute, index: number): THREE.Vector3 => {
+          const vector = new THREE.Vector3()
+          if (attribute instanceof THREE.BufferAttribute) {
+            vector.fromBufferAttribute(attribute, index)
+          } else {
+            // InterleavedBufferAttribute
+            vector.set(
+              attribute.getX(index),
+              attribute.getY(index),
+              attribute.getZ(index)
+            )
+          }
+          return vector
+        }
+
+        const getVector2FromAttribute = (attribute: THREE.BufferAttribute | THREE.InterleavedBufferAttribute, index: number): THREE.Vector2 => {
+          const vector = new THREE.Vector2()
+          if (attribute instanceof THREE.BufferAttribute) {
+            vector.fromBufferAttribute(attribute, index)
+          } else {
+            // InterleavedBufferAttribute
+            vector.set(
+              attribute.getX(index),
+              attribute.getY(index)
+            )
+          }
+          return vector
+        }
+
+        const vertices = [
+          {
+            position: getVector3FromAttribute(positionAttribute, a),
+            normal: getVector3FromAttribute(normalAttribute, a),
+            uv: uvAttribute ? getVector2FromAttribute(uvAttribute, a) : undefined
+          },
+          {
+            position: getVector3FromAttribute(positionAttribute, b),
+            normal: getVector3FromAttribute(normalAttribute, b),
+            uv: uvAttribute ? getVector2FromAttribute(uvAttribute, b) : undefined
+          },
+          {
+            position: getVector3FromAttribute(positionAttribute, c),
+            normal: getVector3FromAttribute(normalAttribute, c),
+            uv: uvAttribute ? getVector2FromAttribute(uvAttribute, c) : undefined
+          }
+        ]
+
+        return {
+          mesh,
+          faceIndex,
+          vertices
+        }
+      }
+    }
+
+    return null
+  }
+
+  /**
+   * 高亮显示选中的三角形
+   */
+  function highlightSelectedTriangle(mesh: THREE.Mesh | null, faceIndex: number | null): void {
+    // 移除现有的高亮
+    if (state.selectedTriangleHighlight) {
+      removeFromScene(state.selectedTriangleHighlight)
+      state.selectedTriangleHighlight.geometry.dispose()
+      if (Array.isArray(state.selectedTriangleHighlight.material)) {
+        state.selectedTriangleHighlight.material.forEach(material => material.dispose())
+      } else {
+        state.selectedTriangleHighlight.material.dispose()
+      }
+      state.selectedTriangleHighlight = null
+    }
+
+    // 如果没有选中任何东西，返回
+    if (!mesh || faceIndex === null || !mesh.geometry) {
+      return
+    }
+
+    const geometry = mesh.geometry
+    const positionAttribute = geometry.attributes.position
+    const indexAttribute = geometry.index
+
+    if (!positionAttribute) {
+      return
+    }
+
+    // 获取三角形的三个顶点索引
+    let a: number, b: number, c: number
+    if (indexAttribute) {
+      // 使用索引缓冲区
+      a = indexAttribute.getX(faceIndex * 3)
+      b = indexAttribute.getX(faceIndex * 3 + 1)
+      c = indexAttribute.getX(faceIndex * 3 + 2)
+    } else {
+      // 不使用索引缓冲区
+      a = faceIndex * 3
+      b = faceIndex * 3 + 1
+      c = faceIndex * 3 + 2
+    }
+
+    // 创建三角形的几何体
+    const triangleGeometry = new THREE.BufferGeometry()
+    const positions = new Float32Array(9) // 3 vertices * 3 coordinates
+
+    // 获取顶点位置
+    const posA = new THREE.Vector3().fromBufferAttribute(positionAttribute, a)
+    const posB = new THREE.Vector3().fromBufferAttribute(positionAttribute, b)
+    const posC = new THREE.Vector3().fromBufferAttribute(positionAttribute, c)
+
+    // 设置位置数组
+    positions[0] = posA.x; positions[1] = posA.y; positions[2] = posA.z
+    positions[3] = posB.x; positions[4] = posB.y; positions[5] = posB.z
+    positions[6] = posC.x; positions[7] = posC.y; positions[8] = posC.z
+
+    triangleGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3))
+
+    // 计算三角形法线和朝向
+    const edge1 = new THREE.Vector3().subVectors(posB, posA)
+    const edge2 = new THREE.Vector3().subVectors(posC, posA)
+    const faceNormal = new THREE.Vector3().crossVectors(edge1, edge2).normalize()
+
+    // 计算三角形中心点
+    const triangleCenter = new THREE.Vector3()
+      .add(posA)
+      .add(posB)
+      .add(posC)
+      .divideScalar(3)
+
+    // 将中心点转换到世界坐标
+    const worldCenter = triangleCenter.clone()
+    mesh.localToWorld(worldCenter)
+
+    // 获取相机位置
+    const cameraPosition = state.camera ? state.camera.position.clone() : new THREE.Vector3(0, 0, 1)
+    
+    // 计算从三角形中心到相机的向量
+    const toCamera = new THREE.Vector3().subVectors(cameraPosition, worldCenter).normalize()
+    
+    // 将法线转换到世界坐标
+    const worldNormal = faceNormal.clone()
+    mesh.getWorldDirection(worldNormal)
+    
+    // 计算点积来判断朝向
+    const dotProduct = worldNormal.dot(toCamera)
+    const isFrontFace = dotProduct > 0
+
+    // 根据朝向选择颜色：正面绿色，反面红色
+    const highlightColor = isFrontFace ? 0x00ff00 : 0xff0000
+
+    // 创建材质
+    const material = new THREE.MeshBasicMaterial({
+      color: highlightColor,
+      side: THREE.DoubleSide,
+      transparent: true,
+      opacity: 0.7
+    })
+
+    // 创建高亮mesh
+    const highlightMesh = new THREE.Mesh(triangleGeometry, material)
+    highlightMesh.name = 'SelectedTriangleHighlight'
+
+    // 设置变换矩阵与原mesh相同
+    highlightMesh.matrix.copy(mesh.matrix)
+    highlightMesh.matrixAutoUpdate = false
+
+    // 添加到场景
+    addToScene(highlightMesh)
+    state.selectedTriangleHighlight = highlightMesh
+  }
+
   return {
     init,
     dispose,
@@ -379,6 +713,10 @@ export function useThreeScene(options: UseThreeSceneOptions): UseThreeSceneRetur
     getWorld,
     addToScene,
     removeFromScene,
-    setWorldVisible
+    setWorldVisible,
+    setVertexNormalsVisible,
+    setWireframeMode,
+    handleMouseClick,
+    highlightSelectedTriangle
   }
 }
