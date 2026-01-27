@@ -1,0 +1,4847 @@
+{
+  info: {
+    does_loop: 1,
+    animation_count: 37,
+    animation_rate: 60
+  },
+  track: {
+    tracks: [
+      {
+        bone_name: "pm0004_00_00",
+        scale_type: "FixedVectorTrack",
+        scale: {
+          co: {
+            x: 1.0,
+            y: 1.0,
+            z: 1.0
+          }
+        },
+        rotate_type: "FixedRotationTrack",
+        rotate: {
+          co: {
+            x: 3,
+            y: 2,
+            z: 32769
+          }
+        },
+        translate_type: "FixedVectorTrack",
+        translate: {
+          co: {
+            x: 0.0,
+            y: 0.0,
+            z: 0.0
+          }
+        }
+      },
+      {
+        bone_name: "origin",
+        scale_type: "FixedVectorTrack",
+        scale: {
+          co: {
+            x: 1.0,
+            y: 1.0,
+            z: 1.0
+          }
+        },
+        rotate_type: "FixedRotationTrack",
+        rotate: {
+          co: {
+            x: 3,
+            y: 2,
+            z: 32769
+          }
+        },
+        translate_type: "FixedVectorTrack",
+        translate: {
+          co: {
+            x: 0.0,
+            y: 0.0,
+            z: 0.0
+          }
+        }
+      },
+      {
+        bone_name: "waist",
+        scale_type: "FixedVectorTrack",
+        scale: {
+          co: {
+            x: 1.0,
+            y: 1.0,
+            z: 1.0
+          }
+        },
+        rotate_type: "Framed8RotationTrack",
+        rotate: {
+          frames: [
+            0,
+            0,
+            1,
+            4,
+            9,
+            13,
+            15,
+            18,
+            22,
+            27,
+            30,
+            34,
+            36,
+            36
+          ],
+          co: [
+            {
+              x: 26162,
+              y: 7193,
+              z: 60519
+            },
+            {
+              x: 26162,
+              y: 7193,
+              z: 60519
+            },
+            {
+              x: 26162,
+              y: 6877,
+              z: 60509
+            },
+            {
+              x: 26210,
+              y: 6081,
+              z: 60565
+            },
+            {
+              x: 25066,
+              y: 5893,
+              z: 60731
+            },
+            {
+              x: 23938,
+              y: 6449,
+              z: 60863
+            },
+            {
+              x: 23554,
+              y: 6905,
+              z: 60907
+            },
+            {
+              x: 23322,
+              y: 7685,
+              z: 60931
+            },
+            {
+              x: 23642,
+              y: 8561,
+              z: 60871
+            },
+            {
+              x: 24938,
+              y: 8933,
+              z: 60745
+            },
+            {
+              x: 25714,
+              y: 8701,
+              z: 60665
+            },
+            {
+              x: 26170,
+              y: 7805,
+              z: 60569
+            },
+            {
+              x: 26162,
+              y: 7193,
+              z: 60519
+            },
+            {
+              x: 26162,
+              y: 7193,
+              z: 60519
+            }
+          ]
+        },
+        translate_type: "Framed8VectorTrack",
+        translate: {
+          frames: [
+            0,
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            7,
+            9,
+            11,
+            14,
+            17,
+            19,
+            20,
+            21,
+            23,
+            25,
+            26,
+            27,
+            29,
+            30,
+            32,
+            33,
+            34,
+            35,
+            36,
+            36
+          ],
+          co: [
+            {
+              x: -0.00644,
+              y: 0.302096,
+              z: -0.009871
+            },
+            {
+              x: -0.00644,
+              y: 0.302096,
+              z: -0.009871
+            },
+            {
+              x: -0.005908,
+              y: 0.301076,
+              z: -0.009871
+            },
+            {
+              x: -0.005377,
+              y: 0.300098,
+              z: -0.009871
+            },
+            {
+              x: -0.004852,
+              y: 0.299167,
+              z: -0.009871
+            },
+            {
+              x: -0.004335,
+              y: 0.298289,
+              z: -0.009871
+            },
+            {
+              x: -0.003834,
+              y: 0.29747,
+              z: -0.009871
+            },
+            {
+              x: -0.002892,
+              y: 0.296026,
+              z: -0.009871
+            },
+            {
+              x: -0.002064,
+              y: 0.29488,
+              z: -0.009871
+            },
+            {
+              x: -0.001387,
+              y: 0.294073,
+              z: -0.009871
+            },
+            {
+              x: -0.000737,
+              y: 0.293595,
+              z: -0.009871
+            },
+            {
+              x: -0.000662,
+              y: 0.294406,
+              z: -0.009871
+            },
+            {
+              x: -0.001099,
+              y: 0.295661,
+              z: -0.009871
+            },
+            {
+              x: -0.001448,
+              y: 0.296435,
+              z: -0.009871
+            },
+            {
+              x: -0.001866,
+              y: 0.297277,
+              z: -0.009871
+            },
+            {
+              x: -0.002855,
+              y: 0.299072,
+              z: -0.009871
+            },
+            {
+              x: -0.003953,
+              y: 0.300868,
+              z: -0.009871
+            },
+            {
+              x: -0.00451,
+              y: 0.30171,
+              z: -0.009871
+            },
+            {
+              x: -0.005052,
+              y: 0.302484,
+              z: -0.009871
+            },
+            {
+              x: -0.006041,
+              y: 0.303739,
+              z: -0.009871
+            },
+            {
+              x: -0.006459,
+              y: 0.304175,
+              z: -0.009871
+            },
+            {
+              x: -0.007075,
+              y: 0.30455,
+              z: -0.009871
+            },
+            {
+              x: -0.007245,
+              y: 0.304361,
+              z: -0.009871
+            },
+            {
+              x: -0.007305,
+              y: 0.303841,
+              z: -0.009871
+            },
+            {
+              x: -0.007005,
+              y: 0.303062,
+              z: -0.009871
+            },
+            {
+              x: -0.00644,
+              y: 0.302096,
+              z: -0.009871
+            },
+            {
+              x: -0.00644,
+              y: 0.302096,
+              z: -0.009871
+            }
+          ]
+        }
+      },
+      {
+        bone_name: "spine_01",
+        scale_type: "FixedVectorTrack",
+        scale: {
+          co: {
+            x: 1.0,
+            y: 1.0,
+            z: 1.0
+          }
+        },
+        rotate_type: "Framed8RotationTrack",
+        rotate: {
+          frames: [
+            0,
+            0,
+            2,
+            6,
+            9,
+            13,
+            16,
+            20,
+            23,
+            26,
+            29,
+            31,
+            34,
+            36,
+            36
+          ],
+          co: [
+            {
+              x: 3187,
+              y: 56854,
+              z: 31836
+            },
+            {
+              x: 3187,
+              y: 56854,
+              z: 31836
+            },
+            {
+              x: 2571,
+              y: 56378,
+              z: 31926
+            },
+            {
+              x: 523,
+              y: 55626,
+              z: 32092
+            },
+            {
+              x: 64363,
+              y: 55421,
+              z: 32088
+            },
+            {
+              x: 62907,
+              y: 55769,
+              z: 31942
+            },
+            {
+              x: 63003,
+              y: 56325,
+              z: 31758
+            },
+            {
+              x: 64427,
+              y: 57169,
+              z: 31508
+            },
+            {
+              x: 459,
+              y: 57698,
+              z: 31386
+            },
+            {
+              x: 2059,
+              y: 57982,
+              z: 31374
+            },
+            {
+              x: 3307,
+              y: 57846,
+              z: 31474
+            },
+            {
+              x: 3755,
+              y: 57510,
+              z: 31576
+            },
+            {
+              x: 3611,
+              y: 56994,
+              z: 31742
+            },
+            {
+              x: 3187,
+              y: 56854,
+              z: 31836
+            },
+            {
+              x: 3187,
+              y: 56854,
+              z: 31836
+            }
+          ]
+        },
+        translate_type: "FixedVectorTrack",
+        translate: {
+          co: {
+            x: 0.0,
+            y: 0.0,
+            z: 0.0
+          }
+        }
+      },
+      {
+        bone_name: "spine_02",
+        scale_type: "FixedVectorTrack",
+        scale: {
+          co: {
+            x: 1.0,
+            y: 1.0,
+            z: 1.0
+          }
+        },
+        rotate_type: "Framed8RotationTrack",
+        rotate: {
+          frames: [
+            0,
+            0,
+            1,
+            4,
+            9,
+            13,
+            17,
+            20,
+            27,
+            31,
+            32,
+            34,
+            36,
+            36
+          ],
+          co: [
+            {
+              x: 11283,
+              y: 47542,
+              z: 31768
+            },
+            {
+              x: 11283,
+              y: 47542,
+              z: 31768
+            },
+            {
+              x: 11139,
+              y: 47222,
+              z: 31808
+            },
+            {
+              x: 10707,
+              y: 46466,
+              z: 31948
+            },
+            {
+              x: 10147,
+              y: 45934,
+              z: 32132
+            },
+            {
+              x: 9619,
+              y: 45694,
+              z: 32112
+            },
+            {
+              x: 9307,
+              y: 46062,
+              z: 31960
+            },
+            {
+              x: 9547,
+              y: 46622,
+              z: 31814
+            },
+            {
+              x: 10419,
+              y: 47810,
+              z: 31536
+            },
+            {
+              x: 11083,
+              y: 48202,
+              z: 31574
+            },
+            {
+              x: 11219,
+              y: 48134,
+              z: 31606
+            },
+            {
+              x: 11395,
+              y: 47770,
+              z: 31682
+            },
+            {
+              x: 11283,
+              y: 47542,
+              z: 31768
+            },
+            {
+              x: 11283,
+              y: 47542,
+              z: 31768
+            }
+          ]
+        },
+        translate_type: "FixedVectorTrack",
+        translate: {
+          co: {
+            x: 0.047,
+            y: -0.0,
+            z: 0.0
+          }
+        }
+      },
+      {
+        bone_name: "neck",
+        scale_type: "FixedVectorTrack",
+        scale: {
+          co: {
+            x: 1.0,
+            y: 1.0,
+            z: 1.0
+          }
+        },
+        rotate_type: "Framed8RotationTrack",
+        rotate: {
+          frames: [
+            0,
+            0,
+            2,
+            5,
+            8,
+            12,
+            19,
+            27,
+            33,
+            36,
+            36
+          ],
+          co: [
+            {
+              x: 65331,
+              y: 60293,
+              z: 32306
+            },
+            {
+              x: 65331,
+              y: 60293,
+              z: 32306
+            },
+            {
+              x: 203,
+              y: 59994,
+              z: 32260
+            },
+            {
+              x: 1411,
+              y: 59902,
+              z: 32174
+            },
+            {
+              x: 2547,
+              y: 60050,
+              z: 32114
+            },
+            {
+              x: 2939,
+              y: 60314,
+              z: 32130
+            },
+            {
+              x: 2171,
+              y: 60734,
+              z: 32306
+            },
+            {
+              x: 619,
+              y: 60994,
+              z: 32426
+            },
+            {
+              x: 65339,
+              y: 60761,
+              z: 32368
+            },
+            {
+              x: 65331,
+              y: 60293,
+              z: 32306
+            },
+            {
+              x: 65331,
+              y: 60293,
+              z: 32306
+            }
+          ]
+        },
+        translate_type: "FixedVectorTrack",
+        translate: {
+          co: {
+            x: 0.090098,
+            y: 0.0,
+            z: 0.0
+          }
+        }
+      },
+      {
+        bone_name: "head",
+        scale_type: "FixedVectorTrack",
+        scale: {
+          co: {
+            x: 1.0,
+            y: 1.0,
+            z: 1.0
+          }
+        },
+        rotate_type: "Framed8RotationTrack",
+        rotate: {
+          frames: [
+            0,
+            0,
+            1,
+            2,
+            3,
+            5,
+            9,
+            12,
+            14,
+            16,
+            18,
+            19,
+            22,
+            24,
+            27,
+            30,
+            32,
+            34,
+            36,
+            36
+          ],
+          co: [
+            {
+              x: 4107,
+              y: 646,
+              z: 32317
+            },
+            {
+              x: 4107,
+              y: 646,
+              z: 32317
+            },
+            {
+              x: 4219,
+              y: 1046,
+              z: 32169
+            },
+            {
+              x: 4275,
+              y: 1362,
+              z: 32037
+            },
+            {
+              x: 4315,
+              y: 1594,
+              z: 31931
+            },
+            {
+              x: 4475,
+              y: 1722,
+              z: 31785
+            },
+            {
+              x: 5819,
+              y: 1090,
+              z: 31719
+            },
+            {
+              x: 7451,
+              y: 538,
+              z: 31805
+            },
+            {
+              x: 8331,
+              y: 82,
+              z: 31947
+            },
+            {
+              x: 8771,
+              y: 65054,
+              z: 32178
+            },
+            {
+              x: 8723,
+              y: 64466,
+              z: 32446
+            },
+            {
+              x: 8571,
+              y: 64214,
+              z: 32582
+            },
+            {
+              x: 7699,
+              y: 63738,
+              z: 32916
+            },
+            {
+              x: 6835,
+              y: 63726,
+              z: 33064
+            },
+            {
+              x: 5395,
+              y: 64038,
+              z: 33130
+            },
+            {
+              x: 4011,
+              y: 64710,
+              z: 32952
+            },
+            {
+              x: 3563,
+              y: 65314,
+              z: 32778
+            },
+            {
+              x: 3667,
+              y: 486,
+              z: 32575
+            },
+            {
+              x: 4107,
+              y: 646,
+              z: 32317
+            },
+            {
+              x: 4107,
+              y: 646,
+              z: 32317
+            }
+          ]
+        },
+        translate_type: "FixedVectorTrack",
+        translate: {
+          co: {
+            x: 0.036,
+            y: -0.0,
+            z: 0.0
+          }
+        }
+      },
+      {
+        bone_name: "jaw",
+        scale_type: "FixedVectorTrack",
+        scale: {
+          co: {
+            x: 1.0,
+            y: 1.0,
+            z: 1.0
+          }
+        },
+        rotate_type: "Framed8RotationTrack",
+        rotate: {
+          frames: [
+            0,
+            0,
+            1,
+            3,
+            6,
+            8,
+            9,
+            10,
+            11,
+            13,
+            16,
+            18,
+            20,
+            22,
+            23,
+            24,
+            26,
+            27,
+            28,
+            29,
+            30,
+            32,
+            33,
+            34,
+            36,
+            36
+          ],
+          co: [
+            {
+              x: 5,
+              y: 2,
+              z: 9961
+            },
+            {
+              x: 5,
+              y: 2,
+              z: 9961
+            },
+            {
+              x: 5,
+              y: 2,
+              z: 9931
+            },
+            {
+              x: 5,
+              y: 2,
+              z: 10019
+            },
+            {
+              x: 5,
+              y: 2,
+              z: 10449
+            },
+            {
+              x: 5,
+              y: 2,
+              z: 10871
+            },
+            {
+              x: 5,
+              y: 2,
+              z: 11107
+            },
+            {
+              x: 5,
+              y: 2,
+              z: 11351
+            },
+            {
+              x: 5,
+              y: 2,
+              z: 11599
+            },
+            {
+              x: 5,
+              y: 2,
+              z: 12081
+            },
+            {
+              x: 5,
+              y: 2,
+              z: 12685
+            },
+            {
+              x: 5,
+              y: 2,
+              z: 12935
+            },
+            {
+              x: 5,
+              y: 2,
+              z: 13009
+            },
+            {
+              x: 5,
+              y: 2,
+              z: 12865
+            },
+            {
+              x: 5,
+              y: 2,
+              z: 12719
+            },
+            {
+              x: 5,
+              y: 2,
+              z: 12533
+            },
+            {
+              x: 5,
+              y: 2,
+              z: 12077
+            },
+            {
+              x: 5,
+              y: 2,
+              z: 11821
+            },
+            {
+              x: 5,
+              y: 2,
+              z: 11555
+            },
+            {
+              x: 5,
+              y: 2,
+              z: 11287
+            },
+            {
+              x: 5,
+              y: 2,
+              z: 11027
+            },
+            {
+              x: 5,
+              y: 2,
+              z: 10547
+            },
+            {
+              x: 5,
+              y: 2,
+              z: 10345
+            },
+            {
+              x: 5,
+              y: 2,
+              z: 10175
+            },
+            {
+              x: 5,
+              y: 2,
+              z: 9961
+            },
+            {
+              x: 5,
+              y: 2,
+              z: 9961
+            }
+          ]
+        },
+        translate_type: "FixedVectorTrack",
+        translate: {
+          co: {
+            x: 0.052502,
+            y: -0.0,
+            z: 0.052101
+          }
+        }
+      },
+      {
+        bone_name: "left_shoulder",
+        scale_type: "FixedVectorTrack",
+        scale: {
+          co: {
+            x: 1.0,
+            y: 1.0,
+            z: 1.0
+          }
+        },
+        rotate_type: "FixedRotationTrack",
+        rotate: {
+          co: {
+            x: 53619,
+            y: 789,
+            z: 7313
+          }
+        },
+        translate_type: "FixedVectorTrack",
+        translate: {
+          co: {
+            x: 0.055603,
+            y: -0.030261,
+            z: -0.000237
+          }
+        }
+      },
+      {
+        bone_name: "left_arm_01",
+        scale_type: "FixedVectorTrack",
+        scale: {
+          co: {
+            x: 1.0,
+            y: 1.0,
+            z: 1.0
+          }
+        },
+        rotate_type: "Framed8RotationTrack",
+        rotate: {
+          frames: [
+            0,
+            0,
+            1,
+            2,
+            4,
+            5,
+            7,
+            10,
+            12,
+            15,
+            18,
+            21,
+            23,
+            25,
+            26,
+            27,
+            28,
+            29,
+            30,
+            31,
+            32,
+            33,
+            34,
+            35,
+            36,
+            36
+          ],
+          co: [
+            {
+              x: 25395,
+              y: 65129,
+              z: 31248
+            },
+            {
+              x: 25395,
+              y: 65129,
+              z: 31248
+            },
+            {
+              x: 24667,
+              y: 85,
+              z: 31541
+            },
+            {
+              x: 23907,
+              y: 533,
+              z: 31835
+            },
+            {
+              x: 22363,
+              y: 1229,
+              z: 32425
+            },
+            {
+              x: 21731,
+              y: 1425,
+              z: 32717
+            },
+            {
+              x: 20955,
+              y: 1505,
+              z: 33279
+            },
+            {
+              x: 21091,
+              y: 861,
+              z: 34043
+            },
+            {
+              x: 21955,
+              y: 97,
+              z: 34455
+            },
+            {
+              x: 24299,
+              y: 64241,
+              z: 34732
+            },
+            {
+              x: 27067,
+              y: 62765,
+              z: 34372
+            },
+            {
+              x: 29323,
+              y: 61541,
+              z: 33534
+            },
+            {
+              x: 30267,
+              y: 61109,
+              z: 32826
+            },
+            {
+              x: 30627,
+              y: 61037,
+              z: 32088
+            },
+            {
+              x: 30595,
+              y: 61165,
+              z: 31730
+            },
+            {
+              x: 30435,
+              y: 61389,
+              z: 31396
+            },
+            {
+              x: 30147,
+              y: 61685,
+              z: 31092
+            },
+            {
+              x: 29771,
+              y: 62033,
+              z: 30822
+            },
+            {
+              x: 29339,
+              y: 62421,
+              z: 30600
+            },
+            {
+              x: 28795,
+              y: 62845,
+              z: 30452
+            },
+            {
+              x: 28155,
+              y: 63305,
+              z: 30370
+            },
+            {
+              x: 27467,
+              y: 63757,
+              z: 30430
+            },
+            {
+              x: 26787,
+              y: 64189,
+              z: 30642
+            },
+            {
+              x: 26115,
+              y: 64645,
+              z: 30938
+            },
+            {
+              x: 25395,
+              y: 65129,
+              z: 31248
+            },
+            {
+              x: 25395,
+              y: 65129,
+              z: 31248
+            }
+          ]
+        },
+        translate_type: "FixedVectorTrack",
+        translate: {
+          co: {
+            x: 0.052,
+            y: -0.0,
+            z: 0.0
+          }
+        }
+      },
+      {
+        bone_name: "left_arm_02",
+        scale_type: "FixedVectorTrack",
+        scale: {
+          co: {
+            x: 1.0,
+            y: 1.0,
+            z: 1.0
+          }
+        },
+        rotate_type: "FixedRotationTrack",
+        rotate: {
+          co: {
+            x: 60107,
+            y: 50621,
+            z: 30426
+          }
+        },
+        translate_type: "FixedVectorTrack",
+        translate: {
+          co: {
+            x: 0.063,
+            y: 0.0,
+            z: 0.0
+          }
+        }
+      },
+      {
+        bone_name: "left_hand",
+        scale_type: "FixedVectorTrack",
+        scale: {
+          co: {
+            x: 1.0,
+            y: 1.0,
+            z: 1.0
+          }
+        },
+        rotate_type: "Framed8RotationTrack",
+        rotate: {
+          frames: [
+            0,
+            0,
+            1,
+            5,
+            9,
+            11,
+            13,
+            16,
+            19,
+            21,
+            24,
+            29,
+            32,
+            34,
+            36,
+            36
+          ],
+          co: [
+            {
+              x: 26179,
+              y: 55133,
+              z: 34636
+            },
+            {
+              x: 26179,
+              y: 55133,
+              z: 34636
+            },
+            {
+              x: 26203,
+              y: 54849,
+              z: 34670
+            },
+            {
+              x: 26323,
+              y: 53645,
+              z: 34818
+            },
+            {
+              x: 26435,
+              y: 52533,
+              z: 34954
+            },
+            {
+              x: 26491,
+              y: 52089,
+              z: 35008
+            },
+            {
+              x: 26523,
+              y: 51761,
+              z: 35048
+            },
+            {
+              x: 26547,
+              y: 51561,
+              z: 35072
+            },
+            {
+              x: 26507,
+              y: 51885,
+              z: 35034
+            },
+            {
+              x: 26459,
+              y: 52377,
+              z: 34972
+            },
+            {
+              x: 26355,
+              y: 53349,
+              z: 34854
+            },
+            {
+              x: 26195,
+              y: 54945,
+              z: 34658
+            },
+            {
+              x: 26147,
+              y: 55473,
+              z: 34594
+            },
+            {
+              x: 26147,
+              y: 55485,
+              z: 34592
+            },
+            {
+              x: 26179,
+              y: 55133,
+              z: 34636
+            },
+            {
+              x: 26179,
+              y: 55133,
+              z: 34636
+            }
+          ]
+        },
+        translate_type: "FixedVectorTrack",
+        translate: {
+          co: {
+            x: 0.0549,
+            y: 0.0,
+            z: 0.0
+          }
+        }
+      },
+      {
+        bone_name: "left_thumb",
+        scale_type: "FixedVectorTrack",
+        scale: {
+          co: {
+            x: 1.0,
+            y: 1.0,
+            z: 1.0
+          }
+        },
+        rotate_type: "FixedRotationTrack",
+        rotate: {
+          co: {
+            x: 61648,
+            y: 2260,
+            z: 44597
+          }
+        },
+        translate_type: "FixedVectorTrack",
+        translate: {
+          co: {
+            x: 0.018387,
+            y: -0.015824,
+            z: 0.013962
+          }
+        }
+      },
+      {
+        bone_name: "left_index_01",
+        scale_type: "FixedVectorTrack",
+        scale: {
+          co: {
+            x: 1.0,
+            y: 1.0,
+            z: 1.0
+          }
+        },
+        rotate_type: "FixedRotationTrack",
+        rotate: {
+          co: {
+            x: 61899,
+            y: 55317,
+            z: 37022
+          }
+        },
+        translate_type: "FixedVectorTrack",
+        translate: {
+          co: {
+            x: 0.027988,
+            y: 0.008354,
+            z: 0.014905
+          }
+        }
+      },
+      {
+        bone_name: "left_index_02",
+        scale_type: "FixedVectorTrack",
+        scale: {
+          co: {
+            x: 1.0,
+            y: 1.0,
+            z: 1.0
+          }
+        },
+        rotate_type: "FixedRotationTrack",
+        rotate: {
+          co: {
+            x: 1195,
+            y: 63130,
+            z: 22698
+          }
+        },
+        translate_type: "FixedVectorTrack",
+        translate: {
+          co: {
+            x: 0.019775,
+            y: -0.0,
+            z: 0.0
+          }
+        }
+      },
+      {
+        bone_name: "left_middle_01",
+        scale_type: "FixedVectorTrack",
+        scale: {
+          co: {
+            x: 1.0,
+            y: 1.0,
+            z: 1.0
+          }
+        },
+        rotate_type: "FixedRotationTrack",
+        rotate: {
+          co: {
+            x: 64579,
+            y: 2433,
+            z: 37539
+          }
+        },
+        translate_type: "FixedVectorTrack",
+        translate: {
+          co: {
+            x: 0.032548,
+            y: 0.008402,
+            z: -0.001339
+          }
+        }
+      },
+      {
+        bone_name: "left_middle_02",
+        scale_type: "FixedVectorTrack",
+        scale: {
+          co: {
+            x: 1.0,
+            y: 1.0,
+            z: 1.0
+          }
+        },
+        rotate_type: "FixedRotationTrack",
+        rotate: {
+          co: {
+            x: 1195,
+            y: 63130,
+            z: 22692
+          }
+        },
+        translate_type: "FixedVectorTrack",
+        translate: {
+          co: {
+            x: 0.019775,
+            y: -0.0,
+            z: 0.0
+          }
+        }
+      },
+      {
+        bone_name: "left_ring_01",
+        scale_type: "FixedVectorTrack",
+        scale: {
+          co: {
+            x: 1.0,
+            y: 1.0,
+            z: 1.0
+          }
+        },
+        rotate_type: "FixedRotationTrack",
+        rotate: {
+          co: {
+            x: 1443,
+            y: 12870,
+            z: 37509
+          }
+        },
+        translate_type: "FixedVectorTrack",
+        translate: {
+          co: {
+            x: 0.03125,
+            y: 0.008389,
+            z: -0.022202
+          }
+        }
+      },
+      {
+        bone_name: "left_ring_02",
+        scale_type: "FixedVectorTrack",
+        scale: {
+          co: {
+            x: 1.0,
+            y: 1.0,
+            z: 1.0
+          }
+        },
+        rotate_type: "FixedRotationTrack",
+        rotate: {
+          co: {
+            x: 1195,
+            y: 63130,
+            z: 22710
+          }
+        },
+        translate_type: "FixedVectorTrack",
+        translate: {
+          co: {
+            x: 0.019775,
+            y: 0.0,
+            z: 0.0
+          }
+        }
+      },
+      {
+        bone_name: "right_shoulder",
+        scale_type: "FixedVectorTrack",
+        scale: {
+          co: {
+            x: 1.0,
+            y: 1.0,
+            z: 1.0
+          }
+        },
+        rotate_type: "FixedRotationTrack",
+        rotate: {
+          co: {
+            x: 6411,
+            y: 6790,
+            z: 59013
+          }
+        },
+        translate_type: "FixedVectorTrack",
+        translate: {
+          co: {
+            x: 0.055603,
+            y: 0.030261,
+            z: -0.000237
+          }
+        }
+      },
+      {
+        bone_name: "right_arm_01",
+        scale_type: "FixedVectorTrack",
+        scale: {
+          co: {
+            x: 1.0,
+            y: 1.0,
+            z: 1.0
+          }
+        },
+        rotate_type: "DynamicRotationTrack",
+        rotate: {
+          co: [
+            {
+              x: 27779,
+              y: 56034,
+              z: 33874
+            },
+            {
+              x: 28675,
+              y: 55794,
+              z: 34134
+            },
+            {
+              x: 29507,
+              y: 55590,
+              z: 34426
+            },
+            {
+              x: 30251,
+              y: 55438,
+              z: 34746
+            },
+            {
+              x: 30915,
+              y: 55342,
+              z: 35090
+            },
+            {
+              x: 31363,
+              y: 55310,
+              z: 35458
+            },
+            {
+              x: 31579,
+              y: 55330,
+              z: 35840
+            },
+            {
+              x: 31651,
+              y: 55398,
+              z: 36224
+            },
+            {
+              x: 31579,
+              y: 55522,
+              z: 36606
+            },
+            {
+              x: 31395,
+              y: 55698,
+              z: 36978
+            },
+            {
+              x: 31091,
+              y: 55918,
+              z: 37334
+            },
+            {
+              x: 30683,
+              y: 56170,
+              z: 37674
+            },
+            {
+              x: 30179,
+              y: 56442,
+              z: 37982
+            },
+            {
+              x: 29539,
+              y: 56714,
+              z: 38246
+            },
+            {
+              x: 28787,
+              y: 57002,
+              z: 38470
+            },
+            {
+              x: 27931,
+              y: 57290,
+              z: 38636
+            },
+            {
+              x: 27051,
+              y: 57582,
+              z: 38730
+            },
+            {
+              x: 26115,
+              y: 57890,
+              z: 38738
+            },
+            {
+              x: 25187,
+              y: 58194,
+              z: 38662
+            },
+            {
+              x: 24331,
+              y: 58482,
+              z: 38506
+            },
+            {
+              x: 23563,
+              y: 58734,
+              z: 38280
+            },
+            {
+              x: 22915,
+              y: 58942,
+              z: 37994
+            },
+            {
+              x: 22403,
+              y: 59090,
+              z: 37658
+            },
+            {
+              x: 22067,
+              y: 59186,
+              z: 37280
+            },
+            {
+              x: 21899,
+              y: 59238,
+              z: 36874
+            },
+            {
+              x: 21899,
+              y: 59222,
+              z: 36452
+            },
+            {
+              x: 22035,
+              y: 59130,
+              z: 36022
+            },
+            {
+              x: 22259,
+              y: 58962,
+              z: 35600
+            },
+            {
+              x: 22579,
+              y: 58722,
+              z: 35188
+            },
+            {
+              x: 22955,
+              y: 58430,
+              z: 34792
+            },
+            {
+              x: 23371,
+              y: 58094,
+              z: 34436
+            },
+            {
+              x: 23907,
+              y: 57746,
+              z: 34134
+            },
+            {
+              x: 24555,
+              y: 57382,
+              z: 33884
+            },
+            {
+              x: 25275,
+              y: 57018,
+              z: 33704
+            },
+            {
+              x: 26019,
+              y: 56654,
+              z: 33604
+            },
+            {
+              x: 26843,
+              y: 56310,
+              z: 33666
+            },
+            {
+              x: 27779,
+              y: 56034,
+              z: 33874
+            }
+          ]
+        },
+        translate_type: "FixedVectorTrack",
+        translate: {
+          co: {
+            x: 0.052,
+            y: -0.0,
+            z: -0.0
+          }
+        }
+      },
+      {
+        bone_name: "right_arm_02",
+        scale_type: "FixedVectorTrack",
+        scale: {
+          co: {
+            x: 1.0,
+            y: 1.0,
+            z: 1.0
+          }
+        },
+        rotate_type: "FixedRotationTrack",
+        rotate: {
+          co: {
+            x: 13923,
+            y: 58434,
+            z: 35362
+          }
+        },
+        translate_type: "FixedVectorTrack",
+        translate: {
+          co: {
+            x: 0.063,
+            y: 0.0,
+            z: 0.0
+          }
+        }
+      },
+      {
+        bone_name: "right_hand",
+        scale_type: "FixedVectorTrack",
+        scale: {
+          co: {
+            x: 1.0,
+            y: 1.0,
+            z: 1.0
+          }
+        },
+        rotate_type: "FixedRotationTrack",
+        rotate: {
+          co: {
+            x: 6259,
+            y: 52038,
+            z: 27734
+          }
+        },
+        translate_type: "FixedVectorTrack",
+        translate: {
+          co: {
+            x: 0.0549,
+            y: 0.0,
+            z: 0.0
+          }
+        }
+      },
+      {
+        bone_name: "right_thumb",
+        scale_type: "FixedVectorTrack",
+        scale: {
+          co: {
+            x: 1.0,
+            y: 1.0,
+            z: 1.0
+          }
+        },
+        rotate_type: "FixedRotationTrack",
+        rotate: {
+          co: {
+            x: 4392,
+            y: 2375,
+            z: 20971
+          }
+        },
+        translate_type: "FixedVectorTrack",
+        translate: {
+          co: {
+            x: 0.018387,
+            y: 0.015824,
+            z: 0.013962
+          }
+        }
+      },
+      {
+        bone_name: "right_index_01",
+        scale_type: "FixedVectorTrack",
+        scale: {
+          co: {
+            x: 1.0,
+            y: 1.0,
+            z: 1.0
+          }
+        },
+        rotate_type: "FixedRotationTrack",
+        rotate: {
+          co: {
+            x: 3499,
+            y: 55306,
+            z: 28798
+          }
+        },
+        translate_type: "FixedVectorTrack",
+        translate: {
+          co: {
+            x: 0.027989,
+            y: -0.008355,
+            z: 0.014905
+          }
+        }
+      },
+      {
+        bone_name: "right_index_02",
+        scale_type: "FixedVectorTrack",
+        scale: {
+          co: {
+            x: 1.0,
+            y: 1.0,
+            z: 1.0
+          }
+        },
+        rotate_type: "FixedRotationTrack",
+        rotate: {
+          co: {
+            x: 64451,
+            y: 63113,
+            z: 41856
+          }
+        },
+        translate_type: "FixedVectorTrack",
+        translate: {
+          co: {
+            x: 0.019775,
+            y: 0.0,
+            z: 0.0
+          }
+        }
+      },
+      {
+        bone_name: "right_middle_01",
+        scale_type: "FixedVectorTrack",
+        scale: {
+          co: {
+            x: 1.0,
+            y: 1.0,
+            z: 1.0
+          }
+        },
+        rotate_type: "FixedRotationTrack",
+        rotate: {
+          co: {
+            x: 1083,
+            y: 2422,
+            z: 29057
+          }
+        },
+        translate_type: "FixedVectorTrack",
+        translate: {
+          co: {
+            x: 0.032549,
+            y: -0.008403,
+            z: -0.001339
+          }
+        }
+      },
+      {
+        bone_name: "right_middle_02",
+        scale_type: "FixedVectorTrack",
+        scale: {
+          co: {
+            x: 1.0,
+            y: 1.0,
+            z: 1.0
+          }
+        },
+        rotate_type: "FixedRotationTrack",
+        rotate: {
+          co: {
+            x: 64451,
+            y: 63113,
+            z: 41872
+          }
+        },
+        translate_type: "FixedVectorTrack",
+        translate: {
+          co: {
+            x: 0.019775,
+            y: 0.0,
+            z: 0.0
+          }
+        }
+      },
+      {
+        bone_name: "right_ring_01",
+        scale_type: "FixedVectorTrack",
+        scale: {
+          co: {
+            x: 1.0,
+            y: 1.0,
+            z: 1.0
+          }
+        },
+        rotate_type: "FixedRotationTrack",
+        rotate: {
+          co: {
+            x: 64739,
+            y: 12885,
+            z: 29059
+          }
+        },
+        translate_type: "FixedVectorTrack",
+        translate: {
+          co: {
+            x: 0.03125,
+            y: -0.008389,
+            z: -0.022202
+          }
+        }
+      },
+      {
+        bone_name: "right_ring_02",
+        scale_type: "FixedVectorTrack",
+        scale: {
+          co: {
+            x: 1.0,
+            y: 1.0,
+            z: 1.0
+          }
+        },
+        rotate_type: "FixedRotationTrack",
+        rotate: {
+          co: {
+            x: 64459,
+            y: 63113,
+            z: 41838
+          }
+        },
+        translate_type: "FixedVectorTrack",
+        translate: {
+          co: {
+            x: 0.019776,
+            y: 0.0,
+            z: 0.0
+          }
+        }
+      },
+      {
+        bone_name: "left_leg_01",
+        scale_type: "FixedVectorTrack",
+        scale: {
+          co: {
+            x: 1.0,
+            y: 1.0,
+            z: 1.0
+          }
+        },
+        rotate_type: "DynamicRotationTrack",
+        rotate: {
+          co: [
+            {
+              x: 51563,
+              y: 22061,
+              z: 44116
+            },
+            {
+              x: 49603,
+              y: 21045,
+              z: 44292
+            },
+            {
+              x: 47931,
+              y: 19961,
+              z: 44452
+            },
+            {
+              x: 48283,
+              y: 18941,
+              z: 44578
+            },
+            {
+              x: 48843,
+              y: 17989,
+              z: 44692
+            },
+            {
+              x: 49587,
+              y: 17141,
+              z: 44794
+            },
+            {
+              x: 50499,
+              y: 16397,
+              z: 44886
+            },
+            {
+              x: 51507,
+              y: 15737,
+              z: 44956
+            },
+            {
+              x: 52587,
+              y: 15173,
+              z: 45004
+            },
+            {
+              x: 53699,
+              y: 14705,
+              z: 45026
+            },
+            {
+              x: 54811,
+              y: 14341,
+              z: 45018
+            },
+            {
+              x: 55875,
+              y: 14097,
+              z: 44982
+            },
+            {
+              x: 56859,
+              y: 13981,
+              z: 44912
+            },
+            {
+              x: 57755,
+              y: 13985,
+              z: 44808
+            },
+            {
+              x: 58547,
+              y: 14109,
+              z: 44670
+            },
+            {
+              x: 59211,
+              y: 14361,
+              z: 44500
+            },
+            {
+              x: 59715,
+              y: 14757,
+              z: 44308
+            },
+            {
+              x: 60067,
+              y: 15281,
+              z: 44108
+            },
+            {
+              x: 60259,
+              y: 15925,
+              z: 43914
+            },
+            {
+              x: 60275,
+              y: 16673,
+              z: 43732
+            },
+            {
+              x: 60115,
+              y: 17493,
+              z: 43568
+            },
+            {
+              x: 59803,
+              y: 18365,
+              z: 43428
+            },
+            {
+              x: 59379,
+              y: 19249,
+              z: 43314
+            },
+            {
+              x: 58875,
+              y: 20117,
+              z: 43224
+            },
+            {
+              x: 58299,
+              y: 20945,
+              z: 43158
+            },
+            {
+              x: 57667,
+              y: 21725,
+              z: 43118
+            },
+            {
+              x: 56987,
+              y: 22437,
+              z: 43100
+            },
+            {
+              x: 56299,
+              y: 23053,
+              z: 43106
+            },
+            {
+              x: 55595,
+              y: 23561,
+              z: 43136
+            },
+            {
+              x: 54907,
+              y: 23937,
+              z: 43192
+            },
+            {
+              x: 54243,
+              y: 24169,
+              z: 43272
+            },
+            {
+              x: 53603,
+              y: 24261,
+              z: 43380
+            },
+            {
+              x: 52995,
+              y: 24209,
+              z: 43518
+            },
+            {
+              x: 52467,
+              y: 23965,
+              z: 43678
+            },
+            {
+              x: 52043,
+              y: 23521,
+              z: 43858
+            },
+            {
+              x: 51739,
+              y: 22865,
+              z: 44002
+            },
+            {
+              x: 51563,
+              y: 22061,
+              z: 44116
+            }
+          ]
+        },
+        translate_type: "FixedVectorTrack",
+        translate: {
+          co: {
+            x: 0.059583,
+            y: 0.094968,
+            z: -0.011071
+          }
+        }
+      },
+      {
+        bone_name: "left_leg_02",
+        scale_type: "FixedVectorTrack",
+        scale: {
+          co: {
+            x: 1.0,
+            y: 1.0,
+            z: 1.0
+          }
+        },
+        rotate_type: "DynamicRotationTrack",
+        rotate: {
+          co: [
+            {
+              x: 3,
+              y: 52382,
+              z: 32769
+            },
+            {
+              x: 3,
+              y: 52646,
+              z: 32769
+            },
+            {
+              x: 3,
+              y: 53186,
+              z: 32769
+            },
+            {
+              x: 3,
+              y: 54086,
+              z: 32769
+            },
+            {
+              x: 3,
+              y: 55054,
+              z: 32769
+            },
+            {
+              x: 3,
+              y: 56082,
+              z: 32769
+            },
+            {
+              x: 3,
+              y: 57134,
+              z: 32769
+            },
+            {
+              x: 3,
+              y: 58178,
+              z: 32769
+            },
+            {
+              x: 1,
+              y: 2,
+              z: 62177
+            },
+            {
+              x: 1,
+              y: 2,
+              z: 61689
+            },
+            {
+              x: 1,
+              y: 2,
+              z: 61221
+            },
+            {
+              x: 1,
+              y: 2,
+              z: 60791
+            },
+            {
+              x: 1,
+              y: 2,
+              z: 60407
+            },
+            {
+              x: 1,
+              y: 2,
+              z: 60081
+            },
+            {
+              x: 1,
+              y: 2,
+              z: 59825
+            },
+            {
+              x: 1,
+              y: 2,
+              z: 59651
+            },
+            {
+              x: 1,
+              y: 2,
+              z: 59567
+            },
+            {
+              x: 1,
+              y: 2,
+              z: 59579
+            },
+            {
+              x: 1,
+              y: 2,
+              z: 59689
+            },
+            {
+              x: 1,
+              y: 2,
+              z: 59899
+            },
+            {
+              x: 1,
+              y: 2,
+              z: 60205
+            },
+            {
+              x: 1,
+              y: 2,
+              z: 60587
+            },
+            {
+              x: 1,
+              y: 2,
+              z: 61021
+            },
+            {
+              x: 1,
+              y: 2,
+              z: 61491
+            },
+            {
+              x: 1,
+              y: 2,
+              z: 61987
+            },
+            {
+              x: 3,
+              y: 58550,
+              z: 32769
+            },
+            {
+              x: 3,
+              y: 57518,
+              z: 32769
+            },
+            {
+              x: 3,
+              y: 56490,
+              z: 32769
+            },
+            {
+              x: 3,
+              y: 55498,
+              z: 32769
+            },
+            {
+              x: 3,
+              y: 54578,
+              z: 32769
+            },
+            {
+              x: 3,
+              y: 53758,
+              z: 32769
+            },
+            {
+              x: 3,
+              y: 53070,
+              z: 32769
+            },
+            {
+              x: 3,
+              y: 52534,
+              z: 32769
+            },
+            {
+              x: 3,
+              y: 52182,
+              z: 32769
+            },
+            {
+              x: 3,
+              y: 52038,
+              z: 32769
+            },
+            {
+              x: 3,
+              y: 52130,
+              z: 32769
+            },
+            {
+              x: 3,
+              y: 52382,
+              z: 32769
+            }
+          ]
+        },
+        translate_type: "FixedVectorTrack",
+        translate: {
+          co: {
+            x: 0.069827,
+            y: 0.0,
+            z: -0.0
+          }
+        }
+      },
+      {
+        bone_name: "left_foot",
+        scale_type: "FixedVectorTrack",
+        scale: {
+          co: {
+            x: 1.0,
+            y: 1.0,
+            z: 1.0
+          }
+        },
+        rotate_type: "DynamicRotationTrack",
+        rotate: {
+          co: [
+            {
+              x: 16373,
+              y: 4310,
+              z: 9033
+            },
+            {
+              x: 14445,
+              y: 4590,
+              z: 8733
+            },
+            {
+              x: 12597,
+              y: 4822,
+              z: 8551
+            },
+            {
+              x: 12557,
+              y: 4810,
+              z: 8561
+            },
+            {
+              x: 12613,
+              y: 4766,
+              z: 8619
+            },
+            {
+              x: 12765,
+              y: 4710,
+              z: 8733
+            },
+            {
+              x: 12989,
+              y: 4642,
+              z: 8893
+            },
+            {
+              x: 13277,
+              y: 4554,
+              z: 9085
+            },
+            {
+              x: 13613,
+              y: 4450,
+              z: 9307
+            },
+            {
+              x: 13989,
+              y: 4326,
+              z: 9551
+            },
+            {
+              x: 14381,
+              y: 4186,
+              z: 9817
+            },
+            {
+              x: 14797,
+              y: 4030,
+              z: 10099
+            },
+            {
+              x: 15205,
+              y: 3854,
+              z: 10399
+            },
+            {
+              x: 15605,
+              y: 3658,
+              z: 10703
+            },
+            {
+              x: 15989,
+              y: 3438,
+              z: 11003
+            },
+            {
+              x: 16357,
+              y: 3202,
+              z: 11297
+            },
+            {
+              x: 16701,
+              y: 2958,
+              z: 11577
+            },
+            {
+              x: 17013,
+              y: 2726,
+              z: 11829
+            },
+            {
+              x: 17269,
+              y: 2526,
+              z: 12041
+            },
+            {
+              x: 17461,
+              y: 2362,
+              z: 12197
+            },
+            {
+              x: 17581,
+              y: 2242,
+              z: 12289
+            },
+            {
+              x: 17621,
+              y: 2174,
+              z: 12317
+            },
+            {
+              x: 17605,
+              y: 2158,
+              z: 12291
+            },
+            {
+              x: 17549,
+              y: 2182,
+              z: 12211
+            },
+            {
+              x: 17461,
+              y: 2246,
+              z: 12081
+            },
+            {
+              x: 17349,
+              y: 2346,
+              z: 11907
+            },
+            {
+              x: 17213,
+              y: 2478,
+              z: 11695
+            },
+            {
+              x: 17077,
+              y: 2638,
+              z: 11451
+            },
+            {
+              x: 16941,
+              y: 2822,
+              z: 11183
+            },
+            {
+              x: 16813,
+              y: 3026,
+              z: 10897
+            },
+            {
+              x: 16709,
+              y: 3242,
+              z: 10605
+            },
+            {
+              x: 16613,
+              y: 3474,
+              z: 10317
+            },
+            {
+              x: 16549,
+              y: 3714,
+              z: 10037
+            },
+            {
+              x: 16493,
+              y: 3950,
+              z: 9765
+            },
+            {
+              x: 16461,
+              y: 4178,
+              z: 9497
+            },
+            {
+              x: 16413,
+              y: 4294,
+              z: 9257
+            },
+            {
+              x: 16373,
+              y: 4310,
+              z: 9033
+            }
+          ]
+        },
+        translate_type: "FixedVectorTrack",
+        translate: {
+          co: {
+            x: 0.065354,
+            y: -0.0,
+            z: 0.0
+          }
+        }
+      },
+      {
+        bone_name: "left_foot_index",
+        scale_type: "FixedVectorTrack",
+        scale: {
+          co: {
+            x: 1.0,
+            y: 1.0,
+            z: 1.0
+          }
+        },
+        rotate_type: "FixedRotationTrack",
+        rotate: {
+          co: {
+            x: 3,
+            y: 65534,
+            z: 32768
+          }
+        },
+        translate_type: "FixedVectorTrack",
+        translate: {
+          co: {
+            x: 0.059836,
+            y: 0.0,
+            z: -0.027659
+          }
+        }
+      },
+      {
+        bone_name: "right_leg_01",
+        scale_type: "FixedVectorTrack",
+        scale: {
+          co: {
+            x: 1.0,
+            y: 1.0,
+            z: 1.0
+          }
+        },
+        rotate_type: "Framed8RotationTrack",
+        rotate: {
+          frames: [
+            0,
+            0,
+            2,
+            4,
+            5,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            14,
+            16,
+            18,
+            21,
+            23,
+            25,
+            26,
+            27,
+            28,
+            29,
+            30,
+            32,
+            34,
+            35,
+            36,
+            36
+          ],
+          co: [
+            {
+              x: 42811,
+              y: 28821,
+              z: 26572
+            },
+            {
+              x: 42811,
+              y: 28821,
+              z: 26572
+            },
+            {
+              x: 42315,
+              y: 28845,
+              z: 26458
+            },
+            {
+              x: 42443,
+              y: 29353,
+              z: 26450
+            },
+            {
+              x: 42635,
+              y: 29809,
+              z: 26474
+            },
+            {
+              x: 43179,
+              y: 30997,
+              z: 26570
+            },
+            {
+              x: 43507,
+              y: 31657,
+              z: 26632
+            },
+            {
+              x: 43859,
+              y: 32333,
+              z: 26698
+            },
+            {
+              x: 44219,
+              y: 33009,
+              z: 26768
+            },
+            {
+              x: 44579,
+              y: 33661,
+              z: 26836
+            },
+            {
+              x: 44931,
+              y: 34273,
+              z: 26902
+            },
+            {
+              x: 45603,
+              y: 35297,
+              z: 27000
+            },
+            {
+              x: 46163,
+              y: 35933,
+              z: 27044
+            },
+            {
+              x: 46563,
+              y: 36137,
+              z: 27052
+            },
+            {
+              x: 46771,
+              y: 35665,
+              z: 27000
+            },
+            {
+              x: 46659,
+              y: 34873,
+              z: 26938
+            },
+            {
+              x: 46371,
+              y: 33761,
+              z: 26868
+            },
+            {
+              x: 46155,
+              y: 33129,
+              z: 26836
+            },
+            {
+              x: 45899,
+              y: 32465,
+              z: 26806
+            },
+            {
+              x: 45611,
+              y: 31793,
+              z: 26780
+            },
+            {
+              x: 45283,
+              y: 31125,
+              z: 26758
+            },
+            {
+              x: 44923,
+              y: 30481,
+              z: 26742
+            },
+            {
+              x: 44123,
+              y: 29341,
+              z: 26734
+            },
+            {
+              x: 43539,
+              y: 28869,
+              z: 26740
+            },
+            {
+              x: 43235,
+              y: 28857,
+              z: 26680
+            },
+            {
+              x: 42811,
+              y: 28821,
+              z: 26572
+            },
+            {
+              x: 42811,
+              y: 28821,
+              z: 26572
+            }
+          ]
+        },
+        translate_type: "FixedVectorTrack",
+        translate: {
+          co: {
+            x: 0.059582,
+            y: -0.094968,
+            z: -0.011071
+          }
+        }
+      },
+      {
+        bone_name: "right_leg_02",
+        scale_type: "FixedVectorTrack",
+        scale: {
+          co: {
+            x: 1.0,
+            y: 1.0,
+            z: 1.0
+          }
+        },
+        rotate_type: "DynamicRotationTrack",
+        rotate: {
+          co: [
+            {
+              x: 3,
+              y: 57734,
+              z: 32769
+            },
+            {
+              x: 3,
+              y: 56814,
+              z: 32769
+            },
+            {
+              x: 3,
+              y: 55806,
+              z: 32769
+            },
+            {
+              x: 3,
+              y: 54754,
+              z: 32769
+            },
+            {
+              x: 3,
+              y: 53738,
+              z: 32769
+            },
+            {
+              x: 3,
+              y: 52822,
+              z: 32769
+            },
+            {
+              x: 3,
+              y: 52026,
+              z: 32769
+            },
+            {
+              x: 3,
+              y: 51330,
+              z: 32769
+            },
+            {
+              x: 3,
+              y: 50754,
+              z: 32769
+            },
+            {
+              x: 3,
+              y: 50298,
+              z: 32769
+            },
+            {
+              x: 3,
+              y: 49978,
+              z: 32769
+            },
+            {
+              x: 3,
+              y: 49798,
+              z: 32769
+            },
+            {
+              x: 3,
+              y: 49770,
+              z: 32769
+            },
+            {
+              x: 3,
+              y: 49906,
+              z: 32769
+            },
+            {
+              x: 3,
+              y: 50218,
+              z: 32769
+            },
+            {
+              x: 3,
+              y: 50698,
+              z: 32769
+            },
+            {
+              x: 3,
+              y: 51330,
+              z: 32769
+            },
+            {
+              x: 3,
+              y: 52090,
+              z: 32769
+            },
+            {
+              x: 3,
+              y: 52950,
+              z: 32769
+            },
+            {
+              x: 3,
+              y: 53870,
+              z: 32769
+            },
+            {
+              x: 3,
+              y: 54822,
+              z: 32769
+            },
+            {
+              x: 3,
+              y: 55770,
+              z: 32769
+            },
+            {
+              x: 3,
+              y: 56682,
+              z: 32769
+            },
+            {
+              x: 3,
+              y: 57534,
+              z: 32769
+            },
+            {
+              x: 3,
+              y: 58310,
+              z: 32769
+            },
+            {
+              x: 3,
+              y: 58998,
+              z: 32769
+            },
+            {
+              x: 1,
+              y: 2,
+              z: 61967
+            },
+            {
+              x: 1,
+              y: 2,
+              z: 61711
+            },
+            {
+              x: 1,
+              y: 2,
+              z: 61511
+            },
+            {
+              x: 1,
+              y: 2,
+              z: 61371
+            },
+            {
+              x: 1,
+              y: 2,
+              z: 61301
+            },
+            {
+              x: 1,
+              y: 2,
+              z: 61309
+            },
+            {
+              x: 1,
+              y: 2,
+              z: 61401
+            },
+            {
+              x: 1,
+              y: 2,
+              z: 61631
+            },
+            {
+              x: 1,
+              y: 2,
+              z: 61993
+            },
+            {
+              x: 3,
+              y: 58654,
+              z: 32769
+            },
+            {
+              x: 3,
+              y: 57734,
+              z: 32769
+            }
+          ]
+        },
+        translate_type: "FixedVectorTrack",
+        translate: {
+          co: {
+            x: 0.069828,
+            y: -0.0,
+            z: -0.0
+          }
+        }
+      },
+      {
+        bone_name: "right_foot",
+        scale_type: "FixedVectorTrack",
+        scale: {
+          co: {
+            x: 1.0,
+            y: 1.0,
+            z: 1.0
+          }
+        },
+        rotate_type: "Framed8RotationTrack",
+        rotate: {
+          frames: [
+            0,
+            0,
+            1,
+            2,
+            4,
+            5,
+            7,
+            10,
+            12,
+            13,
+            14,
+            16,
+            17,
+            18,
+            19,
+            20,
+            22,
+            24,
+            27,
+            29,
+            31,
+            33,
+            34,
+            35,
+            36,
+            36
+          ],
+          co: [
+            {
+              x: 42701,
+              y: 59609,
+              z: 9042
+            },
+            {
+              x: 42701,
+              y: 59609,
+              z: 9042
+            },
+            {
+              x: 42501,
+              y: 59545,
+              z: 8616
+            },
+            {
+              x: 42341,
+              y: 59533,
+              z: 8206
+            },
+            {
+              x: 42205,
+              y: 59625,
+              z: 7518
+            },
+            {
+              x: 42237,
+              y: 59689,
+              z: 7288
+            },
+            {
+              x: 42453,
+              y: 59813,
+              z: 7052
+            },
+            {
+              x: 42981,
+              y: 59973,
+              z: 7112
+            },
+            {
+              x: 43381,
+              y: 60029,
+              z: 7392
+            },
+            {
+              x: 43573,
+              y: 60033,
+              z: 7604
+            },
+            {
+              x: 43757,
+              y: 60017,
+              z: 7862
+            },
+            {
+              x: 44069,
+              y: 59913,
+              z: 8496
+            },
+            {
+              x: 44197,
+              y: 59845,
+              z: 8856
+            },
+            {
+              x: 44301,
+              y: 59777,
+              z: 9232
+            },
+            {
+              x: 44397,
+              y: 59709,
+              z: 9612
+            },
+            {
+              x: 44461,
+              y: 59637,
+              z: 9984
+            },
+            {
+              x: 44501,
+              y: 59513,
+              z: 10646
+            },
+            {
+              x: 44421,
+              y: 59425,
+              z: 11114
+            },
+            {
+              x: 44093,
+              y: 59381,
+              z: 11376
+            },
+            {
+              x: 43773,
+              y: 59405,
+              z: 11248
+            },
+            {
+              x: 43429,
+              y: 59477,
+              z: 10882
+            },
+            {
+              x: 43117,
+              y: 59617,
+              z: 10280
+            },
+            {
+              x: 43029,
+              y: 59725,
+              z: 9904
+            },
+            {
+              x: 42901,
+              y: 59721,
+              z: 9480
+            },
+            {
+              x: 42701,
+              y: 59609,
+              z: 9042
+            },
+            {
+              x: 42701,
+              y: 59609,
+              z: 9042
+            }
+          ]
+        },
+        translate_type: "FixedVectorTrack",
+        translate: {
+          co: {
+            x: 0.065354,
+            y: 0.0,
+            z: 0.0
+          }
+        }
+      },
+      {
+        bone_name: "right_foot_index",
+        scale_type: "FixedVectorTrack",
+        scale: {
+          co: {
+            x: 1.0,
+            y: 1.0,
+            z: 1.0
+          }
+        },
+        rotate_type: "FixedRotationTrack",
+        rotate: {
+          co: {
+            x: 3,
+            y: 60158,
+            z: 32768
+          }
+        },
+        translate_type: "FixedVectorTrack",
+        translate: {
+          co: {
+            x: 0.059836,
+            y: -0.0,
+            z: -0.027658
+          }
+        }
+      },
+      {
+        bone_name: "tail_01",
+        scale_type: "FixedVectorTrack",
+        scale: {
+          co: {
+            x: 1.0,
+            y: 1.0,
+            z: 1.0
+          }
+        },
+        rotate_type: "Framed8RotationTrack",
+        rotate: {
+          frames: [
+            0,
+            0,
+            1,
+            4,
+            9,
+            14,
+            17,
+            21,
+            26,
+            30,
+            32,
+            36,
+            36
+          ],
+          co: [
+            {
+              x: 64352,
+              y: 13189,
+              z: 32840
+            },
+            {
+              x: 64352,
+              y: 13189,
+              z: 32840
+            },
+            {
+              x: 64264,
+              y: 13081,
+              z: 32952
+            },
+            {
+              x: 64480,
+              y: 12789,
+              z: 33220
+            },
+            {
+              x: 584,
+              y: 12834,
+              z: 33374
+            },
+            {
+              x: 2456,
+              y: 13382,
+              z: 33126
+            },
+            {
+              x: 3128,
+              y: 13766,
+              z: 32836
+            },
+            {
+              x: 3128,
+              y: 14150,
+              z: 32456
+            },
+            {
+              x: 1512,
+              y: 14142,
+              z: 32230
+            },
+            {
+              x: 65344,
+              y: 13745,
+              z: 32300
+            },
+            {
+              x: 64744,
+              y: 13517,
+              z: 32448
+            },
+            {
+              x: 64352,
+              y: 13189,
+              z: 32840
+            },
+            {
+              x: 64352,
+              y: 13189,
+              z: 32840
+            }
+          ]
+        },
+        translate_type: "FixedVectorTrack",
+        translate: {
+          co: {
+            x: 0.098936,
+            y: 0.0,
+            z: -0.080041
+          }
+        }
+      },
+      {
+        bone_name: "tail_02",
+        scale_type: "FixedVectorTrack",
+        scale: {
+          co: {
+            x: 1.0,
+            y: 1.0,
+            z: 1.0
+          }
+        },
+        rotate_type: "Framed8RotationTrack",
+        rotate: {
+          frames: [
+            0,
+            0,
+            1,
+            3,
+            5,
+            9,
+            14,
+            19,
+            23,
+            28,
+            32,
+            36,
+            36
+          ],
+          co: [
+            {
+              x: 2147,
+              y: 50578,
+              z: 31782
+            },
+            {
+              x: 2147,
+              y: 50578,
+              z: 31782
+            },
+            {
+              x: 1643,
+              y: 50518,
+              z: 31872
+            },
+            {
+              x: 643,
+              y: 50402,
+              z: 31984
+            },
+            {
+              x: 65243,
+              y: 50309,
+              z: 31956
+            },
+            {
+              x: 63875,
+              y: 50245,
+              z: 31624
+            },
+            {
+              x: 63779,
+              y: 50409,
+              z: 30994
+            },
+            {
+              x: 65507,
+              y: 50657,
+              z: 30518
+            },
+            {
+              x: 1763,
+              y: 50826,
+              z: 30520
+            },
+            {
+              x: 3379,
+              y: 50918,
+              z: 31000
+            },
+            {
+              x: 3331,
+              y: 50770,
+              z: 31476
+            },
+            {
+              x: 2147,
+              y: 50578,
+              z: 31782
+            },
+            {
+              x: 2147,
+              y: 50578,
+              z: 31782
+            }
+          ]
+        },
+        translate_type: "FixedVectorTrack",
+        translate: {
+          co: {
+            x: 0.073205,
+            y: 0.0,
+            z: 0.0
+          }
+        }
+      },
+      {
+        bone_name: "tail_03",
+        scale_type: "FixedVectorTrack",
+        scale: {
+          co: {
+            x: 1.0,
+            y: 1.0,
+            z: 1.0
+          }
+        },
+        rotate_type: "Framed8RotationTrack",
+        rotate: {
+          frames: [
+            0,
+            0,
+            1,
+            4,
+            6,
+            10,
+            15,
+            20,
+            24,
+            28,
+            31,
+            33,
+            36,
+            36
+          ],
+          co: [
+            {
+              x: 3779,
+              y: 49222,
+              z: 31880
+            },
+            {
+              x: 3779,
+              y: 49222,
+              z: 31880
+            },
+            {
+              x: 3187,
+              y: 49154,
+              z: 31996
+            },
+            {
+              x: 1339,
+              y: 48962,
+              z: 32142
+            },
+            {
+              x: 179,
+              y: 48870,
+              z: 32060
+            },
+            {
+              x: 64115,
+              y: 48861,
+              z: 31600
+            },
+            {
+              x: 64483,
+              y: 49105,
+              z: 30796
+            },
+            {
+              x: 1459,
+              y: 49394,
+              z: 30246
+            },
+            {
+              x: 3811,
+              y: 49562,
+              z: 30334
+            },
+            {
+              x: 5403,
+              y: 49630,
+              z: 30840
+            },
+            {
+              x: 5459,
+              y: 49510,
+              z: 31312
+            },
+            {
+              x: 4819,
+              y: 49378,
+              z: 31598
+            },
+            {
+              x: 3779,
+              y: 49222,
+              z: 31880
+            },
+            {
+              x: 3779,
+              y: 49222,
+              z: 31880
+            }
+          ]
+        },
+        translate_type: "FixedVectorTrack",
+        translate: {
+          co: {
+            x: 0.074659,
+            y: 0.0,
+            z: 0.0
+          }
+        }
+      },
+      {
+        bone_name: "tail_04",
+        scale_type: "FixedVectorTrack",
+        scale: {
+          co: {
+            x: 1.0,
+            y: 1.0,
+            z: 1.0
+          }
+        },
+        rotate_type: "Framed8RotationTrack",
+        rotate: {
+          frames: [
+            0,
+            0,
+            1,
+            2,
+            4,
+            6,
+            9,
+            11,
+            12,
+            13,
+            15,
+            18,
+            20,
+            23,
+            25,
+            27,
+            30,
+            32,
+            33,
+            34,
+            36,
+            36
+          ],
+          co: [
+            {
+              x: 1843,
+              y: 51234,
+              z: 31768
+            },
+            {
+              x: 1843,
+              y: 51234,
+              z: 31768
+            },
+            {
+              x: 1347,
+              y: 51074,
+              z: 32050
+            },
+            {
+              x: 851,
+              y: 50938,
+              z: 32342
+            },
+            {
+              x: 65339,
+              y: 50733,
+              z: 32784
+            },
+            {
+              x: 64179,
+              y: 50617,
+              z: 32832
+            },
+            {
+              x: 62651,
+              y: 50593,
+              z: 32470
+            },
+            {
+              x: 61995,
+              y: 50681,
+              z: 32036
+            },
+            {
+              x: 61835,
+              y: 50749,
+              z: 31780
+            },
+            {
+              x: 61779,
+              y: 50833,
+              z: 31504
+            },
+            {
+              x: 61995,
+              y: 51021,
+              z: 30930
+            },
+            {
+              x: 62931,
+              y: 51329,
+              z: 30114
+            },
+            {
+              x: 63859,
+              y: 51517,
+              z: 29684
+            },
+            {
+              x: 65467,
+              y: 51741,
+              z: 29354
+            },
+            {
+              x: 1035,
+              y: 51842,
+              z: 29428
+            },
+            {
+              x: 2011,
+              y: 51898,
+              z: 29734
+            },
+            {
+              x: 2907,
+              y: 51826,
+              z: 30448
+            },
+            {
+              x: 2843,
+              y: 51638,
+              z: 30978
+            },
+            {
+              x: 2627,
+              y: 51530,
+              z: 31228
+            },
+            {
+              x: 2355,
+              y: 51418,
+              z: 31452
+            },
+            {
+              x: 1843,
+              y: 51234,
+              z: 31768
+            },
+            {
+              x: 1843,
+              y: 51234,
+              z: 31768
+            }
+          ]
+        },
+        translate_type: "FixedVectorTrack",
+        translate: {
+          co: {
+            x: 0.079372,
+            y: 0.0,
+            z: 0.0
+          }
+        }
+      },
+      {
+        bone_name: "tail_05",
+        scale_type: "FixedVectorTrack",
+        scale: {
+          co: {
+            x: 1.0,
+            y: 1.0,
+            z: 1.0
+          }
+        },
+        rotate_type: "Framed8RotationTrack",
+        rotate: {
+          frames: [
+            0,
+            0,
+            1,
+            4,
+            6,
+            10,
+            13,
+            17,
+            20,
+            24,
+            27,
+            29,
+            31,
+            33,
+            36,
+            36
+          ],
+          co: [
+            {
+              x: 1203,
+              y: 47082,
+              z: 32298
+            },
+            {
+              x: 1203,
+              y: 47082,
+              z: 32298
+            },
+            {
+              x: 779,
+              y: 46954,
+              z: 32468
+            },
+            {
+              x: 64979,
+              y: 46609,
+              z: 32798
+            },
+            {
+              x: 64131,
+              y: 46453,
+              z: 32870
+            },
+            {
+              x: 62843,
+              y: 46441,
+              z: 32620
+            },
+            {
+              x: 62611,
+              y: 46633,
+              z: 32174
+            },
+            {
+              x: 63363,
+              y: 47013,
+              z: 31456
+            },
+            {
+              x: 64467,
+              y: 47309,
+              z: 30990
+            },
+            {
+              x: 707,
+              y: 47630,
+              z: 30702
+            },
+            {
+              x: 1987,
+              y: 47762,
+              z: 30898
+            },
+            {
+              x: 2619,
+              y: 47770,
+              z: 31184
+            },
+            {
+              x: 2875,
+              y: 47622,
+              z: 31530
+            },
+            {
+              x: 2315,
+              y: 47382,
+              z: 31894
+            },
+            {
+              x: 1203,
+              y: 47082,
+              z: 32298
+            },
+            {
+              x: 1203,
+              y: 47082,
+              z: 32298
+            }
+          ]
+        },
+        translate_type: "FixedVectorTrack",
+        translate: {
+          co: {
+            x: 0.075565,
+            y: 0.0,
+            z: -0.0
+          }
+        }
+      },
+      {
+        bone_name: "tail_06",
+        scale_type: "FixedVectorTrack",
+        scale: {
+          co: {
+            x: 1.0,
+            y: 1.0,
+            z: 1.0
+          }
+        },
+        rotate_type: "Framed8RotationTrack",
+        rotate: {
+          frames: [
+            0,
+            0,
+            1,
+            3,
+            6,
+            10,
+            14,
+            17,
+            20,
+            22,
+            26,
+            29,
+            31,
+            33,
+            36,
+            36
+          ],
+          co: [
+            {
+              x: 1883,
+              y: 56102,
+              z: 32602
+            },
+            {
+              x: 1883,
+              y: 56102,
+              z: 32602
+            },
+            {
+              x: 1467,
+              y: 56034,
+              z: 32796
+            },
+            {
+              x: 587,
+              y: 55906,
+              z: 33160
+            },
+            {
+              x: 64835,
+              y: 55749,
+              z: 33568
+            },
+            {
+              x: 63619,
+              y: 55725,
+              z: 33656
+            },
+            {
+              x: 63635,
+              y: 55865,
+              z: 33234
+            },
+            {
+              x: 64419,
+              y: 56025,
+              z: 32734
+            },
+            {
+              x: 43,
+              y: 56190,
+              z: 32202
+            },
+            {
+              x: 899,
+              y: 56282,
+              z: 31882
+            },
+            {
+              x: 2459,
+              y: 56406,
+              z: 31478
+            },
+            {
+              x: 3195,
+              y: 56438,
+              z: 31544
+            },
+            {
+              x: 3307,
+              y: 56378,
+              z: 31826
+            },
+            {
+              x: 2803,
+              y: 56258,
+              z: 32182
+            },
+            {
+              x: 1883,
+              y: 56102,
+              z: 32602
+            },
+            {
+              x: 1883,
+              y: 56102,
+              z: 32602
+            }
+          ]
+        },
+        translate_type: "FixedVectorTrack",
+        translate: {
+          co: {
+            x: 0.068807,
+            y: 0.0,
+            z: -0.0
+          }
+        }
+      },
+      {
+        bone_name: "feeler_01",
+        scale_type: "Framed8VectorTrack",
+        scale: {
+          frames: [
+            0,
+            0,
+            2,
+            4,
+            6,
+            9,
+            13,
+            17,
+            20,
+            22,
+            24,
+            27,
+            29,
+            30,
+            32,
+            34,
+            36,
+            36
+          ],
+          co: [
+            {
+              x: 0.798138,
+              y: 0.8,
+              z: 1.0
+            },
+            {
+              x: 0.798138,
+              y: 0.8,
+              z: 1.0
+            },
+            {
+              x: 0.874245,
+              y: 0.824246,
+              z: 0.977575
+            },
+            {
+              x: 0.933372,
+              y: 0.880546,
+              z: 0.924769
+            },
+            {
+              x: 0.95716,
+              y: 0.944243,
+              z: 0.863281
+            },
+            {
+              x: 0.914247,
+              y: 0.999721,
+              z: 0.802246
+            },
+            {
+              x: 0.801401,
+              y: 0.930798,
+              z: 0.857491
+            },
+            {
+              x: 0.765063,
+              y: 0.818457,
+              z: 0.973304
+            },
+            {
+              x: 0.839033,
+              y: 0.808497,
+              z: 0.995342
+            },
+            {
+              x: 0.90273,
+              y: 0.85127,
+              z: 0.952141
+            },
+            {
+              x: 0.949167,
+              y: 0.911208,
+              z: 0.886401
+            },
+            {
+              x: 0.938516,
+              y: 0.986363,
+              z: 0.807161
+            },
+            {
+              x: 0.884312,
+              y: 0.994251,
+              z: 0.808594
+            },
+            {
+              x: 0.85197,
+              y: 0.97515,
+              z: 0.83125
+            },
+            {
+              x: 0.792218,
+              y: 0.906676,
+              z: 0.9
+            },
+            {
+              x: 0.759589,
+              y: 0.833877,
+              z: 0.96875
+            },
+            {
+              x: 0.798138,
+              y: 0.8,
+              z: 1.0
+            },
+            {
+              x: 0.798138,
+              y: 0.8,
+              z: 1.0
+            }
+          ]
+        },
+        rotate_type: "DynamicRotationTrack",
+        rotate: {
+          co: [
+            {
+              x: 64699,
+              y: 62589,
+              z: 33934
+            },
+            {
+              x: 63883,
+              y: 61417,
+              z: 33448
+            },
+            {
+              x: 63043,
+              y: 60237,
+              z: 32940
+            },
+            {
+              x: 62195,
+              y: 59057,
+              z: 32428
+            },
+            {
+              x: 61379,
+              y: 57897,
+              z: 31926
+            },
+            {
+              x: 60643,
+              y: 56773,
+              z: 31450
+            },
+            {
+              x: 60019,
+              y: 55689,
+              z: 31016
+            },
+            {
+              x: 59563,
+              y: 54669,
+              z: 30634
+            },
+            {
+              x: 59299,
+              y: 53717,
+              z: 30322
+            },
+            {
+              x: 59259,
+              y: 52853,
+              z: 30096
+            },
+            {
+              x: 59443,
+              y: 52077,
+              z: 29968
+            },
+            {
+              x: 59875,
+              y: 51401,
+              z: 29958
+            },
+            {
+              x: 60539,
+              y: 50829,
+              z: 30062
+            },
+            {
+              x: 61419,
+              y: 50373,
+              z: 30270
+            },
+            {
+              x: 62483,
+              y: 50033,
+              z: 30564
+            },
+            {
+              x: 63699,
+              y: 49825,
+              z: 30932
+            },
+            {
+              x: 65011,
+              y: 49749,
+              z: 31364
+            },
+            {
+              x: 843,
+              y: 49878,
+              z: 31846
+            },
+            {
+              x: 2227,
+              y: 50246,
+              z: 32366
+            },
+            {
+              x: 3555,
+              y: 50818,
+              z: 32914
+            },
+            {
+              x: 4779,
+              y: 51570,
+              z: 33478
+            },
+            {
+              x: 5843,
+              y: 52470,
+              z: 34044
+            },
+            {
+              x: 6715,
+              y: 53490,
+              z: 34598
+            },
+            {
+              x: 7339,
+              y: 54606,
+              z: 35122
+            },
+            {
+              x: 7707,
+              y: 55782,
+              z: 35604
+            },
+            {
+              x: 7755,
+              y: 56998,
+              z: 36022
+            },
+            {
+              x: 7499,
+              y: 58222,
+              z: 36360
+            },
+            {
+              x: 6979,
+              y: 59418,
+              z: 36596
+            },
+            {
+              x: 6235,
+              y: 60562,
+              z: 36712
+            },
+            {
+              x: 5299,
+              y: 61610,
+              z: 36652
+            },
+            {
+              x: 4243,
+              y: 62530,
+              z: 36406
+            },
+            {
+              x: 3139,
+              y: 63286,
+              z: 36028
+            },
+            {
+              x: 2059,
+              y: 63834,
+              z: 35564
+            },
+            {
+              x: 1075,
+              y: 64146,
+              z: 35070
+            },
+            {
+              x: 227,
+              y: 64114,
+              z: 34600
+            },
+            {
+              x: 65131,
+              y: 63361,
+              z: 34204
+            },
+            {
+              x: 64699,
+              y: 62589,
+              z: 33934
+            }
+          ]
+        },
+        translate_type: "FixedVectorTrack",
+        translate: {
+          co: {
+            x: 0.06,
+            y: -0.0,
+            z: -0.0
+          }
+        }
+      },
+      {
+        bone_name: "feeler_02",
+        scale_type: "Framed8VectorTrack",
+        scale: {
+          frames: [
+            0,
+            0,
+            2,
+            5,
+            8,
+            10,
+            11,
+            12,
+            14,
+            16,
+            18,
+            20,
+            23,
+            25,
+            27,
+            28,
+            31,
+            33,
+            34,
+            36,
+            36
+          ],
+          co: [
+            {
+              x: 0.887379,
+              y: 0.972145,
+              z: 0.850441
+            },
+            {
+              x: 0.887379,
+              y: 0.972145,
+              z: 0.850441
+            },
+            {
+              x: 0.841931,
+              y: 0.904134,
+              z: 0.909854
+            },
+            {
+              x: 0.842466,
+              y: 0.837843,
+              z: 0.966532
+            },
+            {
+              x: 0.941185,
+              y: 0.869156,
+              z: 0.934845
+            },
+            {
+              x: 1.005435,
+              y: 0.928908,
+              z: 0.875094
+            },
+            {
+              x: 1.023029,
+              y: 0.96125,
+              z: 0.842752
+            },
+            {
+              x: 1.025222,
+              y: 0.991126,
+              z: 0.812876
+            },
+            {
+              x: 0.994985,
+              y: 1.031152,
+              z: 0.77285
+            },
+            {
+              x: 0.938706,
+              y: 1.026106,
+              z: 0.777896
+            },
+            {
+              x: 0.878087,
+              y: 0.979669,
+              z: 0.824333
+            },
+            {
+              x: 0.834829,
+              y: 0.915972,
+              z: 0.88803
+            },
+            {
+              x: 0.844692,
+              y: 0.842001,
+              z: 0.962001
+            },
+            {
+              x: 0.895437,
+              y: 0.842001,
+              z: 0.962001
+            },
+            {
+              x: 0.957033,
+              y: 0.885356,
+              z: 0.918646
+            },
+            {
+              x: 0.985118,
+              y: 0.915972,
+              z: 0.88803
+            },
+            {
+              x: 1.025707,
+              y: 1.006586,
+              z: 0.797416
+            },
+            {
+              x: 0.977986,
+              y: 1.035146,
+              z: 0.768855
+            },
+            {
+              x: 0.940653,
+              y: 1.025114,
+              z: 0.782824
+            },
+            {
+              x: 0.887379,
+              y: 0.972145,
+              z: 0.850441
+            },
+            {
+              x: 0.887379,
+              y: 0.972145,
+              z: 0.850441
+            }
+          ]
+        },
+        rotate_type: "DynamicRotationTrack",
+        rotate: {
+          co: [
+            {
+              x: 21803,
+              y: 60474,
+              z: 31408
+            },
+            {
+              x: 18827,
+              y: 61986,
+              z: 31788
+            },
+            {
+              x: 15691,
+              y: 63170,
+              z: 32134
+            },
+            {
+              x: 12459,
+              y: 63982,
+              z: 32452
+            },
+            {
+              x: 9171,
+              y: 64390,
+              z: 32742
+            },
+            {
+              x: 5899,
+              y: 64362,
+              z: 33008
+            },
+            {
+              x: 2683,
+              y: 63906,
+              z: 33260
+            },
+            {
+              x: 65123,
+              y: 63073,
+              z: 33502
+            },
+            {
+              x: 62179,
+              y: 61913,
+              z: 33734
+            },
+            {
+              x: 59443,
+              y: 60485,
+              z: 33958
+            },
+            {
+              x: 56955,
+              y: 58849,
+              z: 34172
+            },
+            {
+              x: 54731,
+              y: 57061,
+              z: 34368
+            },
+            {
+              x: 52803,
+              y: 55181,
+              z: 34536
+            },
+            {
+              x: 51195,
+              y: 53261,
+              z: 34666
+            },
+            {
+              x: 49915,
+              y: 51353,
+              z: 34746
+            },
+            {
+              x: 48987,
+              y: 49513,
+              z: 34774
+            },
+            {
+              x: 48435,
+              y: 47785,
+              z: 34742
+            },
+            {
+              x: 48283,
+              y: 46209,
+              z: 34646
+            },
+            {
+              x: 48811,
+              y: 44829,
+              z: 34468
+            },
+            {
+              x: 50051,
+              y: 43677,
+              z: 34196
+            },
+            {
+              x: 51899,
+              y: 42793,
+              z: 33840
+            },
+            {
+              x: 54267,
+              y: 42225,
+              z: 33410
+            },
+            {
+              x: 57059,
+              y: 42017,
+              z: 32924
+            },
+            {
+              x: 60203,
+              y: 42221,
+              z: 32406
+            },
+            {
+              x: 63635,
+              y: 42825,
+              z: 31880
+            },
+            {
+              x: 1739,
+              y: 43770,
+              z: 31380
+            },
+            {
+              x: 5499,
+              y: 45002,
+              z: 30932
+            },
+            {
+              x: 9275,
+              y: 46462,
+              z: 30556
+            },
+            {
+              x: 12955,
+              y: 48090,
+              z: 30270
+            },
+            {
+              x: 16411,
+              y: 49834,
+              z: 30090
+            },
+            {
+              x: 19523,
+              y: 51642,
+              z: 30018
+            },
+            {
+              x: 22147,
+              y: 53450,
+              z: 30066
+            },
+            {
+              x: 24155,
+              y: 55222,
+              z: 30256
+            },
+            {
+              x: 25387,
+              y: 56886,
+              z: 30540
+            },
+            {
+              x: 25531,
+              y: 58370,
+              z: 30862
+            },
+            {
+              x: 23715,
+              y: 59598,
+              z: 31182
+            },
+            {
+              x: 21803,
+              y: 60474,
+              z: 31408
+            }
+          ]
+        },
+        translate_type: "FixedVectorTrack",
+        translate: {
+          co: {
+            x: 0.077819,
+            y: 0.0,
+            z: 0.0
+          }
+        }
+      },
+      {
+        bone_name: "feeler_03",
+        scale_type: "FixedVectorTrack",
+        scale: {
+          co: {
+            x: 0.993141,
+            y: 0.97476,
+            z: 0.82524
+          }
+        },
+        rotate_type: "DynamicRotationTrack",
+        rotate: {
+          co: [
+            {
+              x: 13739,
+              y: 60562,
+              z: 30398
+            },
+            {
+              x: 18163,
+              y: 62630,
+              z: 30500
+            },
+            {
+              x: 21475,
+              y: 64802,
+              z: 30730
+            },
+            {
+              x: 23675,
+              y: 1474,
+              z: 31055
+            },
+            {
+              x: 24739,
+              y: 3662,
+              z: 31439
+            },
+            {
+              x: 24699,
+              y: 5758,
+              z: 31849
+            },
+            {
+              x: 23651,
+              y: 7690,
+              z: 32253
+            },
+            {
+              x: 21715,
+              y: 9386,
+              z: 32631
+            },
+            {
+              x: 19011,
+              y: 10766,
+              z: 32967
+            },
+            {
+              x: 15651,
+              y: 11754,
+              z: 33251
+            },
+            {
+              x: 11787,
+              y: 12274,
+              z: 33487
+            },
+            {
+              x: 7523,
+              y: 12254,
+              z: 33679
+            },
+            {
+              x: 3003,
+              y: 11674,
+              z: 33843
+            },
+            {
+              x: 63875,
+              y: 10585,
+              z: 33993
+            },
+            {
+              x: 59187,
+              y: 9061,
+              z: 34147
+            },
+            {
+              x: 54595,
+              y: 7173,
+              z: 34311
+            },
+            {
+              x: 50195,
+              y: 5001,
+              z: 34487
+            },
+            {
+              x: 46099,
+              y: 2629,
+              z: 34675
+            },
+            {
+              x: 42403,
+              y: 145,
+              z: 34863
+            },
+            {
+              x: 39187,
+              y: 63161,
+              z: 35034
+            },
+            {
+              x: 36539,
+              y: 60689,
+              z: 35174
+            },
+            {
+              x: 34515,
+              y: 58329,
+              z: 35270
+            },
+            {
+              x: 33211,
+              y: 56141,
+              z: 35312
+            },
+            {
+              x: 32683,
+              y: 54169,
+              z: 35280
+            },
+            {
+              x: 33155,
+              y: 52465,
+              z: 35154
+            },
+            {
+              x: 34787,
+              y: 51057,
+              z: 34912
+            },
+            {
+              x: 37395,
+              y: 49989,
+              z: 34548
+            },
+            {
+              x: 40795,
+              y: 49313,
+              z: 34076
+            },
+            {
+              x: 44819,
+              y: 49081,
+              z: 33518
+            },
+            {
+              x: 49307,
+              y: 49497,
+              z: 32898
+            },
+            {
+              x: 54131,
+              y: 50589,
+              z: 32268
+            },
+            {
+              x: 59139,
+              y: 52169,
+              z: 31682
+            },
+            {
+              x: 64139,
+              y: 54037,
+              z: 31190
+            },
+            {
+              x: 3371,
+              y: 56006,
+              z: 30812
+            },
+            {
+              x: 7651,
+              y: 57878,
+              z: 30562
+            },
+            {
+              x: 11195,
+              y: 59458,
+              z: 30430
+            },
+            {
+              x: 13739,
+              y: 60562,
+              z: 30398
+            }
+          ]
+        },
+        translate_type: "FixedVectorTrack",
+        translate: {
+          co: {
+            x: 0.077819,
+            y: -0.0,
+            z: -0.0
+          }
+        }
+      }
+    ]
+  }
+}

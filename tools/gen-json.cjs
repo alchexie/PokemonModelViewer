@@ -31,6 +31,12 @@ const MODEL_FILE_TYPES = [
   { ext: 'trpokecfg', schema: 'trpokecfg.fbs' },
 ];
 
+// 动画文件类型和对应的 schema
+const ANIMATION_FILE_TYPES = [
+  { ext: 'tracm', schema: 'tracm.fbs' },
+  { ext: 'tranm', schema: 'tranm.fbs' },
+];
+
 /**
  * 确保输出目录存在
  */
@@ -61,8 +67,8 @@ function getFormDirs(pokemonId) {
  * 转换单个文件为 JSON
  * 输出文件名保留原始扩展名，如 pm0004_00_00.trmsh -> pm0004_00_00.trmsh.json
  */
-function convertToJson(inputFile, schemaFile, outputDir) {
-  const schemaPath = path.join(SCHEMA_DIR, schemaFile);
+function convertToJson(inputFile, schemaFile, outputDir, schemaDir = SCHEMA_DIR) {
+  const schemaPath = path.join(schemaDir, schemaFile);
   
   if (!fs.existsSync(schemaPath)) {
     console.warn(`  警告: Schema 文件不存在 ${schemaFile}`);
@@ -142,6 +148,19 @@ function convertForm(pokemonId, formId) {
     if (convertToJson(rareTrmtr, 'trmtr.fbs', outputFormDir)) {
       console.log(`  ✓ ${formId}_rare.trmtr`);
       convertedCount++;
+    }
+  }
+  
+  // 转换动画文件
+  const animationSchemaDir = path.join(__dirname, 'scheme', 'animation');
+  for (const { ext, schema } of ANIMATION_FILE_TYPES) {
+    const files = fs.readdirSync(formDir).filter(file => file.startsWith(formId) && file.endsWith('.' + ext));
+    for (const file of files) {
+      const inputFile = path.join(formDir, file);
+      if (convertToJson(inputFile, schema, outputFormDir, animationSchemaDir)) {
+        console.log(`  ✓ ${file}`);
+        convertedCount++;
+      }
     }
   }
   

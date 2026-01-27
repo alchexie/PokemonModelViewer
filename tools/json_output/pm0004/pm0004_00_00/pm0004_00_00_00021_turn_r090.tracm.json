@@ -1,0 +1,1126 @@
+{
+  config: {
+    duration: 61,
+    framerate: 60
+  },
+  tracks: [
+    {
+      track_path: "pm0004_00_00_eye_mesh_shape",
+      material_animation: {
+        material_track: [
+          {
+            name: "r_eye",
+            init_values: [
+
+            ],
+            anim_values: [
+              {
+                name: "UVScaleOffset",
+                list: {
+                  red: {
+                    values: [
+                      {
+                        value: 1.0
+                      },
+                      {
+                        time: 60.0,
+                        value: 1.0
+                      }
+                    ]
+                  },
+                  green: {
+                    values: [
+                      {
+                        value: 1.0
+                      },
+                      {
+                        time: 60.0,
+                        value: 1.0
+                      }
+                    ]
+                  },
+                  blue: {
+                    values: [
+                      {
+                        value: -0.0,
+                        config_2: 1
+                      },
+                      {
+                        time: 2.0,
+                        value: -0.02847,
+                        config_2: 1
+                      },
+                      {
+                        time: 3.0,
+                        value: -0.04268,
+                        config_2: 1
+                      },
+                      {
+                        time: 5.0,
+                        value: -0.070996,
+                        config_2: 1
+                      },
+                      {
+                        time: 6.0,
+                        value: -0.085082,
+                        config_2: 1
+                      },
+                      {
+                        time: 8.0,
+                        value: -0.068001,
+                        config_2: 1
+                      },
+                      {
+                        time: 10.0,
+                        value: -0.050848,
+                        config_2: 1
+                      },
+                      {
+                        time: 12.0,
+                        value: -0.033641,
+                        config_2: 1
+                      },
+                      {
+                        time: 14.0,
+                        value: -0.016399,
+                        config_2: 1
+                      },
+                      {
+                        time: 16.0,
+                        value: 0.000861,
+                        config_2: 1
+                      },
+                      {
+                        time: 18.0,
+                        value: 0.000291,
+                        config_2: 1
+                      },
+                      {
+                        time: 20.0,
+                        value: -0.000355,
+                        config_2: 1
+                      },
+                      {
+                        time: 22.0,
+                        value: -0.00104,
+                        config_2: 1
+                      },
+                      {
+                        time: 24.0,
+                        value: -0.001725,
+                        config_2: 1
+                      },
+                      {
+                        time: 26.0,
+                        value: -0.002372,
+                        config_2: 1
+                      },
+                      {
+                        time: 28.0,
+                        value: -0.002941,
+                        config_2: 1
+                      },
+                      {
+                        time: 30.0,
+                        value: -0.003396,
+                        config_2: 1
+                      },
+                      {
+                        time: 32.0,
+                        value: -0.003697,
+                        config_2: 1
+                      },
+                      {
+                        time: 34.0,
+                        value: -0.003806,
+                        config_2: 1
+                      },
+                      {
+                        time: 37.0,
+                        value: -0.004072,
+                        config_2: 1
+                      },
+                      {
+                        time: 39.0,
+                        value: -0.004234,
+                        config_2: 1
+                      },
+                      {
+                        time: 40.0,
+                        value: -0.004199,
+                        config_2: 1
+                      },
+                      {
+                        time: 41.0,
+                        value: -0.004036,
+                        config_2: 1
+                      },
+                      {
+                        time: 42.0,
+                        value: -0.003707,
+                        config_2: 1
+                      },
+                      {
+                        time: 44.0,
+                        value: -0.002652,
+                        config_2: 1
+                      },
+                      {
+                        time: 46.0,
+                        value: -0.001431,
+                        config_2: 1
+                      },
+                      {
+                        time: 47.0,
+                        value: -0.000876,
+                        config_2: 1
+                      },
+                      {
+                        time: 48.0,
+                        value: -0.000421,
+                        config_2: 1
+                      },
+                      {
+                        time: 49.0,
+                        value: -0.000113,
+                        config_2: 1
+                      },
+                      {
+                        time: 50.0,
+                        value: -0.0,
+                        config_2: 1
+                      },
+                      {
+                        time: 60.0,
+                        value: -0.0,
+                        config_2: 1
+                      }
+                    ]
+                  },
+                  alpha: {
+                    values: [
+                      {
+                        value: -0.0,
+                        config_2: 1
+                      },
+                      {
+                        time: 3.0,
+                        value: -0.0,
+                        config_2: 1
+                      },
+                      {
+                        time: 4.0,
+                        value: -0.020651,
+                        config_2: 1
+                      },
+                      {
+                        time: 5.0,
+                        value: -0.068473,
+                        config_2: 1
+                      },
+                      {
+                        time: 6.0,
+                        value: -0.121985,
+                        config_2: 1
+                      },
+                      {
+                        time: 7.0,
+                        value: -0.197683,
+                        config_2: 1
+                      },
+                      {
+                        time: 8.0,
+                        value: -0.205451,
+                        config_2: 1
+                      },
+                      {
+                        time: 9.0,
+                        value: -0.210137,
+                        config_2: 1
+                      },
+                      {
+                        time: 10.0,
+                        value: -0.212535,
+                        config_2: 1
+                      },
+                      {
+                        time: 11.0,
+                        value: -0.213418,
+                        config_2: 1
+                      },
+                      {
+                        time: 12.0,
+                        value: -0.213544,
+                        config_2: 1
+                      },
+                      {
+                        time: 13.0,
+                        value: -0.181708,
+                        config_2: 1
+                      },
+                      {
+                        time: 14.0,
+                        value: -0.109133,
+                        config_2: 1
+                      },
+                      {
+                        time: 15.0,
+                        value: -0.034326,
+                        config_2: 1
+                      },
+                      {
+                        time: 16.0,
+                        value: -0.0,
+                        config_2: 1
+                      },
+                      {
+                        time: 60.0,
+                        value: -0.0,
+                        config_2: 1
+                      }
+                    ]
+                  }
+                }
+              },
+              {
+                name: "UVScaleOffset1",
+                list: {
+                  red: {
+                    values: [
+                      {
+                        value: 1.0
+                      },
+                      {
+                        time: 60.0,
+                        value: 1.0
+                      }
+                    ]
+                  },
+                  green: {
+                    values: [
+                      {
+                        value: 1.0
+                      },
+                      {
+                        time: 60.0,
+                        value: 1.0
+                      }
+                    ]
+                  },
+                  blue: {
+                    values: [
+                      {
+                        value: -0.0,
+                        config_2: 1
+                      },
+                      {
+                        time: 2.0,
+                        value: -0.02847,
+                        config_2: 1
+                      },
+                      {
+                        time: 3.0,
+                        value: -0.04268,
+                        config_2: 1
+                      },
+                      {
+                        time: 5.0,
+                        value: -0.070996,
+                        config_2: 1
+                      },
+                      {
+                        time: 6.0,
+                        value: -0.085082,
+                        config_2: 1
+                      },
+                      {
+                        time: 8.0,
+                        value: -0.068001,
+                        config_2: 1
+                      },
+                      {
+                        time: 10.0,
+                        value: -0.050848,
+                        config_2: 1
+                      },
+                      {
+                        time: 12.0,
+                        value: -0.033641,
+                        config_2: 1
+                      },
+                      {
+                        time: 14.0,
+                        value: -0.016399,
+                        config_2: 1
+                      },
+                      {
+                        time: 16.0,
+                        value: 0.000861,
+                        config_2: 1
+                      },
+                      {
+                        time: 18.0,
+                        value: 0.000291,
+                        config_2: 1
+                      },
+                      {
+                        time: 20.0,
+                        value: -0.000355,
+                        config_2: 1
+                      },
+                      {
+                        time: 22.0,
+                        value: -0.00104,
+                        config_2: 1
+                      },
+                      {
+                        time: 24.0,
+                        value: -0.001725,
+                        config_2: 1
+                      },
+                      {
+                        time: 26.0,
+                        value: -0.002372,
+                        config_2: 1
+                      },
+                      {
+                        time: 28.0,
+                        value: -0.002941,
+                        config_2: 1
+                      },
+                      {
+                        time: 30.0,
+                        value: -0.003396,
+                        config_2: 1
+                      },
+                      {
+                        time: 32.0,
+                        value: -0.003697,
+                        config_2: 1
+                      },
+                      {
+                        time: 34.0,
+                        value: -0.003806,
+                        config_2: 1
+                      },
+                      {
+                        time: 37.0,
+                        value: -0.004072,
+                        config_2: 1
+                      },
+                      {
+                        time: 39.0,
+                        value: -0.004234,
+                        config_2: 1
+                      },
+                      {
+                        time: 40.0,
+                        value: -0.004199,
+                        config_2: 1
+                      },
+                      {
+                        time: 41.0,
+                        value: -0.004036,
+                        config_2: 1
+                      },
+                      {
+                        time: 42.0,
+                        value: -0.003707,
+                        config_2: 1
+                      },
+                      {
+                        time: 44.0,
+                        value: -0.002652,
+                        config_2: 1
+                      },
+                      {
+                        time: 46.0,
+                        value: -0.001431,
+                        config_2: 1
+                      },
+                      {
+                        time: 47.0,
+                        value: -0.000876,
+                        config_2: 1
+                      },
+                      {
+                        time: 48.0,
+                        value: -0.000421,
+                        config_2: 1
+                      },
+                      {
+                        time: 49.0,
+                        value: -0.000113,
+                        config_2: 1
+                      },
+                      {
+                        time: 50.0,
+                        value: -0.0,
+                        config_2: 1
+                      },
+                      {
+                        time: 60.0,
+                        value: -0.0,
+                        config_2: 1
+                      }
+                    ]
+                  },
+                  alpha: {
+                    values: [
+                      {
+                        value: -0.0,
+                        config_2: 1
+                      },
+                      {
+                        time: 3.0,
+                        value: -0.0,
+                        config_2: 1
+                      },
+                      {
+                        time: 4.0,
+                        value: -0.020651,
+                        config_2: 1
+                      },
+                      {
+                        time: 5.0,
+                        value: -0.068473,
+                        config_2: 1
+                      },
+                      {
+                        time: 6.0,
+                        value: -0.121985,
+                        config_2: 1
+                      },
+                      {
+                        time: 7.0,
+                        value: -0.197683,
+                        config_2: 1
+                      },
+                      {
+                        time: 8.0,
+                        value: -0.205451,
+                        config_2: 1
+                      },
+                      {
+                        time: 9.0,
+                        value: -0.210137,
+                        config_2: 1
+                      },
+                      {
+                        time: 10.0,
+                        value: -0.212535,
+                        config_2: 1
+                      },
+                      {
+                        time: 11.0,
+                        value: -0.213418,
+                        config_2: 1
+                      },
+                      {
+                        time: 12.0,
+                        value: -0.213544,
+                        config_2: 1
+                      },
+                      {
+                        time: 13.0,
+                        value: -0.181708,
+                        config_2: 1
+                      },
+                      {
+                        time: 14.0,
+                        value: -0.109133,
+                        config_2: 1
+                      },
+                      {
+                        time: 15.0,
+                        value: -0.034326,
+                        config_2: 1
+                      },
+                      {
+                        time: 16.0,
+                        value: -0.0,
+                        config_2: 1
+                      },
+                      {
+                        time: 60.0,
+                        value: -0.0,
+                        config_2: 1
+                      }
+                    ]
+                  }
+                }
+              }
+            ]
+          },
+          {
+            name: "l_eye",
+            init_values: [
+
+            ],
+            anim_values: [
+              {
+                name: "UVScaleOffset",
+                list: {
+                  red: {
+                    values: [
+                      {
+                        value: 1.0
+                      },
+                      {
+                        time: 60.0,
+                        value: 1.0
+                      }
+                    ]
+                  },
+                  green: {
+                    values: [
+                      {
+                        value: 1.0
+                      },
+                      {
+                        time: 60.0,
+                        value: 1.0
+                      }
+                    ]
+                  },
+                  blue: {
+                    values: [
+                      {
+                        value: 0.0,
+                        config_2: 1
+                      },
+                      {
+                        time: 1.0,
+                        value: 0.007269,
+                        config_2: 1
+                      },
+                      {
+                        time: 3.0,
+                        value: 0.039216,
+                        config_2: 1
+                      },
+                      {
+                        time: 5.0,
+                        value: 0.071021,
+                        config_2: 1
+                      },
+                      {
+                        time: 6.0,
+                        value: 0.078218,
+                        config_2: 1
+                      },
+                      {
+                        time: 7.0,
+                        value: 0.076019,
+                        config_2: 1
+                      },
+                      {
+                        time: 8.0,
+                        value: 0.070045,
+                        config_2: 1
+                      },
+                      {
+                        time: 9.0,
+                        value: 0.061225,
+                        config_2: 1
+                      },
+                      {
+                        time: 10.0,
+                        value: 0.050491,
+                        config_2: 1
+                      },
+                      {
+                        time: 12.0,
+                        value: 0.027064,
+                        config_2: 1
+                      },
+                      {
+                        time: 13.0,
+                        value: 0.016279,
+                        config_2: 1
+                      },
+                      {
+                        time: 14.0,
+                        value: 0.007393,
+                        config_2: 1
+                      },
+                      {
+                        time: 15.0,
+                        value: 0.001361,
+                        config_2: 1
+                      },
+                      {
+                        time: 16.0,
+                        value: -0.000861,
+                        config_2: 1
+                      },
+                      {
+                        time: 19.0,
+                        value: -0.000516,
+                        config_2: 1
+                      },
+                      {
+                        time: 21.0,
+                        value: 0.000019,
+                        config_2: 1
+                      },
+                      {
+                        time: 23.0,
+                        value: 0.000707,
+                        config_2: 1
+                      },
+                      {
+                        time: 25.0,
+                        value: 0.001472,
+                        config_2: 1
+                      },
+                      {
+                        time: 27.0,
+                        value: 0.002237,
+                        config_2: 1
+                      },
+                      {
+                        time: 29.0,
+                        value: 0.002925,
+                        config_2: 1
+                      },
+                      {
+                        time: 31.0,
+                        value: 0.00346,
+                        config_2: 1
+                      },
+                      {
+                        time: 33.0,
+                        value: 0.003764,
+                        config_2: 1
+                      },
+                      {
+                        time: 37.0,
+                        value: 0.004072,
+                        config_2: 1
+                      },
+                      {
+                        time: 39.0,
+                        value: 0.004234,
+                        config_2: 1
+                      },
+                      {
+                        time: 40.0,
+                        value: 0.004199,
+                        config_2: 1
+                      },
+                      {
+                        time: 41.0,
+                        value: 0.004036,
+                        config_2: 1
+                      },
+                      {
+                        time: 42.0,
+                        value: 0.003707,
+                        config_2: 1
+                      },
+                      {
+                        time: 44.0,
+                        value: 0.002652,
+                        config_2: 1
+                      },
+                      {
+                        time: 46.0,
+                        value: 0.001431,
+                        config_2: 1
+                      },
+                      {
+                        time: 47.0,
+                        value: 0.000876,
+                        config_2: 1
+                      },
+                      {
+                        time: 48.0,
+                        value: 0.000421,
+                        config_2: 1
+                      },
+                      {
+                        time: 49.0,
+                        value: 0.000113,
+                        config_2: 1
+                      },
+                      {
+                        time: 50.0,
+                        value: 0.0,
+                        config_2: 1
+                      },
+                      {
+                        time: 60.0,
+                        value: 0.0,
+                        config_2: 1
+                      }
+                    ]
+                  },
+                  alpha: {
+                    values: [
+                      {
+                        value: -0.0,
+                        config_2: 1
+                      },
+                      {
+                        time: 3.0,
+                        value: -0.0,
+                        config_2: 1
+                      },
+                      {
+                        time: 4.0,
+                        value: -0.026172,
+                        config_2: 1
+                      },
+                      {
+                        time: 5.0,
+                        value: -0.084345,
+                        config_2: 1
+                      },
+                      {
+                        time: 6.0,
+                        value: -0.143698,
+                        config_2: 1
+                      },
+                      {
+                        time: 7.0,
+                        value: -0.2025,
+                        config_2: 1
+                      },
+                      {
+                        time: 12.0,
+                        value: -0.2025,
+                        config_2: 1
+                      },
+                      {
+                        time: 13.0,
+                        value: -0.172152,
+                        config_2: 1
+                      },
+                      {
+                        time: 14.0,
+                        value: -0.103245,
+                        config_2: 1
+                      },
+                      {
+                        time: 15.0,
+                        value: -0.032451,
+                        config_2: 1
+                      },
+                      {
+                        time: 16.0,
+                        value: -0.0,
+                        config_2: 1
+                      },
+                      {
+                        time: 60.0,
+                        value: -0.0,
+                        config_2: 1
+                      }
+                    ]
+                  }
+                }
+              },
+              {
+                name: "UVScaleOffset1",
+                list: {
+                  red: {
+                    values: [
+                      {
+                        value: 1.0
+                      },
+                      {
+                        time: 60.0,
+                        value: 1.0
+                      }
+                    ]
+                  },
+                  green: {
+                    values: [
+                      {
+                        value: 1.0
+                      },
+                      {
+                        time: 60.0,
+                        value: 1.0
+                      }
+                    ]
+                  },
+                  blue: {
+                    values: [
+                      {
+                        value: 0.0,
+                        config_2: 1
+                      },
+                      {
+                        time: 1.0,
+                        value: 0.007269,
+                        config_2: 1
+                      },
+                      {
+                        time: 3.0,
+                        value: 0.039216,
+                        config_2: 1
+                      },
+                      {
+                        time: 5.0,
+                        value: 0.071021,
+                        config_2: 1
+                      },
+                      {
+                        time: 6.0,
+                        value: 0.078218,
+                        config_2: 1
+                      },
+                      {
+                        time: 7.0,
+                        value: 0.076019,
+                        config_2: 1
+                      },
+                      {
+                        time: 8.0,
+                        value: 0.070045,
+                        config_2: 1
+                      },
+                      {
+                        time: 9.0,
+                        value: 0.061225,
+                        config_2: 1
+                      },
+                      {
+                        time: 10.0,
+                        value: 0.050491,
+                        config_2: 1
+                      },
+                      {
+                        time: 12.0,
+                        value: 0.027064,
+                        config_2: 1
+                      },
+                      {
+                        time: 13.0,
+                        value: 0.016279,
+                        config_2: 1
+                      },
+                      {
+                        time: 14.0,
+                        value: 0.007393,
+                        config_2: 1
+                      },
+                      {
+                        time: 15.0,
+                        value: 0.001361,
+                        config_2: 1
+                      },
+                      {
+                        time: 16.0,
+                        value: -0.000861,
+                        config_2: 1
+                      },
+                      {
+                        time: 19.0,
+                        value: -0.000516,
+                        config_2: 1
+                      },
+                      {
+                        time: 21.0,
+                        value: 0.000019,
+                        config_2: 1
+                      },
+                      {
+                        time: 23.0,
+                        value: 0.000707,
+                        config_2: 1
+                      },
+                      {
+                        time: 25.0,
+                        value: 0.001472,
+                        config_2: 1
+                      },
+                      {
+                        time: 27.0,
+                        value: 0.002237,
+                        config_2: 1
+                      },
+                      {
+                        time: 29.0,
+                        value: 0.002925,
+                        config_2: 1
+                      },
+                      {
+                        time: 31.0,
+                        value: 0.00346,
+                        config_2: 1
+                      },
+                      {
+                        time: 33.0,
+                        value: 0.003764,
+                        config_2: 1
+                      },
+                      {
+                        time: 37.0,
+                        value: 0.004072,
+                        config_2: 1
+                      },
+                      {
+                        time: 39.0,
+                        value: 0.004234,
+                        config_2: 1
+                      },
+                      {
+                        time: 40.0,
+                        value: 0.004199,
+                        config_2: 1
+                      },
+                      {
+                        time: 41.0,
+                        value: 0.004036,
+                        config_2: 1
+                      },
+                      {
+                        time: 42.0,
+                        value: 0.003707,
+                        config_2: 1
+                      },
+                      {
+                        time: 44.0,
+                        value: 0.002652,
+                        config_2: 1
+                      },
+                      {
+                        time: 46.0,
+                        value: 0.001431,
+                        config_2: 1
+                      },
+                      {
+                        time: 47.0,
+                        value: 0.000876,
+                        config_2: 1
+                      },
+                      {
+                        time: 48.0,
+                        value: 0.000421,
+                        config_2: 1
+                      },
+                      {
+                        time: 49.0,
+                        value: 0.000113,
+                        config_2: 1
+                      },
+                      {
+                        time: 50.0,
+                        value: 0.0,
+                        config_2: 1
+                      },
+                      {
+                        time: 60.0,
+                        value: 0.0,
+                        config_2: 1
+                      }
+                    ]
+                  },
+                  alpha: {
+                    values: [
+                      {
+                        value: -0.0,
+                        config_2: 1
+                      },
+                      {
+                        time: 3.0,
+                        value: -0.0,
+                        config_2: 1
+                      },
+                      {
+                        time: 4.0,
+                        value: -0.026172,
+                        config_2: 1
+                      },
+                      {
+                        time: 5.0,
+                        value: -0.084345,
+                        config_2: 1
+                      },
+                      {
+                        time: 6.0,
+                        value: -0.143698,
+                        config_2: 1
+                      },
+                      {
+                        time: 7.0,
+                        value: -0.2025,
+                        config_2: 1
+                      },
+                      {
+                        time: 12.0,
+                        value: -0.2025,
+                        config_2: 1
+                      },
+                      {
+                        time: 13.0,
+                        value: -0.172152,
+                        config_2: 1
+                      },
+                      {
+                        time: 14.0,
+                        value: -0.103245,
+                        config_2: 1
+                      },
+                      {
+                        time: 15.0,
+                        value: -0.032451,
+                        config_2: 1
+                      },
+                      {
+                        time: 16.0,
+                        value: -0.0,
+                        config_2: 1
+                      },
+                      {
+                        time: 60.0,
+                        value: -0.0,
+                        config_2: 1
+                      }
+                    ]
+                  }
+                }
+              }
+            ]
+          }
+        ],
+        unk_4: 4
+      },
+      visibility_animation: {
+        info: {
+          values_type: "FixedBoolTrack",
+          values: {
+            value: true
+          }
+        }
+      }
+    },
+    {
+      track_path: "pm0004_00_00_body_mesh_shape",
+      visibility_animation: {
+        info: {
+          values_type: "FixedBoolTrack",
+          values: {
+            value: true
+          }
+        }
+      }
+    },
+    {
+      track_path: "pm0004_00_00_fire_mesh_shape",
+      visibility_animation: {
+        info: {
+          values_type: "FixedBoolTrack",
+          values: {
+            value: true
+          }
+        }
+      }
+    }
+  ],
+  material_frame_multiplier: 1,
+  visibility_frame_multiplier: 3
+}
