@@ -13,6 +13,7 @@
 import { ref } from 'vue'
 import PokemonBrowser from './components/PokemonBrowser.vue'
 import ThreeViewer from './components/ThreeViewer.vue'
+import pokemonIndex from '../public/pokemon/index.json'
 
 // 当前选中的宝可梦 ID
 const selectedPokemon = ref<string | null>(null)
@@ -29,6 +30,9 @@ const isModelLoading = ref(false)
 // 模型加载错误信息
 const modelError = ref<string | null>(null)
 
+// 当前选中形态的动画数据
+const currentAnimations = ref<Record<string, string[]> | null>(null)
+
 /**
  * 处理宝可梦选择事件
  * 当用户在 PokemonBrowser 中选择宝可梦或形态时触发
@@ -44,6 +48,19 @@ function handlePokemonSelect(pokemonId: string, formId: string): void {
   selectedForm.value = formId
   // 清除之前的错误
   modelError.value = null
+  
+  // 获取当前形态的动画数据
+  const pokemon = pokemonIndex.pokemons.find(p => p.id === pokemonId)
+  if (pokemon) {
+    const form = pokemon.forms.find(f => f.id === formId)
+    if (form && form.animations) {
+      currentAnimations.value = form.animations
+    } else {
+      currentAnimations.value = null
+    }
+  } else {
+    currentAnimations.value = null
+  }
 }
 
 /**
@@ -98,6 +115,7 @@ function handleModelLoaded(formId: string): void {
       <ThreeViewer
         :pokemon-id="selectedPokemon"
         :form-id="selectedForm"
+        :animations="currentAnimations"
         @loading-change="handleLoadingChange"
         @progress-change="handleProgressChange"
         @error="handleError"

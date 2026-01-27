@@ -29,6 +29,8 @@ const props = defineProps<{
   pokemonId?: string | null
   /** 形态 ID，如 "pm0001_00_00" */
   formId?: string | null
+  /** 可用的动画数据 */
+  animations?: Record<string, string[]> | null
 }>()
 
 // Emits 定义
@@ -94,6 +96,12 @@ const showSkeleton = ref(false)
 // 选择模式：'mesh' 或 'bone'
 const selectionMode = ref<'mesh' | 'bone'>('mesh')
 
+// 动画相关状态
+const availableAnimations = ref<Record<string, string[]>>({})
+const selectedAnimation = ref<string>('')
+const isAnimationPlaying = ref(false)
+const animationLoop = ref(true)
+
 // 选中的三角形信息
 const selectedTriangle = ref<{
   mesh: THREE.Mesh | null
@@ -116,6 +124,16 @@ const selectedBone = ref<{
 // 计算属性：是否有有效的模型路径
 const hasValidModelPath = computed(() => {
   return props.pokemonId && props.formId
+})
+
+// 计算属性：是否有动画可用
+const hasAnimations = computed(() => {
+  return Object.keys(availableAnimations.value).length > 0
+})
+
+// 计算属性：动画选项列表
+const animationOptions = computed(() => {
+  return Object.keys(availableAnimations.value)
 })
 
 /**
@@ -235,6 +253,55 @@ watch(progress, (newProgress) => {
 watch(error, (newError) => {
   emit('error', newError)
 })
+
+// 监听动画数据变化
+watch(() => props.animations, (newAnimations) => {
+  availableAnimations.value = newAnimations || {}
+  // 如果当前没有选中动画且有可用动画，选择第一个
+  if (!selectedAnimation.value && Object.keys(availableAnimations.value).length > 0) {
+    selectedAnimation.value = Object.keys(availableAnimations.value)[0]
+  }
+}, { immediate: true })
+
+/**
+ * 切换播放/暂停状态
+ */
+function togglePlayPause(): void {
+  if (isAnimationPlaying.value) {
+    // 暂停动画
+    console.log(`[ThreeViewer] 暂停动画播放`)
+    isAnimationPlaying.value = false
+    // TODO: 实现实际的动画暂停逻辑
+  } else {
+    // 播放动画
+    if (!selectedAnimation.value || !availableAnimations.value[selectedAnimation.value]) {
+      console.warn('[ThreeViewer] 没有选中的动画或动画文件不存在')
+      return
+    }
+
+    console.log(`[ThreeViewer] 开始播放动画: ${selectedAnimation.value}`)
+    isAnimationPlaying.value = true
+    // TODO: 实现实际的动画播放逻辑
+  }
+}
+
+/**
+ * 停止动画播放
+ */
+function stopAnimation(): void {
+  console.log(`[ThreeViewer] 停止动画播放`)
+  isAnimationPlaying.value = false
+  selectedAnimation.value = ''
+  // TODO: 实现实际的动画停止逻辑
+}
+
+/**
+ * 切换动画循环模式
+ */
+function toggleAnimationLoop(): void {
+  animationLoop.value = !animationLoop.value
+  console.log(`[ThreeViewer] 动画循环模式: ${animationLoop.value ? '开启' : '关闭'}`)
+}
 
 // 监听法线显示状态变化
 watch(showVertexNormals, (newShow) => {
@@ -379,6 +446,45 @@ defineExpose({
           <option value="mesh">面片</option>
           <option value="bone">骨骼</option>
         </select>
+      </div>
+    </div>
+    
+    <!-- 动画控制器 -->
+    <div v-if="hasAnimations" class="animation-controller">
+      <div class="animation-controls">
+        <div class="control-item">
+          <span class="control-label">动画:</span>
+          <select v-model="selectedAnimation" class="control-select">
+            <option v-for="animation in animationOptions" :key="animation" :value="animation">
+              {{ animation }}
+            </option>
+          </select>
+        </div>
+        
+        <div class="animation-buttons">
+          <button 
+            @click="togglePlayPause" 
+            class="animation-btn play-pause-btn"
+            :class="{ playing: isAnimationPlaying }"
+          >
+            {{ isAnimationPlaying ? '⏸️ 暂停' : '▶️ 播放' }}
+          </button>
+          <button 
+            @click="stopAnimation" 
+            class="animation-btn stop-btn"
+          >
+            ⏹️ 停止
+          </button>
+        </div>
+        
+        <label class="control-item loop-control">
+          <input 
+            type="checkbox" 
+            v-model="animationLoop"
+            class="control-checkbox"
+          />
+          <span class="control-label">循环播放</span>
+        </label>
       </div>
     </div>
     
@@ -607,13 +713,58 @@ defineExpose({
   color: #00d4ff;
 }
 
-/* 错误提示覆盖层 */
-.error-overlay {
+/* 动画控制器 */
+.animation-controller {
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  z-index: 100;
+  bottom: 10px;
+  left: 10px;
+  background-color: rgba(0, 0, 0, 0.8);
+  padding: 15px;
+  border-radius: 5px;
+  z-index: 50;
+  color: #ffffff;
+  font-size: 12px;
+  min-width: 300px;
+}
+
+.animation-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.animation-buttons {
+  display: flex;
+  gap: 8px;
+}
+
+.animation-btn {
+  padding: 6px 12px;
+  background-color: rgba(0, 0, 0, 0.7);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 3px;
+  cursor: pointer;
+  font-size: 11px;
+  transition: all 0.2s ease;
+}
+
+.animation-btn:hover:not(:disabled) {
+  background-color: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.5);
+}
+
+.animation-btn.active {
+  background-color: #00d4ff;
+  border-color: #00d4ff;
+}
+
+.play-pause-btn.playing {
+  background-color: #ff6b6b;
+  border-color: #ff6b6b;
+}
+
+.loop-control {
+  margin-top: 5px;
 }
 </style>
