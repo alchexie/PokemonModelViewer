@@ -13,8 +13,12 @@ import {
   VectorTrack,
   RotationTrack,
   FixedVectorTrack,
+  DynamicVectorTrack,
+  Framed16VectorTrack,
   Framed8VectorTrack,
   FixedRotationTrack,
+  DynamicRotationTrack,
+  Framed16RotationTrack,
   Framed8RotationTrack,
   unionToVectorTrack,
   unionToRotationTrack,
@@ -290,7 +294,8 @@ export class AnimationPlayer {
         this.state.currentTime = 0;
         this.state.currentFrame = 0;
       } else {
-        this.stop();
+        // 动画播放完成且不循环时，直接暂停，保持最后一帧状态
+        this.pause();
         return;
       }
     }
@@ -418,6 +423,25 @@ export class AnimationPlayer {
             : { x: 0, y: 0, z: 0 };
         }
         return { x: 0, y: 0, z: 0 };
+      case VectorTrack.DynamicVectorTrack:
+        if (track instanceof DynamicVectorTrack) {
+          const frameIndex = Math.floor(frame);
+          if (frameIndex >= 0 && frameIndex < track.coLength()) {
+            const vec = track.co(frameIndex);
+            return vec ? { x: vec.x(), y: vec.y(), z: vec.z() } : { x: 0, y: 0, z: 0 };
+          } else if (track.coLength() > 0) {
+            // 帧超出范围，返回最后一个值
+            const vec = track.co(track.coLength() - 1);
+            return vec ? { x: vec.x(), y: vec.y(), z: vec.z() } : { x: 0, y: 0, z: 0 };
+          }
+          return { x: 0, y: 0, z: 0 };
+        }
+        return { x: 0, y: 0, z: 0 };
+      case VectorTrack.Framed16VectorTrack:
+        if (track instanceof Framed16VectorTrack) {
+          return this.interpolateFramedVector(track, frame);
+        }
+        return { x: 0, y: 0, z: 0 };
       case VectorTrack.Framed8VectorTrack:
         if (track instanceof Framed8VectorTrack) {
           return this.interpolateFramedVector(track, frame);
@@ -448,6 +472,25 @@ export class AnimationPlayer {
             : { x: 0, y: 0, z: 0, w: 1 };
         }
         return { x: 0, y: 0, z: 0, w: 1 };
+      case RotationTrack.DynamicRotationTrack:
+        if (track instanceof DynamicRotationTrack) {
+          const frameIndex = Math.floor(frame);
+          if (frameIndex >= 0 && frameIndex < track.coLength()) {
+            const vec = track.co(frameIndex);
+            return vec ? this.unpackQuaternion(vec.x(), vec.y(), vec.z()) : { x: 0, y: 0, z: 0, w: 1 };
+          } else if (track.coLength() > 0) {
+            // 帧超出范围，返回最后一个值
+            const vec = track.co(track.coLength() - 1);
+            return vec ? this.unpackQuaternion(vec.x(), vec.y(), vec.z()) : { x: 0, y: 0, z: 0, w: 1 };
+          }
+          return { x: 0, y: 0, z: 0, w: 1 };
+        }
+        return { x: 0, y: 0, z: 0, w: 1 };
+      case RotationTrack.Framed16RotationTrack:
+        if (track instanceof Framed16RotationTrack) {
+          return this.interpolateFramedRotation(track, frame);
+        }
+        return { x: 0, y: 0, z: 0, w: 1 };
       case RotationTrack.Framed8RotationTrack:
         if (track instanceof Framed8RotationTrack) {
           return this.interpolateFramedRotation(track, frame);
@@ -459,10 +502,10 @@ export class AnimationPlayer {
   }
 
   /**
-   * 插值Framed8VectorTrack
+   * 插值FramedVectorTrack (Framed8VectorTrack 或 Framed16VectorTrack)
    */
   private interpolateFramedVector(
-    track: Framed8VectorTrack,
+    track: Framed8VectorTrack | Framed16VectorTrack,
     frame: number,
   ): Vec3 {
     const framesLength = track.framesLength();
@@ -515,10 +558,10 @@ export class AnimationPlayer {
   }
 
   /**
-   * 插值Framed8RotationTrack
+   * 插值FramedRotationTrack (Framed8RotationTrack 或 Framed16RotationTrack)
    */
   private interpolateFramedRotation(
-    track: Framed8RotationTrack,
+    track: Framed8RotationTrack | Framed16RotationTrack,
     frame: number,
   ): Quat {
     const framesLength = track.framesLength();
@@ -741,12 +784,65 @@ export class AnimationPlayer {
    * 重置骨骼到初始姿态
    */
   private resetBonesToInitialPose(): void {
-    // 重置到动画的第一帧或初始姿态
+    // 重置到存储的初始变换（T-pose）
     if (this.threeSkeleton) {
       this.threeSkeleton.bones.forEach(bone => {
-        bone.position.set(0, 0, 0);
-        bone.quaternion.set(0, 0, 0, 1);
-        bone.scale.set(1, 1, 1);
+        const boneName = bone.name;
+        const initialTransform = this.initialTransforms.get(boneName);
+
+        if (initialTransform) {
+          // 使用存储的初始变换
+          bone.position.set(
+            initialTransform.position.x,
+            initialTransform.position.y,
+            initialTransform.position.z
+          );
+          bone.quaternion.set(
+            initialTransform.rotation.x,
+            initialTransform.rotation.y,
+            initialTransform.rotation.z,
+            initialTransform.rotation.w
+          );
+          bone.scale.set(
+            initialTransform.scale.x,
+            initialTransform.scale.y,
+            initialTransform.scale.z
+          );
+        } else {
+          // 如果没有存储的初始变换，使用默认值
+          bone.position.set(0, 0, 0);
+          bone.quaternion.set(0, 0, 0, 1);
+          bone.scale.set(1, 1, 1);
+        }
+      });
+    }
+
+    // 同时重置可视化骨骼
+    if (this.skeleton) {
+      this.skeleton.traverse((object) => {
+        if (object.name && object.name.startsWith("Joint_")) {
+          const boneName = object.name.replace("Joint_", "");
+          const initialTransform = this.initialTransforms.get(boneName);
+
+          if (initialTransform) {
+            object.position.set(
+              initialTransform.position.x,
+              initialTransform.position.y,
+              initialTransform.position.z
+            );
+            object.quaternion.set(
+              initialTransform.rotation.x,
+              initialTransform.rotation.y,
+              initialTransform.rotation.z,
+              initialTransform.rotation.w
+            );
+            object.scale.set(
+              initialTransform.scale.x,
+              initialTransform.scale.y,
+              initialTransform.scale.z
+            );
+          }
+        }
       });
     }
   }

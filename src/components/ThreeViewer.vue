@@ -313,7 +313,6 @@ function togglePlayPause(): void {
 function stopAnimation(): void {
   console.log(`[ThreeViewer] 停止动画播放`)
   isAnimationPlaying.value = false
-  selectedAnimation.value = ''
   animationPlayer.stop()
 }
 
@@ -397,6 +396,19 @@ watch(selectionMode, (newMode) => {
   // 切换模式时清除当前的选择状态
   selectedTriangle.value = null
   selectedBone.value = null
+})
+
+// 监听选中的动画变化，如果当前正在播放则立即切换到新动画
+watch(selectedAnimation, (newAnimation, oldAnimation) => {
+  // 只有当动画真正改变时才处理
+  if (newAnimation !== oldAnimation && newAnimation) {
+    if (isAnimationPlaying.value) {
+      // 如果当前正在播放，停止当前动画并开始播放新动画
+      console.log(`[ThreeViewer] 切换动画: ${oldAnimation} -> ${newAnimation}`)
+      animationPlayer.stop()
+      loadAndPlayAnimation(newAnimation)
+    }
+  }
 })
 
 onMounted(() => {
