@@ -63,7 +63,7 @@ const currentFormId = ref<string | null>(null)
  */
 function getPokemonName(number: number): string {
   const name = pokemonNames.value[number.toString()]
-  return name || `宝可梦 ${number}`
+  return name ? `${number.toString().padStart(3, '0')} ${name}` : `宝可梦 ${number}`
 }
 
 /**
