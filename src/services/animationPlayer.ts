@@ -351,12 +351,9 @@ export class AnimationPlayer {
       if (!track) continue;
       const boneName = track.boneName();
       if (boneName) {
-        console.log(`Animation track: ${boneName}`);
         trackMap.set(boneName, track);
       }
     }
-
-    console.log('Skeleton bones:', this.threeSkeleton!.bones.map(b => `${b.name}(index:${this.threeSkeleton!.bones.indexOf(b)})`));
 
     // 直接设置每个骨骼的局部变换
     this.threeSkeleton.bones.forEach((bone, index) => {
@@ -365,14 +362,11 @@ export class AnimationPlayer {
       
       if (track) {
         const transform = this.getBoneTransformAtFrame(track, this.state.currentFrame);
-        console.log(`Updating bone ${boneName}: pos(${transform.position.x.toFixed(3)}, ${transform.position.y.toFixed(3)}, ${transform.position.z.toFixed(3)})`);
         
         // 直接设置骨骼的局部变换
         bone.position.set(transform.position.x, transform.position.y, transform.position.z);
         bone.quaternion.set(transform.rotation.x, transform.rotation.y, transform.rotation.z, transform.rotation.w);
         bone.scale.set(transform.scale.x, transform.scale.y, transform.scale.z);
-        
-        console.log(`Bone ${boneName} local transform set: pos(${bone.position.x.toFixed(3)}, ${bone.position.y.toFixed(3)}, ${bone.position.z.toFixed(3)})`);
       }
     });
   }

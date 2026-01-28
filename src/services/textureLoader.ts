@@ -88,6 +88,55 @@ function getFloatParameter(material: TRMTRMaterial, paramName: string, defaultVa
 }
 
 /**
+ * 从材质数据中读取颜色参数值
+ *
+ * @param material - TRMTR 材质数据
+ * @param paramName - 参数名称
+ * @param defaultValue - 默认值
+ * @returns 颜色值或默认值
+ */
+function getColorParameter(material: TRMTRMaterial, paramName: string, defaultValue: THREE.Vector4 = new THREE.Vector4()): THREE.Vector4 {
+  const colorParamCount = material.float4ParameterLength();
+
+  for (let i = 0; i < colorParamCount; i++) {
+    const param = material.float4Parameter(i);
+    if (!param) continue;
+
+    const name = param.colorName();
+    if (name === paramName) {
+      const colorValue = param.colorValue();
+      if (colorValue) {
+        return new THREE.Vector4(colorValue.r(), colorValue.g(), colorValue.b(), colorValue.a());
+      }
+    }
+  }
+
+  return defaultValue;
+}
+
+/**
+ * 获取材质的主要shader名称
+ *
+ * @param material - TRMTR 材质数据
+ * @returns shader名称，如果没有则返回null
+ */
+function getMaterialShaderName(material: TRMTRMaterial): string | null {
+  const shadersCount = material.shadersLength();
+
+  for (let i = 0; i < shadersCount; i++) {
+    const shader = material.shaders(i);
+    if (!shader) continue;
+
+    const shaderName = shader.shaderName();
+    if (shaderName) {
+      return shaderName;
+    }
+  }
+
+  return null;
+}
+
+/**
  * 材质创建选项
  */
 export interface MaterialOptions {
@@ -229,6 +278,38 @@ export async function loadTextures(
 }
 
 /**
+ * 根据纹理名称从材质中查找纹理
+ *
+ * @param material - TRMTR 材质数据
+ * @param textureMap - 已加载的纹理映射表
+ * @param textureName - 纹理名称
+ * @returns 纹理对象或null
+ */
+function findTextureByName(
+  material: TRMTRMaterial,
+  textureMap: Map<string, THREE.Texture>,
+  textureName: string,
+): THREE.Texture | null {
+  const texturesCount = material.texturesLength();
+
+  for (let i = 0; i < texturesCount; i++) {
+    const texture = material.textures(i);
+    if (!texture) continue;
+
+    const name = texture.textureName();
+    if (name === textureName) {
+      const textureFile = texture.textureFile();
+      if (textureFile) {
+        const pngFilename = convertBntxToPng(textureFile);
+        return textureMap.get(pngFilename) || null;
+      }
+    }
+  }
+
+  return null;
+}
+
+/**
  * 将 .bntx 扩展名转换为 .png
  *
  * @param filename - 原始文件名
@@ -327,8 +408,21 @@ export async function createMaterial(
   material: TRMTRMaterial,
   basePath: string,
   options: MaterialOptions = {},
-): Promise<THREE.MeshStandardMaterial> {
+): Promise<THREE.Material> {
   const mergedOptions = { ...DEFAULT_MATERIAL_OPTIONS, ...options };
+
+  // 检查材质的shader类型
+  const shaderName = getMaterialShaderName(material);
+
+  // 如果是EyeClearCoat，使用自定义shader材质
+  if (shaderName === "EyeClearCoat" || shaderName === "Eye") {
+    return await createEyeClearCoatMaterial(material, basePath, mergedOptions);
+  }
+
+  // 如果是Unlit，使用自定义fire材质
+  if (shaderName === "Unlit") {
+    return await createFireMaterial(material, basePath, mergedOptions);
+  }
 
   // 提取纹理引用
   const textureRefs = extractTextureReferences(material);
@@ -486,8 +580,8 @@ export async function createAllMaterials(
   trmtr: TRMTR,
   basePath: string,
   options: MaterialOptions = {},
-): Promise<THREE.MeshStandardMaterial[]> {
-  const materials: THREE.MeshStandardMaterial[] = [];
+): Promise<THREE.Material[]> {
+  const materials: THREE.Material[] = [];
 
   const materialsCount = trmtr.materialsLength();
 
@@ -547,22 +641,62 @@ export function findMaterialByName(
  *
  * @param material - 要释放的材质
  */
-export function disposeMaterial(material: THREE.MeshStandardMaterial): void {
-  // 释放所有纹理
-  if (material.map) {
-    material.map.dispose();
+export function disposeMaterial(material: THREE.Material): void {
+  // 处理MeshStandardMaterial
+  if (material instanceof THREE.MeshStandardMaterial) {
+    // 释放所有纹理
+    if (material.map) {
+      material.map.dispose();
+    }
+    if (material.normalMap) {
+      material.normalMap.dispose();
+    }
+    if (material.emissiveMap) {
+      material.emissiveMap.dispose();
+    }
+    if (material.aoMap) {
+      material.aoMap.dispose();
+    }
+    if (material.alphaMap) {
+      material.alphaMap.dispose();
+    }
+    // 释放userData中的纹理（用于EyeClearCoat和Fire）
+    if (material.userData.layerMaskMap instanceof THREE.Texture) {
+      material.userData.layerMaskMap.dispose();
+    }
+    if (material.userData.highlightMaskMap instanceof THREE.Texture) {
+      material.userData.highlightMaskMap.dispose();
+    }
+    if (material.userData.normalMap1 instanceof THREE.Texture) {
+      material.userData.normalMap1.dispose();
+    }
+    if (material.userData.displacementMap instanceof THREE.Texture) {
+      material.userData.displacementMap.dispose();
+    }
   }
-  if (material.normalMap) {
-    material.normalMap.dispose();
+  // 处理MeshBasicMaterial
+  else if (material instanceof THREE.MeshBasicMaterial) {
+    // 释放基础纹理
+    if (material.map) {
+      material.map.dispose();
+    }
+    // 释放userData中的纹理（用于Fire材质）
+    if (material.userData.layerMaskMap instanceof THREE.Texture) {
+      material.userData.layerMaskMap.dispose();
+    }
+    if (material.userData.displacementMap instanceof THREE.Texture) {
+      material.userData.displacementMap.dispose();
+    }
   }
-  if (material.emissiveMap) {
-    material.emissiveMap.dispose();
-  }
-  if (material.aoMap) {
-    material.aoMap.dispose();
-  }
-  if (material.alphaMap) {
-    material.alphaMap.dispose();
+  // 处理ShaderMaterial
+  else if (material instanceof THREE.ShaderMaterial) {
+    // 释放uniforms中的纹理
+    for (const uniformName in material.uniforms) {
+      const uniform = material.uniforms[uniformName];
+      if (uniform.value instanceof THREE.Texture) {
+        uniform.value.dispose();
+      }
+    }
   }
 
   // 释放材质
@@ -575,9 +709,414 @@ export function disposeMaterial(material: THREE.MeshStandardMaterial): void {
  * @param materials - 要释放的材质数组
  */
 export function disposeAllMaterials(
-  materials: THREE.MeshStandardMaterial[],
+  materials: THREE.Material[],
 ): void {
   for (const material of materials) {
     disposeMaterial(material);
   }
+}
+
+/**
+ * 创建EyeClearCoat材质
+ *
+ * EyeClearCoat是一种多层材质，使用LayerMaskMap的RGBA通道作为四层蒙版
+ * 每一层都有独立的颜色、金属度、粗糙度、自发光等属性
+ *
+ * @param material - TRMTR 材质数据
+ * @param basePath - 纹理文件基础路径
+ * @param options - 材质选项
+ * @returns Promise<THREE.ShaderMaterial> EyeClearCoat材质
+ */
+export async function createEyeClearCoatMaterial(
+  material: TRMTRMaterial,
+  basePath: string,
+  options: MaterialOptions = {},
+): Promise<THREE.MeshStandardMaterial> {
+  const mergedOptions = { ...DEFAULT_MATERIAL_OPTIONS, ...options };
+
+  // 提取纹理引用
+  const textureRefs = extractTextureReferences(material);
+  const textureMap = await loadTextures(textureRefs, basePath);
+
+  // 获取LayerMaskMap纹理
+  const layerMaskTexture = findTextureByName(material, textureMap, "LayerMaskMap");
+
+  // 获取HighlightMaskMap纹理（如果存在）
+  const highlightMaskTexture = findTextureByName(material, textureMap, "HighlightMaskMap");
+
+  // 获取法线纹理
+  const normalTexture = findTextureByName(material, textureMap, "NormalMap");
+  const normalTexture1 = findTextureByName(material, textureMap, "NormalMap1");
+
+  // 获取各层的参数
+  const baseColorLayer1 = getColorParameter(material, "BaseColorLayer1", new THREE.Vector4(0.184314, 0.015686, 0.019608, 1.0));
+  const baseColorLayer2 = getColorParameter(material, "BaseColorLayer2", new THREE.Vector4(0.851613, 0.090107, 0.129314, 1.0));
+  const baseColorLayer3 = getColorParameter(material, "BaseColorLayer3", new THREE.Vector4(0.8713, 0.8713, 0.8713, 1.0));
+  const baseColorLayer4 = getColorParameter(material, "BaseColorLayer4", new THREE.Vector4(0.7157, 0.7157, 0.7157, 1.0));
+
+  const metallicLayer1 = getFloatParameter(material, "MetallicLayer1", 0.0);
+  const metallicLayer2 = getFloatParameter(material, "MetallicLayer2", 1.0);
+  const metallicLayer3 = getFloatParameter(material, "MetallicLayer3", 0.0);
+  const metallicLayer4 = getFloatParameter(material, "MetallicLayer4", 0.0);
+
+  const roughnessLayer1 = getFloatParameter(material, "RoughnessLayer1", 0.8);
+  const roughnessLayer2 = getFloatParameter(material, "RoughnessLayer2", 0.8);
+  const roughnessLayer3 = getFloatParameter(material, "RoughnessLayer3", 0.8);
+  const roughnessLayer4 = getFloatParameter(material, "RoughnessLayer4", 0.8);
+
+  const emissionIntensityLayer1 = getFloatParameter(material, "EmissionIntensityLayer1", 0.2);
+  const emissionIntensityLayer2 = getFloatParameter(material, "EmissionIntensityLayer2", 0.2);
+  const emissionIntensityLayer3 = getFloatParameter(material, "EmissionIntensityLayer3", 0.5);
+  const emissionIntensityLayer4 = getFloatParameter(material, "EmissionIntensityLayer4", 0.5);
+
+  // 创建MeshStandardMaterial，使用内置着色器
+  const eyeClearCoatMaterial = new THREE.MeshStandardMaterial({
+    side: mergedOptions.doubleSide ? THREE.DoubleSide : THREE.FrontSide,
+    transparent: mergedOptions.transparent,
+  });
+
+  // 设置纹理
+  if (layerMaskTexture) {
+    eyeClearCoatMaterial.userData.layerMaskMap = layerMaskTexture;
+  }
+  if (highlightMaskTexture) {
+    eyeClearCoatMaterial.userData.highlightMaskMap = highlightMaskTexture;
+  }
+  if (normalTexture) {
+    eyeClearCoatMaterial.normalMap = normalTexture;
+  }
+  if (normalTexture1) {
+    eyeClearCoatMaterial.userData.normalMap1 = normalTexture1;
+  }
+
+  // 存储EyeClearCoat参数
+  eyeClearCoatMaterial.userData.eyeClearCoatParams = {
+    baseColorLayer1,
+    baseColorLayer2,
+    baseColorLayer3,
+    baseColorLayer4,
+    metallicLayer1,
+    metallicLayer2,
+    metallicLayer3,
+    metallicLayer4,
+    roughnessLayer1,
+    roughnessLayer2,
+    roughnessLayer3,
+    roughnessLayer4,
+    emissionIntensityLayer1,
+    emissionIntensityLayer2,
+    emissionIntensityLayer3,
+    emissionIntensityLayer4,
+  };
+
+  // 使用onBeforeCompile修改片段着色器
+  eyeClearCoatMaterial.onBeforeCompile = (shader) => {
+    // 添加uniforms
+    shader.uniforms.layerMaskMap = { value: layerMaskTexture || null };
+    if (highlightMaskTexture) {
+      shader.uniforms.highlightMaskMap = { value: highlightMaskTexture };
+    }
+    shader.uniforms.normalMap1 = { value: normalTexture1 || null };
+    shader.uniforms.baseColorLayer1 = { value: baseColorLayer1 };
+    shader.uniforms.baseColorLayer2 = { value: baseColorLayer2 };
+    shader.uniforms.baseColorLayer3 = { value: baseColorLayer3 };
+    shader.uniforms.baseColorLayer4 = { value: baseColorLayer4 };
+    shader.uniforms.metallicLayer1 = { value: metallicLayer1 };
+    shader.uniforms.metallicLayer2 = { value: metallicLayer2 };
+    shader.uniforms.metallicLayer3 = { value: metallicLayer3 };
+    shader.uniforms.metallicLayer4 = { value: metallicLayer4 };
+    shader.uniforms.roughnessLayer1 = { value: roughnessLayer1 };
+    shader.uniforms.roughnessLayer2 = { value: roughnessLayer2 };
+    shader.uniforms.roughnessLayer3 = { value: roughnessLayer3 };
+    shader.uniforms.roughnessLayer4 = { value: roughnessLayer4 };
+    shader.uniforms.emissionIntensityLayer1 = { value: emissionIntensityLayer1 };
+    shader.uniforms.emissionIntensityLayer2 = { value: emissionIntensityLayer2 };
+    shader.uniforms.emissionIntensityLayer3 = { value: emissionIntensityLayer3 };
+    shader.uniforms.emissionIntensityLayer4 = { value: emissionIntensityLayer4 };
+
+    // 修改片段着色器，添加EyeClearCoat逻辑
+    const fragmentShader = shader.fragmentShader;
+
+    // 在片段着色器的开头添加uniform声明
+    const uniformDeclarations = `
+      uniform sampler2D layerMaskMap;
+      ${highlightMaskTexture ? 'uniform sampler2D highlightMaskMap;' : ''}
+      uniform sampler2D normalMap1;
+      uniform vec4 baseColorLayer1;
+      uniform vec4 baseColorLayer2;
+      uniform vec4 baseColorLayer3;
+      uniform vec4 baseColorLayer4;
+      uniform float metallicLayer1;
+      uniform float metallicLayer2;
+      uniform float metallicLayer3;
+      uniform float metallicLayer4;
+      uniform float roughnessLayer1;
+      uniform float roughnessLayer2;
+      uniform float roughnessLayer3;
+      uniform float roughnessLayer4;
+      uniform float emissionIntensityLayer1;
+      uniform float emissionIntensityLayer2;
+      uniform float emissionIntensityLayer3;
+      uniform float emissionIntensityLayer4;
+    `;
+
+    // 替换片段着色器，在main函数前添加uniforms
+    shader.fragmentShader = fragmentShader.replace(
+      '#include <common>',
+      '#include <common>\n' + uniformDeclarations
+    );
+
+    // 确保vUv可用 - 检查顶点着色器
+    if (!shader.vertexShader.includes('varying vec2 vUv;')) {
+      shader.vertexShader = shader.vertexShader.replace(
+        '#include <common>',
+        '#include <common>\nvarying vec2 vUv;'
+      );
+    }
+
+    // 确保vUv被赋值 - 检查顶点着色器main函数
+    if (!shader.vertexShader.includes('vUv = uv;')) {
+      const vertexMainRegex = /void main\(\) \{([\s\S]*?)\}/;
+      const vertexMainMatch = shader.vertexShader.match(vertexMainRegex);
+      if (vertexMainMatch) {
+        let vertexMainBody = vertexMainMatch[1];
+        // 在main函数开始处添加vUv赋值
+        vertexMainBody = 'vUv = uv;\n' + vertexMainBody;
+        shader.vertexShader = shader.vertexShader.replace(vertexMainMatch[0], `void main() {${vertexMainBody}}`);
+      }
+    }
+
+    // 确保vUv可用 - 检查片段着色器
+    if (!shader.fragmentShader.includes('varying vec2 vUv;')) {
+      shader.fragmentShader = shader.fragmentShader.replace(
+        '#include <common>',
+        '#include <common>\nvarying vec2 vUv;'
+      );
+    }
+
+    // 找到片段着色器的main函数，并修改颜色计算部分
+    const mainFunctionRegex = /void main\(\) \{([\s\S]*?)\}/;
+    const mainFunctionMatch = fragmentShader.match(mainFunctionRegex);
+
+    if (mainFunctionMatch) {
+      let mainFunctionBody = mainFunctionMatch[1];
+
+      // 查找diffuseColor的赋值，通常在PBR材质中
+      const diffuseColorAssignmentRegex = /(diffuseColor\s*=.*;)/;
+      const diffuseColorMatch = mainFunctionBody.match(diffuseColorAssignmentRegex);
+
+      if (diffuseColorMatch) {
+        // 在diffuseColor赋值之后添加EyeClearCoat逻辑
+        const eyeClearCoatLogic = `
+          // EyeClearCoat 多层混合逻辑
+          vec4 layerMask = texture(layerMaskMap, vUv);
+          float weight1 = layerMask.r;
+          float weight2 = layerMask.g;
+          float weight3 = layerMask.b;
+          float weight4 = layerMask.a;
+
+          vec4 baseColor = baseColorLayer1 * weight1 +
+                          baseColorLayer2 * weight2 +
+                          baseColorLayer3 * weight3 +
+                          baseColorLayer4 * weight4;
+
+          vec4 highlightMask = vec4(0.0);
+          ${highlightMaskTexture ? "vec4 highlightSample = texture(highlightMaskMap, vUv); highlightMask = highlightSample;" : ""}
+
+          diffuseColor.rgb = baseColor.rgb + highlightMask.rgb;
+        `;
+
+        // 在diffuseColor赋值之后插入EyeClearCoat逻辑
+        mainFunctionBody = mainFunctionBody.replace(diffuseColorMatch[0], diffuseColorMatch[0] + eyeClearCoatLogic);
+      }
+
+      // 重新构建main函数
+      shader.fragmentShader = shader.fragmentShader.replace(mainFunctionMatch[0], `void main() {${mainFunctionBody}}`);
+    }
+  };
+
+  // 设置材质名称
+  const materialName = material.name();
+  if (materialName) {
+    eyeClearCoatMaterial.name = materialName;
+  }
+
+  return eyeClearCoatMaterial;
+}
+
+/**
+ * 创建Fire材质
+ *
+ * Fire是一种Unlit多层材质，使用LayerMaskMap的RGBA通道作为四层蒙版
+ * 每一层都有独立的颜色，支持位移贴图（但在fragment中不处理以保证顶点动画正常）
+ *
+ * @param material - TRMTR 材质数据
+ * @param basePath - 纹理文件基础路径
+ * @param options - 材质选项
+ * @returns Promise<THREE.MeshBasicMaterial> Fire材质
+ */
+export async function createFireMaterial(
+  material: TRMTRMaterial,
+  basePath: string,
+  options: MaterialOptions = {},
+): Promise<THREE.MeshBasicMaterial> {
+  const mergedOptions = { ...DEFAULT_MATERIAL_OPTIONS, ...options };
+
+  // 提取纹理引用
+  const textureRefs = extractTextureReferences(material);
+  const textureMap = await loadTextures(textureRefs, basePath);
+
+  // 获取纹理
+  const baseColorTexture = findTextureByName(material, textureMap, "BaseColorMap");
+  const layerMaskTexture = findTextureByName(material, textureMap, "LayerMaskMap");
+  const displacementTexture = findTextureByName(material, textureMap, "DisplacementMap");
+
+  // 获取各层的参数
+  const baseColorLayer1 = getColorParameter(material, "BaseColorLayer1", new THREE.Vector4(5.0, 0.075, 0.0295, 1.0));
+  const baseColorLayer2 = getColorParameter(material, "BaseColorLayer2", new THREE.Vector4(4.0, 0.8, 0.18, 1.0));
+  const baseColorLayer3 = getColorParameter(material, "BaseColorLayer3", new THREE.Vector4(1.0, 1.0, 1.0, 1.0));
+  const baseColorLayer4 = getColorParameter(material, "BaseColorLayer4", new THREE.Vector4(1.0, 1.0, 1.0, 1.0));
+
+  const baseColor = getColorParameter(material, "BaseColor", new THREE.Vector4(1.0, 1.0, 1.0, 1.0));
+
+  const emissionIntensity = getFloatParameter(material, "EmissionIntensity", 1.0);
+
+  // 创建MeshBasicMaterial，使用内置着色器
+  const fireMaterial = new THREE.MeshBasicMaterial({
+    side: mergedOptions.doubleSide ? THREE.DoubleSide : THREE.FrontSide,
+    transparent: mergedOptions.transparent,
+  });
+
+  // 设置纹理
+  if (baseColorTexture) {
+    fireMaterial.map = baseColorTexture;
+  }
+  if (layerMaskTexture) {
+    fireMaterial.userData.layerMaskMap = layerMaskTexture;
+  }
+  if (displacementTexture) {
+    fireMaterial.userData.displacementMap = displacementTexture;
+  }
+
+  // 存储Fire参数
+  fireMaterial.userData.fireParams = {
+    baseColor,
+    baseColorLayer1,
+    baseColorLayer2,
+    baseColorLayer3,
+    baseColorLayer4,
+    emissionIntensity,
+  };
+
+  // 使用onBeforeCompile修改片段着色器
+  fireMaterial.onBeforeCompile = (shader) => {
+    // 添加uniforms
+    shader.uniforms.layerMaskMap = { value: layerMaskTexture || null };
+    shader.uniforms.baseColor = { value: baseColor };
+    shader.uniforms.baseColorLayer1 = { value: baseColorLayer1 };
+    shader.uniforms.baseColorLayer2 = { value: baseColorLayer2 };
+    shader.uniforms.baseColorLayer3 = { value: baseColorLayer3 };
+    shader.uniforms.baseColorLayer4 = { value: baseColorLayer4 };
+    shader.uniforms.emissionIntensity = { value: emissionIntensity };
+
+    // 修改片段着色器，添加Fire逻辑
+    const fragmentShader = shader.fragmentShader;
+
+    // 在片段着色器的开头添加uniform声明
+    const uniformDeclarations = `
+      uniform sampler2D layerMaskMap;
+      uniform vec4 baseColor;
+      uniform vec4 baseColorLayer1;
+      uniform vec4 baseColorLayer2;
+      uniform vec4 baseColorLayer3;
+      uniform vec4 baseColorLayer4;
+      uniform float emissionIntensity;
+    `;
+
+    // 替换片段着色器，在main函数前添加uniforms
+    shader.fragmentShader = fragmentShader.replace(
+      '#include <common>',
+      '#include <common>\n' + uniformDeclarations
+    );
+
+    // 确保vUv可用 - 检查顶点着色器
+    if (!shader.vertexShader.includes('varying vec2 vUv;')) {
+      shader.vertexShader = shader.vertexShader.replace(
+        '#include <common>',
+        '#include <common>\nvarying vec2 vUv;'
+      );
+    }
+
+    // 确保vUv被赋值 - 检查顶点着色器main函数
+    if (!shader.vertexShader.includes('vUv = uv;')) {
+      const vertexMainRegex = /void main\(\) \{([\s\S]*?)\}/;
+      const vertexMainMatch = shader.vertexShader.match(vertexMainRegex);
+      if (vertexMainMatch) {
+        let vertexMainBody = vertexMainMatch[1];
+        // 在main函数开始处添加vUv赋值
+        vertexMainBody = 'vUv = uv;\n' + vertexMainBody;
+        shader.vertexShader = shader.vertexShader.replace(vertexMainMatch[0], `void main() {${vertexMainBody}}`);
+      }
+    }
+
+    // 确保vUv可用 - 检查片段着色器
+    if (!shader.fragmentShader.includes('varying vec2 vUv;')) {
+      shader.fragmentShader = shader.fragmentShader.replace(
+        '#include <common>',
+        '#include <common>\nvarying vec2 vUv;'
+      );
+    }
+
+    // 找到片段着色器的main函数，并修改颜色计算部分
+    const mainFunctionRegex = /void main\(\) \{([\s\S]*?)\}/;
+    const mainFunctionMatch = fragmentShader.match(mainFunctionRegex);
+
+    if (mainFunctionMatch) {
+      let mainFunctionBody = mainFunctionMatch[1];
+
+      // 查找diffuseColor的赋值，通常在基础材质中
+      const diffuseColorAssignmentRegex = /(diffuseColor\s*=.*;)/;
+      const diffuseColorMatch = mainFunctionBody.match(diffuseColorAssignmentRegex);
+
+      if (diffuseColorMatch) {
+        // 在diffuseColor赋值之后添加Fire逻辑
+        const fireLogic = `
+          // Fire 多层混合逻辑
+          vec4 layerMask = texture2D(layerMaskMap, vUv);
+          float weight1 = layerMask.r;
+          float weight2 = layerMask.g;
+          float weight3 = layerMask.b;
+          float weight4 = layerMask.a;
+
+          vec4 layerColor = baseColorLayer1 * weight1 +
+                           baseColorLayer2 * weight2 +
+                           baseColorLayer3 * weight3 +
+                           baseColorLayer4 * weight4;
+
+          // 应用基础颜色纹理
+          vec4 baseColorTex = texture2D(map, vUv);
+          vec4 finalColor = baseColor * baseColorTex * layerColor;
+
+          // 应用自发光强度
+          finalColor.rgb *= emissionIntensity;
+
+          diffuseColor = finalColor;
+        `;
+
+        // 在diffuseColor赋值之后插入Fire逻辑
+        mainFunctionBody = mainFunctionBody.replace(diffuseColorMatch[0], diffuseColorMatch[0] + fireLogic);
+      }
+
+      // 重新构建main函数
+      shader.fragmentShader = shader.fragmentShader.replace(mainFunctionMatch[0], `void main() {${mainFunctionBody}}`);
+    }
+  };
+
+  // 设置材质名称
+  const materialName = material.name();
+  if (materialName) {
+    fireMaterial.name = materialName;
+  }
+
+  return fireMaterial;
 }

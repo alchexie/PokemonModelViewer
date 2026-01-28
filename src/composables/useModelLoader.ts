@@ -148,7 +148,7 @@ export function useModelLoader(): UseModelLoaderReturn {
   const currentParsedData = shallowRef<ParsedModelData | null>(null)
   
   // 存储当前模型的材质引用，用于清理
-  let currentMaterials: THREE.MeshStandardMaterial[] = []
+  let currentMaterials: THREE.Material[] = []
   
   /**
    * 更新加载进度
@@ -187,11 +187,11 @@ export function useModelLoader(): UseModelLoaderReturn {
           if (object.material) {
             if (Array.isArray(object.material)) {
               object.material.forEach((mat) => {
-                if (!currentMaterials.includes(mat as THREE.MeshStandardMaterial)) {
+                if (!currentMaterials.includes(mat)) {
                   mat.dispose()
                 }
               })
-            } else if (!currentMaterials.includes(object.material as THREE.MeshStandardMaterial)) {
+            } else if (!currentMaterials.includes(object.material)) {
               object.material.dispose()
             }
           }
@@ -303,11 +303,11 @@ export function useModelLoader(): UseModelLoaderReturn {
         updateProgress(LoadingStage.LOADING_TEXTURES, meshIdx / totalMeshes)
         
         // 为这个 mesh 的每个材质组创建材质
-        const meshMaterials: THREE.MeshStandardMaterial[] = []
+        const meshMaterials: THREE.Material[] = []
         
         for (const group of groups) {
           const materialName = group.materialName
-          let material: THREE.MeshStandardMaterial
+          let material: THREE.Material
           
           if (materialName && modelData.trmtr) {
             // 根据材质名称查找 TRMTR 中的材质定义
@@ -413,7 +413,7 @@ export function useModelLoader(): UseModelLoaderReturn {
 function createMeshWithMaterials(
   geometry: THREE.BufferGeometry,
   groups: GeometryGroup[],
-  materials: THREE.MeshStandardMaterial[],
+  materials: THREE.Material[],
   skeleton?: THREE.Skeleton
 ): THREE.Mesh | THREE.SkinnedMesh {
   // 检查是否有蒙皮数据
