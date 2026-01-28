@@ -1,17 +1,17 @@
 /**
  * 纹理类型映射工具模块
  * 
- * 用于根据纹理文件名后缀识别纹理类型，并映射到 Three.js 材质属性
+ * 用于根据纹理名称或文件名后缀识别纹理类型，并映射到 Three.js 材质属性
  * 
  * 纹理类型映射表:
- * | 后缀   | 纹理类型              | Three.js 属性  |
- * |--------|----------------------|----------------|
- * | _alb   | Albedo/Diffuse       | map            |
- * | _nrm   | Normal               | normalMap      |
- * | _lym   | Emission/Luminance   | emissiveMap    |
- * | _ao    | Ambient Occlusion    | aoMap          |
- * | _msk   | Mask                 | alphaMap       |
- * | _rgn   | Region               | (自定义)       |
+ * | 纹理名称       | 后缀   | 纹理类型              | Three.js 属性  |
+ * |----------------|--------|----------------------|----------------|
+ * | BaseColorMap   | _alb   | Albedo/Diffuse       | map            |
+ * | NormalMap      | _nrm   | Normal               | normalMap      |
+ * | LayerMaskMap   | _lym   | Emission/Luminance   | emissiveMap    |
+ * | RoughnessMap   | _rgn   | Roughness            | roughnessMap   |
+ * | AOMap          | _ao    | Ambient Occlusion    | aoMap          |
+ * | SSSMaskMap     |        | Mask                 | alphaMap       |
  */
 
 /**
@@ -21,6 +21,7 @@ export type TextureType =
   | 'albedo'    // 漫反射贴图
   | 'normal'    // 法线贴图
   | 'emission'  // 自发光贴图
+  | 'roughness' // 粗糙度贴图
   | 'ao'        // 环境光遮蔽贴图
   | 'mask'      // 遮罩贴图
   | 'region'    // 区域贴图（自定义）
@@ -33,12 +34,27 @@ export type MaterialPropertyName =
   | 'map'           // 漫反射贴图
   | 'normalMap'     // 法线贴图
   | 'emissiveMap'   // 自发光贴图
+  | 'roughnessMap'  // 粗糙度贴图
   | 'aoMap'         // 环境光遮蔽贴图
   | 'alphaMap'      // 透明度贴图
   | null            // 无对应属性（如 region 或 unknown）
 
 /**
- * 纹理后缀到类型的映射
+ * 纹理名称到类型的映射（优先使用）
+ */
+const TEXTURE_NAME_MAP: Record<string, TextureType> = {
+  'BaseColorMap': 'albedo',
+  'NormalMap': 'normal',
+  'NormalMap1': 'normal',
+  'LayerMaskMap': 'emission',
+  'RoughnessMap': 'roughness',
+  'AOMap': 'ao',
+  'SSSMaskMap': 'mask',
+  'EmissionColorMap': 'emission'
+}
+
+/**
+ * 纹理后缀到类型的映射（备用）
  */
 const TEXTURE_SUFFIX_MAP: Record<string, TextureType> = {
   '_alb': 'albedo',
@@ -46,7 +62,7 @@ const TEXTURE_SUFFIX_MAP: Record<string, TextureType> = {
   '_lym': 'emission',
   '_ao': 'ao',
   '_msk': 'mask',
-  '_rgn': 'region'
+  '_rgn': 'roughness'  // 修正：_rgn 对应 roughness
 }
 
 /**
@@ -56,6 +72,7 @@ const TEXTURE_TYPE_TO_PROPERTY: Record<TextureType, MaterialPropertyName> = {
   'albedo': 'map',
   'normal': 'normalMap',
   'emission': 'emissiveMap',
+  'roughness': 'roughnessMap',
   'ao': 'aoMap',
   'mask': 'alphaMap',
   'region': null,
@@ -68,7 +85,25 @@ const TEXTURE_TYPE_TO_PROPERTY: Record<TextureType, MaterialPropertyName> = {
 export const TEXTURE_SUFFIXES = Object.keys(TEXTURE_SUFFIX_MAP)
 
 /**
- * 根据文件名后缀获取纹理类型
+ * 根据纹理名称获取纹理类型（优先方法）
+ * 
+ * 根据着色器中的纹理名称（如 BaseColorMap、NormalMap 等）确定纹理类型
+ * 
+ * @param textureName - 纹理名称，如 "BaseColorMap"
+ * @returns 纹理类型，如果无法识别则返回 'unknown'
+ * 
+ * @example
+ * getTextureTypeFromName("BaseColorMap") // 'albedo'
+ * getTextureTypeFromName("NormalMap")    // 'normal'
+ * getTextureTypeFromName("RoughnessMap") // 'roughness'
+ * getTextureTypeFromName("UnknownMap")   // 'unknown'
+ */
+export function getTextureTypeFromName(textureName: string): TextureType {
+  return TEXTURE_NAME_MAP[textureName] || 'unknown'
+}
+
+/**
+ * 根据文件名后缀获取纹理类型（备用方法）
  * 
  * 从文件名中提取后缀（如 _alb、_nrm 等），并返回对应的纹理类型
  * 
@@ -81,7 +116,7 @@ export const TEXTURE_SUFFIXES = Object.keys(TEXTURE_SUFFIX_MAP)
  * getTextureType("pm0001_00_00_lym.png") // 'emission'
  * getTextureType("pm0001_00_00_ao.png")  // 'ao'
  * getTextureType("pm0001_00_00_msk.png") // 'mask'
- * getTextureType("pm0001_00_00_rgn.png") // 'region'
+ * getTextureType("pm0001_00_00_rgn.png") // 'roughness'
  * getTextureType("pm0001_00_00.png")     // 'unknown'
  * 
  * @validates 需求 4.3: 材质包含 albedo（_alb）纹理时，将其应用为漫反射贴图

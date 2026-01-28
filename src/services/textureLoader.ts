@@ -10,6 +10,7 @@ import * as THREE from "three";
 import { type TRMTR, type Material as TRMTRMaterial } from "../parsers";
 import {
   getTextureType,
+  getTextureTypeFromName,
   mapToMaterialProperty,
   type MaterialPropertyName,
 } from "../utils/textureMapping";
@@ -19,7 +20,7 @@ import {
  */
 export interface TextureReference {
   /** 纹理类型 */
-  type: "albedo" | "normal" | "emission" | "ao" | "mask" | "region" | "unknown";
+  type: "albedo" | "normal" | "emission" | "roughness" | "ao" | "mask" | "region" | "unknown";
   /** 纹理文件名 */
   filename: string;
   /** 纹理名称（着色器中的名称） */
@@ -58,6 +59,32 @@ function isMapEnabled(material: TRMTRMaterial, mapType: string): boolean {
   }
 
   return false;
+}
+
+/**
+ * 从材质数据中读取浮点参数值
+ *
+ * @param material - TRMTR 材质数据
+ * @param paramName - 参数名称
+ * @param defaultValue - 默认值
+ * @returns 参数值或默认值
+ */
+function getFloatParameter(material: TRMTRMaterial, paramName: string, defaultValue: number = 0): number {
+  const floatParamCount = material.floatParameterLength();
+
+  for (let i = 0; i < floatParamCount; i++) {
+    const param = material.floatParameter(i);
+    if (!param) continue;
+
+    const name = param.floatName();
+    if (name === paramName) {
+      const value = param.floatValue();
+      // 检查值是否有效（不为 NaN 或 undefined）
+      return (value !== undefined && !isNaN(value)) ? value : defaultValue;
+    }
+  }
+
+  return defaultValue;
 }
 
 /**
@@ -237,8 +264,11 @@ export function extractTextureReferences(
     // 将 .bntx 扩展名转换为 .png
     const pngFilename = convertBntxToPng(textureFile);
 
-    // 根据文件名确定纹理类型
-    const textureType = getTextureType(pngFilename);
+    // 优先根据纹理名称确定纹理类型，如果失败则根据文件名后缀
+    let textureType = getTextureTypeFromName(textureName);
+    if (textureType === 'unknown') {
+      textureType = getTextureType(pngFilename);
+    }
 
     references.push({
       type: textureType,
@@ -330,11 +360,18 @@ export async function createMaterial(
 
   // 创建材质
   const threeMaterial = new THREE.MeshStandardMaterial({
-    roughness: 0.7,
-    metalness: 0.0,
+    roughness: 0.7,  // 默认值，会被材质数据覆盖
+    metalness: 0.0,  // 默认值，会被材质数据覆盖
     side: mergedOptions.doubleSide ? THREE.DoubleSide : THREE.FrontSide,
     transparent: mergedOptions.transparent,
   });
+
+  // 从材质数据中读取粗糙度和金属度参数
+  const roughness = getFloatParameter(material, "Roughness", 0.7);
+  const metalness = getFloatParameter(material, "Metallic", 0.0);
+
+  threeMaterial.roughness = roughness;
+  threeMaterial.metalness = metalness;
 
   // 应用纹理到材质
   let hasAlbedo = false;
@@ -353,6 +390,8 @@ export async function createMaterial(
       isEnabled = isMapEnabled(material, "NormalMap");
     } else if (textureRef.type === "emission") {
       isEnabled = isMapEnabled(material, "EmissionColorMap");
+    } else if (textureRef.type === "roughness") {
+      isEnabled = isMapEnabled(material, "RoughnessMap");
     } else if (textureRef.type === "ao") {
       isEnabled = isMapEnabled(material, "AOMap");
     } else if (textureRef.type === "mask") {
@@ -422,9 +461,12 @@ function applyTextureToMaterial(
       material.emissiveIntensity = options.emissiveIntensity || 1.0;
       break;
 
+    case "roughnessMap":
+      material.roughnessMap = texture;
+      break;
+
     case "aoMap":
       material.aoMap = texture;
-      material.aoMapIntensity = 1.0;
       break;
 
     case "alphaMap":

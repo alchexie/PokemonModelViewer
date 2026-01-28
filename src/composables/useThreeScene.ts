@@ -137,11 +137,11 @@ const CONFIG = {
   lighting: {
     ambient: {
       color: 0xffffff,
-      intensity: 0.6
+      intensity: 0.4  // 从 0.6 降低到 0.4
     },
     directional: {
       color: 0xffffff,
-      intensity: 0.8,
+      intensity: 0.6,  // 从 0.8 降低到 0.6
       position: { x: 5, y: 10, z: 7 }
     }
   }
