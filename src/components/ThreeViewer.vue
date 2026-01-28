@@ -97,7 +97,7 @@ const showWireframe = ref(false)
 const showSkeleton = ref(false)
 
 // 选择模式：'mesh' 或 'bone'
-const selectionMode = ref<'mesh' | 'bone'>('mesh')
+const selectionMode = ref<'none' | 'mesh' | 'bone'>('none')
 
 // 动画相关状态
 const availableAnimations = ref<Record<string, string[]>>({})
@@ -159,6 +159,9 @@ async function loadAndDisplayModel(pokemonId: string, formId: string): Promise<v
     return
   }
 
+  // 开始加载时先设置为无选择模式
+  selectionMode.value = 'none'
+
   // 切换模型时清空当前选择的mesh、骨骼和动画数据
   selectedTriangle.value = null
   selectedBone.value = null
@@ -187,13 +190,17 @@ async function loadAndDisplayModel(pokemonId: string, formId: string): Promise<v
       // 需求 5.1: 添加模型到场景
       addToScene(currentModel.value)
 
-      // 需求 5.2: 自动调整摄像机位置
+      // 设置固定的摄像机位置
       const camera = getCamera()
       const controls = getControls()
       
-      if (camera) {
-        const result = fitCameraToModel(currentModel.value, camera, controls)
-        console.log(`[ThreeViewer] 摄像机已定位，距离: ${result.distance.toFixed(2)}`)
+      if (camera && controls) {
+        // 设置固定摄像机位置 - 正面偏上视角，中心向下调整
+        camera.position.set(0, 0.7, 5)
+        camera.lookAt(0, 1, 0)
+        controls.target.set(0, 1, 0)
+        controls.update()
+        console.log(`[ThreeViewer] 摄像机已设置为固定位置 (正面偏上视角，中心向下)`)
       }
 
       // 触发模型加载完成事件
@@ -234,6 +241,9 @@ async function loadAndDisplayModel(pokemonId: string, formId: string): Promise<v
       setWireframeMode(showWireframe.value, currentModel.value || undefined)
     }
   } catch (err) {
+    // 加载失败时设置为无选择模式
+    selectionMode.value = 'none'
+    
     // @validates 需求 8.5: 在控制台记录详细错误信息用于调试
     console.error('[ThreeViewer] 模型加载失败:', {
       pokemonId,
@@ -297,6 +307,21 @@ watch(() => props.animations, (newAnimations) => {
     selectedAnimation.value = Object.keys(availableAnimations.value)[0]
   }
 }, { immediate: true })
+
+/**
+ * 调整摄像机到最佳位置
+ */
+function fitCameraToBestPosition(): void {
+  if (currentModel.value) {
+    const camera = getCamera()
+    const controls = getControls()
+    
+    if (camera) {
+      const result = fitCameraToModel(currentModel.value, camera, controls)
+      console.log(`[ThreeViewer] 摄像机已调整到最佳位置，距离: ${result.distance.toFixed(2)}`)
+    }
+  }
+}
 
 /**
  * 切换播放/暂停状态
@@ -566,9 +591,19 @@ defineExpose({
       <div class="control-item">
         <span class="control-label">选择模式:</span>
         <select v-model="selectionMode" class="control-select">
+          <option value="none">--</option>
           <option value="mesh">面片</option>
           <option value="bone">骨骼</option>
         </select>
+      </div>
+      <div class="control-item">
+        <button 
+          @click="fitCameraToBestPosition"
+          class="control-btn"
+          :disabled="!currentModel"
+        >
+          📹 调整摄像机
+        </button>
       </div>
     </div>
     
@@ -736,6 +771,28 @@ defineExpose({
 .control-select option {
   background-color: rgba(0, 0, 0, 0.9);
   color: #ffffff;
+}
+
+.control-btn {
+  margin-left: 8px;
+  padding: 4px 8px;
+  background-color: rgba(0, 0, 0, 0.7);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 3px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: all 0.2s ease;
+}
+
+.control-btn:hover:not(:disabled) {
+  background-color: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.5);
+}
+
+.control-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 /* 选中信息面板 */

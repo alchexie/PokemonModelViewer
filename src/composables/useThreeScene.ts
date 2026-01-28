@@ -68,7 +68,7 @@ export interface UseThreeSceneReturn {
   /** 获取骨骼组 */
   getSkeletonGroup: () => THREE.Group | null
   /** 设置选择模式 */
-  setSelectionMode: (mode: 'mesh' | 'bone') => void
+  setSelectionMode: (mode: 'none' | 'mesh' | 'bone') => void
 }
 
 /**
@@ -88,7 +88,7 @@ interface SceneState {
   selectedTriangleHighlight: THREE.Mesh | null
   selectedBoneHighlight: THREE.Mesh | null
   skeletonGroup: THREE.Group | null
-  selectionMode: 'mesh' | 'bone'
+  selectionMode: 'none' | 'mesh' | 'bone'
   trskl: TRSKL | null
 }
 
@@ -568,7 +568,7 @@ export function useThreeScene(options: UseThreeSceneOptions): UseThreeSceneRetur
    * 处理鼠标点击事件，返回点击的三角形信息
    */
   function handleMouseClick(event: MouseEvent, model?: THREE.Object3D): ClickResult {
-    if (!state.renderer || !state.camera) {
+    if (!state.renderer || !state.camera || state.selectionMode === 'none') {
       return null
     }
 
@@ -1095,7 +1095,7 @@ export function useThreeScene(options: UseThreeSceneOptions): UseThreeSceneRetur
     return state.skeletonGroup
   }
 
-  function setSelectionMode(mode: 'mesh' | 'bone'): void {
+  function setSelectionMode(mode: 'none' | 'mesh' | 'bone'): void {
     state.selectionMode = mode
     // 切换模式时清除当前的选择和高亮
     highlightSelectedTriangle(null, null)
