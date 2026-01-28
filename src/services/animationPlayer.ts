@@ -66,6 +66,7 @@ export class AnimationPlayer {
   private animationData: TRANM | null = null;
   private state: AnimationState;
   private skeleton: THREE.Group | null = null;
+  private threeSkeleton: THREE.Skeleton | null = null;
   private boneMap: Map<string, THREE.Object3D> = new Map();
   private initialTransforms: Map<string, BoneTransform> = new Map();
   private animationId: number | null = null;
@@ -122,17 +123,54 @@ export class AnimationPlayer {
   }
 
   /**
+   * 设置 Three.js Skeleton 对象（用于蒙皮动画）
+   */
+  setThreeSkeleton(threeSkeleton: THREE.Skeleton): void {
+    this.threeSkeleton = threeSkeleton;
+    this.buildSkeletonBoneMap();
+  }
+
+  /**
+   * 构建骨骼名称到 THREE.Bone 对象的映射
+   */
+  private buildSkeletonBoneMap(): void {
+    if (!this.threeSkeleton) return;
+
+    // 为THREE.Skeleton的bones添加映射（骨骼名称已在createSkeleton中设置）
+    this.threeSkeleton.bones.forEach((bone, index) => {
+      const boneName = bone.name || `Bone_${index}`;
+      this.boneMap.set(boneName, bone);
+
+      // 存储初始变换
+      const initialTransform: BoneTransform = {
+        position: {
+          x: bone.position.x,
+          y: bone.position.y,
+          z: bone.position.z,
+        },
+        rotation: {
+          x: bone.quaternion.x,
+          y: bone.quaternion.y,
+          z: bone.quaternion.z,
+          w: bone.quaternion.w,
+        },
+        scale: { x: bone.scale.x, y: bone.scale.y, z: bone.scale.z },
+      };
+      this.initialTransforms.set(boneName, initialTransform);
+    });
+  }
+
+  /**
    * 构建骨骼名称到对象的映射
    */
   private buildBoneMap(): void {
     if (!this.skeleton) return;
 
-    this.boneMap.clear();
-    this.initialTransforms.clear();
+    // 不清除现有的映射（THREE.Skeleton的bones）
     this.skeleton.traverse((object) => {
       if (object.name && object.name.startsWith("Joint_")) {
         const boneName = object.name.replace("Joint_", "");
-        this.boneMap.set(boneName, object);
+        this.boneMap.set(`Joint_${boneName}`, object); // 使用Joint_前缀作为key
 
         // 存储初始变换
         const initialTransform: BoneTransform = {
@@ -270,6 +308,12 @@ export class AnimationPlayer {
     const boneAnimation = this.animationData.track();
     if (!boneAnimation) return;
 
+    // 如果有THREE.Skeleton，按照层次结构更新
+    if (this.threeSkeleton) {
+      this.updateSkeletonBones(boneAnimation);
+    }
+
+    // 更新可视化骨骼
     for (let i = 0; i < boneAnimation.tracksLength(); i++) {
       const track = boneAnimation.tracks(i);
       if (!track) continue;
@@ -277,21 +321,55 @@ export class AnimationPlayer {
       const boneName = track.boneName();
       if (!boneName) continue;
 
-      const boneObject = this.boneMap.get(boneName);
-      if (!boneObject) {
-        console.warn(
-          `Bone not found in map: ${boneName}, available bones:`,
-          Array.from(this.boneMap.keys()),
-        );
-        continue;
+      // 只处理可视化骨骼
+      const boneObject = this.boneMap.get(`Joint_${boneName}`);
+      if (boneObject && !(boneObject instanceof THREE.Bone)) {
+        const transform = this.getBoneTransformAtFrame(track, this.state.currentFrame);
+        this.applyTransformToBone(boneObject, transform);
       }
-
-      const transform = this.getBoneTransformAtFrame(
-        track,
-        this.state.currentFrame,
-      );
-      this.applyTransformToBone(boneObject, transform);
     }
+  }
+
+  /**
+   * 更新THREE.Skeleton的骨骼，按照层次结构
+   */
+  private updateSkeletonBones(boneAnimation: any): void {
+    if (!this.threeSkeleton) {
+      console.warn('No threeSkeleton to update');
+      return;
+    }
+
+    // 创建骨骼名称到track的映射
+    const trackMap = new Map<string, any>();
+    for (let i = 0; i < boneAnimation.tracksLength(); i++) {
+      const track = boneAnimation.tracks(i);
+      if (!track) continue;
+      const boneName = track.boneName();
+      if (boneName) {
+        console.log(`Animation track: ${boneName}`);
+        trackMap.set(boneName, track);
+      }
+    }
+
+    console.log('Skeleton bones:', this.threeSkeleton!.bones.map(b => `${b.name}(index:${this.threeSkeleton!.bones.indexOf(b)})`));
+
+    // 直接设置每个骨骼的局部变换
+    this.threeSkeleton.bones.forEach((bone, index) => {
+      const boneName = bone.name;
+      const track = trackMap.get(boneName);
+      
+      if (track) {
+        const transform = this.getBoneTransformAtFrame(track, this.state.currentFrame);
+        console.log(`Updating bone ${boneName}: pos(${transform.position.x.toFixed(3)}, ${transform.position.y.toFixed(3)}, ${transform.position.z.toFixed(3)})`);
+        
+        // 直接设置骨骼的局部变换
+        bone.position.set(transform.position.x, transform.position.y, transform.position.z);
+        bone.quaternion.set(transform.rotation.x, transform.rotation.y, transform.rotation.z, transform.rotation.w);
+        bone.scale.set(transform.scale.x, transform.scale.y, transform.scale.z);
+        
+        console.log(`Bone ${boneName} local transform set: pos(${bone.position.x.toFixed(3)}, ${bone.position.y.toFixed(3)}, ${bone.position.z.toFixed(3)})`);
+      }
+    });
   }
 
   /**
@@ -545,10 +623,7 @@ export class AnimationPlayer {
     boneObject: THREE.Object3D,
     transform: BoneTransform,
   ): void {
-    const boneName = boneObject.name.replace("Joint_", "");
-    const initialTransform = this.initialTransforms.get(boneName);
-
-    // 直接设置动画变换（参考Blender导入器的逻辑）
+    // 直接设置世界变换（用于可视化骨骼）
     boneObject.position.set(
       transform.position.x,
       transform.position.y,
@@ -626,16 +701,54 @@ export class AnimationPlayer {
   }
 
   /**
+   * 应用变换到THREE.Skeleton骨骼
+   */
+  private applyTransformToSkeletonBone(bone: THREE.Bone, transform: BoneTransform): void {
+    // 设置骨骼的局部变换
+    bone.position.set(transform.position.x, transform.position.y, transform.position.z);
+    bone.quaternion.set(transform.rotation.x, transform.rotation.y, transform.rotation.z, transform.rotation.w);
+    bone.scale.set(transform.scale.x, transform.scale.y, transform.scale.z);
+    
+    // 更新骨骼的矩阵
+    bone.updateMatrix();
+  }
+
+  /**
+   * 获取插值变换
+   */
+  private getInterpolatedTransform(track: any, time: number): BoneTransform | null {
+    // 使用现有的插值方法
+    const position = this.interpolateVectorTrack(
+      track.translateType(),
+      track.translate.bind(track),
+      Math.floor(time * 30) // 假设30fps
+    );
+    const rotation = this.interpolateRotationTrack(
+      track.rotateType(),
+      track.rotate.bind(track),
+      Math.floor(time * 30)
+    );
+    const scale = this.interpolateVectorTrack(
+      track.scaleType(),
+      track.scale.bind(track),
+      Math.floor(time * 30)
+    );
+
+    return { position, rotation, scale };
+  }
+
+  /**
    * 重置骨骼到初始姿态
    */
   private resetBonesToInitialPose(): void {
-    // 这里应该重置到动画的第一帧或初始姿态
-    // 暂时重置到单位变换
-    this.boneMap.forEach((bone) => {
-      bone.position.set(0, 0, 0);
-      bone.quaternion.set(0, 0, 0, 1);
-      bone.scale.set(1, 1, 1);
-    });
+    // 重置到动画的第一帧或初始姿态
+    if (this.threeSkeleton) {
+      this.threeSkeleton.bones.forEach(bone => {
+        bone.position.set(0, 0, 0);
+        bone.quaternion.set(0, 0, 0, 1);
+        bone.scale.set(1, 1, 1);
+      });
+    }
   }
 
   /**

@@ -10,6 +10,7 @@ import * as THREE from "three";
 import {
   type TRMSH,
   type TRMBF,
+  type TRSKL,
   type MeshShape,
   type Buffer as TRMBFBuffer,
   VertexAttribute,
@@ -190,6 +191,22 @@ export function createGeometryFromMeshShape(
     geometry.setAttribute("tangent", new THREE.BufferAttribute(normalizedTangents, 3));
   }
 
+  // 设置蒙皮索引
+  if (vertexData.skinIndices) {
+    geometry.setAttribute(
+      "skinIndex",
+      new THREE.BufferAttribute(vertexData.skinIndices, 4),
+    );
+  }
+
+  // 设置蒙皮权重
+  if (vertexData.skinWeights) {
+    geometry.setAttribute(
+      "skinWeight",
+      new THREE.BufferAttribute(vertexData.skinWeights, 4),
+    );
+  }
+
   // 解析索引数据
   const indices = parseIndexData(meshShape, buffer);
   if (indices) {
@@ -226,6 +243,8 @@ interface VertexData {
   uvs2: Float32Array | null;
   colors: Float32Array | null;
   tangents: Float32Array | null;
+  skinIndices: Float32Array | null;
+  skinWeights: Float32Array | null;
 }
 
 /**
@@ -246,6 +265,8 @@ function parseVertexAttributes(
     uvs2: null,
     colors: null,
     tangents: null,
+    skinIndices: null,
+    skinWeights: null,
   };
 
   // 获取顶点属性访问器
@@ -353,6 +374,28 @@ function parseVertexAttributes(
 
         case VertexAttribute.TANGENT:
           result.tangents = parseVertexAttribute(
+            vertexBuffer,
+            type,
+            offset,
+            stride,
+            vertexCount,
+          );
+          break;
+
+        case VertexAttribute.BLEND_INDICES:
+          result.skinIndices = parseVertexAttribute(
+            vertexBuffer,
+            type,
+            offset,
+            stride,
+            vertexCount,
+          );
+          // 调试：检查 BLEND_INDICES 的值范围
+          console.log('BLEND_INDICES sample:', result.skinIndices.slice(0, 20));
+          break;
+
+        case VertexAttribute.BLEND_WEIGHTS:
+          result.skinWeights = parseVertexAttribute(
             vertexBuffer,
             type,
             offset,
@@ -514,4 +557,108 @@ export function validateGroupCount(
 ): boolean {
   const expectedCount = getSubmeshCount(meshShape);
   return groups.length === expectedCount;
+}
+
+export function createSkeleton(trskl: TRSKL): THREE.Skeleton {
+  const bones: THREE.Bone[] = [];
+  const boneInverses: THREE.Matrix4[] = [];
+
+  // 获取数据
+  const boneCount = trskl.bonesLength();
+  const transformNodeCount = trskl.transformNodesLength();
+
+  console.log(`TRSKL has ${boneCount} bones and ${transformNodeCount} transform nodes`);
+
+  // 创建骨骼数组，大小等于 bones.length
+  for (let i = 0; i < boneCount; i++) {
+    const bone = new THREE.Bone();
+    bone.name = `Bone_${i}`;
+    bones.push(bone);
+    boneInverses.push(new THREE.Matrix4());
+  }
+
+  // 创建 transformNodes 的映射：rigIdx -> transformNode
+  const rigIdxToTransformNode = new Map<number, any>();
+  for (let i = 0; i < transformNodeCount; i++) {
+    const node = trskl.transformNodes(i);
+    if (node) {
+      const rigIdx = node.rigIdx();
+      if (rigIdx >= 0) {
+        rigIdxToTransformNode.set(rigIdx, node);
+      }
+    }
+  }
+
+  // 为每个骨骼设置变换和名称
+  for (let boneIndex = 0; boneIndex < boneCount; boneIndex++) {
+    const bone = bones[boneIndex];
+    const transformNode = rigIdxToTransformNode.get(boneIndex);
+
+    if (transformNode) {
+      // 设置骨骼名称
+      const name = transformNode.name();
+      if (name) {
+        bone.name = name.decode ? name.decode('utf-8') : name;
+      }
+
+      // 设置骨骼的局部变换
+      const transform = transformNode.transform();
+      if (transform) {
+        const scale = transform.vecScale();
+        const rotation = transform.vecRot();
+        const translation = transform.vecTranslate();
+
+        if (scale && rotation && translation) {
+          // 设置缩放
+          bone.scale.set(scale.x(), scale.y(), scale.z());
+
+          // 设置旋转（欧拉角 -> 四元数）
+          const euler = new THREE.Euler(rotation.x(), rotation.y(), rotation.z(), 'ZYX');
+          const quat = new THREE.Quaternion().setFromEuler(euler);
+          bone.quaternion.copy(quat);
+
+          // 设置位置
+          bone.position.set(translation.x(), translation.y(), translation.z());
+        }
+      }
+    }
+  }
+
+  // 建立层次结构
+  for (let boneIndex = 0; boneIndex < boneCount; boneIndex++) {
+    const transformNode = rigIdxToTransformNode.get(boneIndex);
+    if (!transformNode) continue;
+
+    const parentIdx = transformNode.parentIdx();
+    if (parentIdx >= 0) {
+      // 查找父骨骼：parentIdx 是 transformNodes 的索引，需要转换为 rigIdx
+      const parentNode = trskl.transformNodes(parentIdx);
+      if (parentNode) {
+        const parentRigIdx = parentNode.rigIdx();
+        if (parentRigIdx >= 0 && parentRigIdx < bones.length) {
+          const parentBone = bones[parentRigIdx];
+          const childBone = bones[boneIndex];
+          if (parentBone && childBone && parentBone !== childBone) {
+            parentBone.add(childBone);
+          }
+        }
+      }
+    }
+  }
+
+  // 计算 boneInverses：绑定姿势的世界变换的逆矩阵
+  // 首先更新所有骨骼的世界矩阵
+  bones.forEach(bone => {
+    bone.updateMatrixWorld(true);
+  });
+
+  bones.forEach((bone, index) => {
+    // 获取骨骼的世界变换矩阵
+    const worldMatrix = bone.matrixWorld.clone();
+    boneInverses[index] = worldMatrix.invert();
+  });
+
+  console.log(`Created skeleton with ${bones.length} bones`);
+
+  return new THREE.Skeleton(bones, boneInverses);
 }

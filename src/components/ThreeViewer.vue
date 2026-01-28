@@ -200,8 +200,16 @@ async function loadAndDisplayModel(pokemonId: string, formId: string): Promise<v
         const skeletonGroup = getCurrentSkeletonGroup()
         if (skeletonGroup) {
           animationPlayer.setSkeleton(skeletonGroup)
-          console.log(`[ThreeViewer] 骨骼已设置给动画播放器`)
+          console.log(`[ThreeViewer] 可视化骨骼已设置给动画播放器`)
         }
+
+        // 设置THREE.Skeleton给动画播放器（用于蒙皮动画）
+        currentModel.value?.traverse((child) => {
+          if (child instanceof THREE.SkinnedMesh && child.skeleton) {
+            animationPlayer.setThreeSkeleton(child.skeleton)
+            console.log(`[ThreeViewer] THREE.Skeleton已设置给动画播放器`)
+          }
+        })
       }
 
       // 根据当前设置显示顶点法线用于调试

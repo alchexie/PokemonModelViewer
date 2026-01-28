@@ -19,6 +19,7 @@ import {
 } from '../services/modelLoader'
 import {
   createAllGeometries,
+  createSkeleton,
   type GeometryGroup
 } from '../services/meshConverter'
 import {
@@ -286,6 +287,12 @@ export function useModelLoader(): UseModelLoaderReturn {
       const modelGroup = new THREE.Group()
       modelGroup.name = formId
       
+      // 创建骨骼（如果有骨骼数据）
+      let skeleton: THREE.Skeleton | undefined
+      if (modelData.trskl) {
+        skeleton = createSkeleton(modelData.trskl)
+      }
+      
       // 为每个 mesh 创建对应的 Three.js Mesh
       const totalMeshes = geometryResults.length
       
@@ -326,7 +333,7 @@ export function useModelLoader(): UseModelLoaderReturn {
         }
         
         // 创建网格
-        const mesh = createMeshWithMaterials(geometry, groups, meshMaterials)
+        const mesh = createMeshWithMaterials(geometry, groups, meshMaterials, skeleton)
         mesh.name = `${formId}_mesh_${meshIdx}`
         
         modelGroup.add(mesh)
@@ -388,14 +395,27 @@ export function useModelLoader(): UseModelLoaderReturn {
  * @param geometry - BufferGeometry
  * @param groups - 几何体组信息
  * @param materials - 材质数组
- * @returns Three.js Mesh
+ * @param skeleton - 可选的骨骼数据，用于蒙皮动画
+ * @returns Three.js Mesh 或 SkinnedMesh
  */
 function createMeshWithMaterials(
   geometry: THREE.BufferGeometry,
   groups: GeometryGroup[],
-  materials: THREE.MeshStandardMaterial[]
-): THREE.Mesh {
-  // 如果只有一个材质或没有组，直接创建简单网格
+  materials: THREE.MeshStandardMaterial[],
+  skeleton?: THREE.Skeleton
+): THREE.Mesh | THREE.SkinnedMesh {
+  // 检查是否有蒙皮数据
+  const hasSkinData = geometry.attributes.skinIndex && geometry.attributes.skinWeight;
+  
+  // 如果有骨骼数据且几何体有蒙皮属性，创建 SkinnedMesh
+  if (skeleton && hasSkinData) {
+    const skinnedMesh = new THREE.SkinnedMesh(geometry, materials.length === 1 ? materials[0] : materials);
+    skinnedMesh.add(skeleton.bones[0]); // 将根骨骼添加到网格
+    skinnedMesh.bind(skeleton);
+    return skinnedMesh;
+  }
+  
+  // 否则创建普通 Mesh
   if (materials.length === 1 || groups.length <= 1) {
     return new THREE.Mesh(geometry, materials[0] || createDefaultMaterial())
   }
