@@ -117,6 +117,7 @@ function getPokemonForms(pokemonId, pokemonPath) {
           id: formId,
           formIndex: formInfo.formIndex,
           variantIndex: formInfo.variantIndex,
+          icon: `icon/pm${pokemonId}_${formInfo.formIndex.toString().padStart(2,'0')}_${formInfo.variantIndex.toString().padStart(2,'0')}_00_big.png`,
           animations: animations
         });
       }
@@ -170,6 +171,7 @@ function generateIndex() {
     pokemons.push({
       id: pokemonId,
       number: number,
+      icon: `icon/pm${pokemonId}_00_00_00_big.png`,
       forms: forms
     });
 

@@ -116,24 +116,15 @@ function handleFormChangeForItem(event: Event, pokemon: PokemonEntry): void {
  */
 async function loadPokemonNames(): Promise<void> {
   try {
-    const response = await fetch('/pokemon/names.json')
+    const response = await fetch('/pokemon_name.json')
     if (!response.ok) {
       throw new Error(`加载宝可梦名字失败: HTTP ${response.status}`)
     }
     const data = await response.json()
-    pokemonNames.value = data.names
+    pokemonNames.value = data
     console.log('[PokemonBrowser] 宝可梦名字加载成功')
   } catch (err) {
     console.error('[PokemonBrowser] 宝可梦名字加载失败:', err)
-    // 使用默认名字作为后备
-    pokemonNames.value = {
-      '1': '妙蛙种子',
-      '2': '妙蛙草',
-      '3': '妙蛙花',
-      '4': '小火龙',
-      '5': '火恐龙',
-      '6': '喷火龙'
-    }
   }
 }
 

@@ -40,4 +40,14 @@ refer/
 .mypy_cache/
 
 # Ignore Pokemon files with number > 10
-public/pokemon/pm[0-9][0-9][1-9][0-9]/
+public/pokemon/*
+!public/pokemon/pm0000/
+!public/pokemon/pm0001/
+!public/pokemon/pm0002/
+!public/pokemon/pm0003/
+!public/pokemon/pm0004/
+!public/pokemon/pm0005/
+!public/pokemon/pm0006/
+!public/pokemon/pm0007/
+!public/pokemon/pm0008/
+!public/pokemon/pm0009/
