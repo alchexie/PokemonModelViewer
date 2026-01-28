@@ -155,9 +155,12 @@ async function loadAndDisplayModel(pokemonId: string, formId: string): Promise<v
     return
   }
 
-  // 切换模型时清空当前选择的mesh或骨骼
+  // 切换模型时清空当前选择的mesh、骨骼和动画数据
   selectedTriangle.value = null
   selectedBone.value = null
+  selectedAnimation.value = ''
+  isAnimationPlaying.value = false
+  animationPlayer.stop()
 
   // 移除之前的模型
   if (currentModel.value) {
