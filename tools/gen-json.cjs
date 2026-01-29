@@ -1,13 +1,13 @@
 #!/usr/bin/env node
 /**
- * genjson.js - 将宝可梦模型数据转换为 JSON 格式
+ * gen-json.js - 将宝可梦模型数据转换为 JSON 格式
  * 
- * 用法: npm run genjson -- <pokemon_id> [form_id]
+ * 用法: npm run gen-json -- <pokemon_id> [form_id] [--with-animation]
  * 
  * 示例:
- *   npm run genjson -- pm0001              # 转换 pm0001 的默认形态
- *   npm run genjson -- pm0001 pm0001_00_00 # 转换指定形态
- *   npm run genjson -- pm0004              # 转换 pm0004（有动画数据）
+ *   npm run gen-json -- pm0001              # 转换 pm0001 的默认形态（不包含动画）
+ *   npm run gen-json -- pm0001 pm0001_00_00 # 转换指定形态（不包含动画）
+ *   npm run gen-json -- pm0004 --with-animation # 转换 pm0004（包含动画数据）
  */
 
 const { execSync } = require('child_process');
@@ -104,7 +104,7 @@ function convertToJson(inputFile, schemaFile, outputDir, schemaDir = SCHEMA_DIR)
 /**
  * 转换指定形态的所有模型文件
  */
-function convertForm(pokemonId, formId) {
+function convertForm(pokemonId, formId, withAnimation = false) {
   const formDir = path.join(POKEMON_DIR, pokemonId, formId);
   const outputFormDir = path.join(OUTPUT_DIR, pokemonId, formId);
   
@@ -152,16 +152,20 @@ function convertForm(pokemonId, formId) {
   }
   
   // 转换动画文件
-  const animationSchemaDir = path.join(__dirname, 'scheme', 'animation');
-  for (const { ext, schema } of ANIMATION_FILE_TYPES) {
-    const files = fs.readdirSync(formDir).filter(file => file.startsWith(formId) && file.endsWith('.' + ext));
-    for (const file of files) {
-      const inputFile = path.join(formDir, file);
-      if (convertToJson(inputFile, schema, outputFormDir, animationSchemaDir)) {
-        console.log(`  ✓ ${file}`);
-        convertedCount++;
+  if (withAnimation) {
+    const animationSchemaDir = path.join(__dirname, 'scheme', 'animation');
+    for (const { ext, schema } of ANIMATION_FILE_TYPES) {
+      const files = fs.readdirSync(formDir).filter(file => file.startsWith(formId) && file.endsWith('.' + ext));
+      for (const file of files) {
+        const inputFile = path.join(formDir, file);
+        if (convertToJson(inputFile, schema, outputFormDir, animationSchemaDir)) {
+          console.log(`  ✓ ${file}`);
+          convertedCount++;
+        }
       }
     }
+  } else {
+    console.log(`  跳过动画文件转换`);
   }
   
   console.log(`  共转换 ${convertedCount} 个文件`);
@@ -174,17 +178,36 @@ function main() {
   const args = process.argv.slice(2);
   
   if (args.length === 0) {
-    console.log('用法: npm run genjson -- <pokemon_id> [form_id]');
+    console.log('用法: npm run genjson -- <pokemon_id> [form_id] [--with-animation]');
     console.log('');
     console.log('示例:');
-    console.log('  npm run genjson -- pm0001              # 转换 pm0001 的所有形态');
-    console.log('  npm run genjson -- pm0001 pm0001_00_00 # 转换指定形态');
-    console.log('  npm run genjson -- pm0004              # 转换 pm0004（有动画数据）');
+    console.log('  npm run genjson -- pm0001              # 转换 pm0001 的所有形态（不包含动画）');
+    console.log('  npm run genjson -- pm0001 pm0001_00_00 # 转换指定形态（不包含动画）');
+    console.log('  npm run genjson -- pm0004 --with-animation # 转换 pm0004（包含动画数据）');
+    console.log('  npm run genjson -- pm0001 --with-animation # 转换 pm0001（包含动画文件）');
     process.exit(0);
   }
   
-  const pokemonId = args[0];
-  const formId = args[1];
+  // 解析参数
+  let pokemonId = null;
+  let formId = null;
+  let withAnimation = false;
+  
+  for (let i = 0; i < args.length; i++) {
+    const arg = args[i];
+    if (arg === '--with-animation') {
+      withAnimation = true;
+    } else if (!pokemonId) {
+      pokemonId = arg;
+    } else if (!formId) {
+      formId = arg;
+    }
+  }
+  
+  if (!pokemonId) {
+    console.log('用法: npm run genjson -- <pokemon_id> [form_id] [--with-animation]');
+    process.exit(1);
+  }
   
   // 检查 flatc 是否存在
   if (!fs.existsSync(FLATC_PATH)) {
@@ -200,7 +223,7 @@ function main() {
   
   if (formId) {
     // 转换指定形态
-    convertForm(pokemonId, formId);
+    convertForm(pokemonId, formId, withAnimation);
   } else {
     // 转换所有形态
     const forms = getFormDirs(pokemonId);
@@ -213,7 +236,7 @@ function main() {
     console.log(`找到 ${forms.length} 个形态: ${forms.join(', ')}`);
     
     for (const form of forms) {
-      convertForm(pokemonId, form);
+      convertForm(pokemonId, form, withAnimation);
     }
   }
   

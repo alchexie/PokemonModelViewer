@@ -424,6 +424,11 @@ export async function createMaterial(
     return await createFireMaterial(material, basePath, mergedOptions);
   }
 
+  // 如果是NonDirectional，使用自定义non-directional材质
+  if (shaderName === "NonDirectional") {
+    return await createNonDirectionalMaterial(material, basePath, mergedOptions);
+  }
+
   // 提取纹理引用
   const textureRefs = extractTextureReferences(material);
 
@@ -1126,4 +1131,201 @@ export async function createFireMaterial(
   }
 
   return fireMaterial;
+}
+
+export async function createNonDirectionalMaterial(
+  material: TRMTRMaterial,
+  basePath: string,
+  options: MaterialOptions = {},
+): Promise<THREE.MeshBasicMaterial> {
+  const mergedOptions = { ...DEFAULT_MATERIAL_OPTIONS, ...options };
+
+  // 提取纹理引用
+  const textureRefs = extractTextureReferences(material);
+  const textureMap = await loadTextures(textureRefs, basePath);
+
+  // 获取纹理
+  const baseColorTexture = findTextureByName(material, textureMap, "BaseColorMap");
+  const layerMaskTexture = findTextureByName(material, textureMap, "LayerMaskMap");
+  const displacementTexture = findTextureByName(material, textureMap, "DisplacementMap");
+
+  // 获取各层的参数
+  const baseColorLayer1 = getColorParameter(material, "BaseColorLayer1", new THREE.Vector4(0.205198, 0.141264, 0.216, 1.0));
+  const baseColorLayer2 = getColorParameter(material, "BaseColorLayer2", new THREE.Vector4(0.23086, 0.138408, 0.292, 1.0));
+  const baseColorLayer3 = getColorParameter(material, "BaseColorLayer3", new THREE.Vector4(0.230895, 0.141328, 0.292, 1.0));
+  const baseColorLayer4 = getColorParameter(material, "BaseColorLayer4", new THREE.Vector4(0.127488, 0.08235, 0.15, 1.0));
+
+  const layerMaskScale1 = getFloatParameter(material, "LayerMaskScale1", 1.0);
+  const layerMaskScale2 = getFloatParameter(material, "LayerMaskScale2", 1.0);
+  const layerMaskScale3 = getFloatParameter(material, "LayerMaskScale3", 1.0);
+  const layerMaskScale4 = getFloatParameter(material, "LayerMaskScale4", 1.0);
+
+  const displacementHeight = getFloatParameter(material, "DisplacementHeight", 0.3);
+  const emissionIntensity = getFloatParameter(material, "EmissionIntensity", 1.0);
+  const discardValue = getFloatParameter(material, "DiscardValue", 0.0);
+
+  // 创建MeshBasicMaterial，使用内置着色器
+  const nonDirectionalMaterial = new THREE.MeshBasicMaterial({
+    side: mergedOptions.doubleSide ? THREE.DoubleSide : THREE.FrontSide,
+    transparent: true, // 烟雾材质需要透明
+    depthWrite: false, // 不写入深度缓冲，允许其他物体渲染在烟雾上
+    depthTest: true,   // 进行深度测试，但设置较低的渲染顺序确保最后渲染
+  });
+
+
+  // 设置纹理
+  if (baseColorTexture) {
+    nonDirectionalMaterial.map = baseColorTexture;
+  }
+  if (layerMaskTexture) {
+    nonDirectionalMaterial.userData.layerMaskMap = layerMaskTexture;
+  }
+  if (displacementTexture) {
+    nonDirectionalMaterial.userData.displacementMap = displacementTexture;
+  }
+
+  // 存储NonDirectional参数
+  nonDirectionalMaterial.userData.nonDirectionalParams = {
+    baseColorLayer1,
+    baseColorLayer2,
+    baseColorLayer3,
+    baseColorLayer4,
+    layerMaskScale1,
+    layerMaskScale2,
+    layerMaskScale3,
+    layerMaskScale4,
+    displacementHeight,
+    emissionIntensity,
+    discardValue,
+  };
+
+  // 使用onBeforeCompile修改片段着色器
+  nonDirectionalMaterial.onBeforeCompile = (shader) => {
+    // 添加uniforms
+    shader.uniforms.layerMaskMap = { value: layerMaskTexture || null };
+    shader.uniforms.displacementMap = { value: displacementTexture || null };
+    shader.uniforms.baseColorLayer1 = { value: baseColorLayer1 };
+    shader.uniforms.baseColorLayer2 = { value: baseColorLayer2 };
+    shader.uniforms.baseColorLayer3 = { value: baseColorLayer3 };
+    shader.uniforms.baseColorLayer4 = { value: baseColorLayer4 };
+    shader.uniforms.layerMaskScale1 = { value: layerMaskScale1 };
+    shader.uniforms.layerMaskScale2 = { value: layerMaskScale2 };
+    shader.uniforms.layerMaskScale3 = { value: layerMaskScale3 };
+    shader.uniforms.layerMaskScale4 = { value: layerMaskScale4 };
+    shader.uniforms.displacementHeight = { value: displacementHeight };
+    shader.uniforms.emissionIntensity = { value: emissionIntensity };
+    shader.uniforms.discardValue = { value: discardValue };
+
+    // 修改片段着色器，添加NonDirectional逻辑
+    const fragmentShader = shader.fragmentShader;
+
+    // 在片段着色器的开头添加uniform声明
+    const uniformDeclarations = `
+      uniform sampler2D layerMaskMap;
+      uniform sampler2D displacementMap;
+      uniform vec4 baseColorLayer1;
+      uniform vec4 baseColorLayer2;
+      uniform vec4 baseColorLayer3;
+      uniform vec4 baseColorLayer4;
+      uniform float layerMaskScale1;
+      uniform float layerMaskScale2;
+      uniform float layerMaskScale3;
+      uniform float layerMaskScale4;
+      uniform float displacementHeight;
+      uniform float emissionIntensity;
+      uniform float discardValue;
+    `;
+
+    // 替换片段着色器，在main函数前添加uniforms
+    shader.fragmentShader = fragmentShader.replace(
+      '#include <common>',
+      '#include <common>\n' + uniformDeclarations
+    );
+
+    // 确保vUv可用 - 检查顶点着色器
+    if (!shader.vertexShader.includes('varying vec2 vUv;')) {
+      shader.vertexShader = shader.vertexShader.replace(
+        '#include <common>',
+        '#include <common>\nvarying vec2 vUv;'
+      );
+    }
+
+    // 确保vUv被赋值 - 检查顶点着色器main函数
+    if (!shader.vertexShader.includes('vUv = uv;')) {
+      const vertexMainRegex = /void main\(\) \{([\s\S]*?)\}/;
+      const vertexMainMatch = shader.vertexShader.match(vertexMainRegex);
+      if (vertexMainMatch) {
+        let vertexMainBody = vertexMainMatch[1];
+        // 在main函数开始处添加vUv赋值
+        vertexMainBody = 'vUv = uv;\n' + vertexMainBody;
+        shader.vertexShader = shader.vertexShader.replace(vertexMainMatch[0], `void main() {${vertexMainBody}}`);
+      }
+    }
+
+    // 确保vUv可用 - 检查片段着色器
+    if (!shader.fragmentShader.includes('varying vec2 vUv;')) {
+      shader.fragmentShader = shader.fragmentShader.replace(
+        '#include <common>',
+        '#include <common>\nvarying vec2 vUv;'
+      );
+    }
+
+    // 找到片段着色器的main函数，并修改颜色计算部分
+    const mainFunctionRegex = /void main\(\) \{([\s\S]*?)\}/;
+    const mainFunctionMatch = fragmentShader.match(mainFunctionRegex);
+
+    if (mainFunctionMatch) {
+      let mainFunctionBody = mainFunctionMatch[1];
+
+      // 查找diffuseColor的赋值，通常在基础材质中
+      const diffuseColorAssignmentRegex = /(diffuseColor\s*=.*;)/;
+      const diffuseColorMatch = mainFunctionBody.match(diffuseColorAssignmentRegex);
+
+      if (diffuseColorMatch) {
+        // 在diffuseColor赋值之后添加NonDirectional逻辑
+        const nonDirectionalLogic = `
+          // NonDirectional 多层混合逻辑
+          vec4 layerMask = texture2D(layerMaskMap, vUv);
+          float weight1 = layerMask.r * layerMaskScale1;
+          float weight2 = layerMask.g * layerMaskScale2;
+          float weight3 = layerMask.b * layerMaskScale3;
+          float weight4 = layerMask.a * layerMaskScale4;
+
+          // 应用位移贴图（如果存在）
+          float displacement = texture2D(displacementMap, vUv).r * displacementHeight;
+
+          vec4 layerColor = baseColorLayer1 * weight1 +
+                           baseColorLayer2 * weight2 +
+                           baseColorLayer3 * weight3 +
+                           baseColorLayer4 * weight4;
+
+          // 应用基础颜色纹理
+          vec4 baseColorTex = texture2D(map, vUv);
+          vec4 finalColor = baseColorTex * layerColor;
+
+          // 应用自发光强度
+          finalColor.rgb *= emissionIntensity;
+
+          // 应用位移影响（简单的高度映射）
+          finalColor.rgb += vec3(displacement * 0.1);
+
+          diffuseColor = finalColor;
+        `;
+
+        // 在diffuseColor赋值之后插入NonDirectional逻辑
+        mainFunctionBody = mainFunctionBody.replace(diffuseColorMatch[0], diffuseColorMatch[0] + nonDirectionalLogic);
+      }
+
+      // 重新构建main函数
+      shader.fragmentShader = shader.fragmentShader.replace(mainFunctionMatch[0], `void main() {${mainFunctionBody}}`);
+    }
+  };
+
+  // 设置材质名称
+  const materialName = material.name();
+  if (materialName) {
+    nonDirectionalMaterial.name = materialName;
+  }
+
+  return nonDirectionalMaterial;
 }
