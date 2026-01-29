@@ -38,5 +38,24 @@ export default defineConfig(({ mode }) => ({
   publicDir: mode === "production" ? false : "public",
   server: {
     host: "0.0.0.0",
+    // 优化开发服务器性能
+    fs: {
+      // 允许访问项目根目录以外的文件
+      allow: ['..']
+    }
   },
+  // 优化依赖预构建
+  optimizeDeps: {
+    include: [
+      'vue',
+      'three',
+      '@vue/runtime-core',
+      '@vue/runtime-dom'
+    ]
+  },
+  // 启用构建缓存
+  build: {
+    // 增加 chunk 大小警告限制
+    chunkSizeWarningLimit: 1000
+  }
 }));

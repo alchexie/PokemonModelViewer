@@ -129,8 +129,8 @@ export function usePokemonList(directory: Ref<string> = ref('SCVI')): UsePokemon
   /**
    * 加载宝可梦列表
    * 
-   * 从 public/SCVI/index.json 加载宝可梦 ID 列表，然后为每个宝可梦加载详细信息
-   * 由于浏览器无法直接扫描目录，需要依赖预生成的索引文件
+   * 先从 index.json 加载宝可梦 ID 列表，然后分批加载每个宝可梦的详细信息
+   * 避免一次性加载大量数据，提高性能和用户体验
    * 
    * @validates 需求 6.1: 应用启动时扫描 public/SCVI 目录获取可用宝可梦列表
    */
@@ -144,9 +144,10 @@ export function usePokemonList(directory: Ref<string> = ref('SCVI')): UsePokemon
     // 重置状态
     loading.value = true
     error.value = null
+    pokemons.value = []
     
     try {
-      // 从 index.json 加载宝可梦 ID 列表
+      // 1. 先加载宝可梦 ID 列表
       const response = await fetch(`/${directory.value}/index.json`)
       
       if (!response.ok) {
@@ -154,52 +155,72 @@ export function usePokemonList(directory: Ref<string> = ref('SCVI')): UsePokemon
       }
       
       const data: PokemonIndexData = await response.json()
+      const pokemonIds = data.pokemonIds
       
-      // 并行加载每个宝可梦的详细信息
-      const pokemonPromises = data.pokemonIds.map(async (pokemonId) => {
-        try {
-          const detailResponse = await fetch(`/${directory.value}/${pokemonId}/index.json`)
-          
-          if (!detailResponse.ok) {
-            console.warn(`[usePokemonList] 无法加载 ${pokemonId} 的详细信息: HTTP ${detailResponse.status}`)
+      console.log(`[usePokemonList] 发现 ${pokemonIds.length} 个宝可梦，开始分批加载...`)
+      
+      // 2. 分批加载宝可梦详细信息
+      const BATCH_SIZE = 5 // 每批加载 5 个宝可梦
+      const pokemonList: PokemonEntry[] = []
+      
+      for (let i = 0; i < pokemonIds.length; i += BATCH_SIZE) {
+        const batch = pokemonIds.slice(i, i + BATCH_SIZE)
+        console.log(`[usePokemonList] 加载第 ${Math.floor(i / BATCH_SIZE) + 1} 批 (${batch.length} 个宝可梦)...`)
+        
+        // 并行加载这一批的宝可梦数据
+        const batchPromises = batch.map(async (pokemonId) => {
+          try {
+            const pokemonResponse = await fetch(`/${directory.value}/${pokemonId}/index.json`)
+            if (!pokemonResponse.ok) {
+              console.warn(`[usePokemonList] 加载 ${pokemonId} 失败: HTTP ${pokemonResponse.status}`)
+              return null
+            }
+            
+            const pokemonData: PokemonDetailData = await pokemonResponse.json()
+            
+            // 转换形态数据
+            const forms: FormEntry[] = pokemonData.forms.map((form) => ({
+              id: form.id,
+              formIndex: form.formIndex,
+              variantIndex: form.variantIndex,
+              thumbnail: `/${directory.value}/${pokemonData.id}/${form.id}/${form.icon}`
+            }))
+            
+            // 使用第一个形态的缩略图作为宝可梦的缩略图
+            const thumbnail = forms.length > 0 ? forms[0].thumbnail : ''
+            
+            return {
+              id: pokemonData.id,
+              number: pokemonData.number,
+              forms,
+              thumbnail
+            } as PokemonEntry
+          } catch (err) {
+            console.warn(`[usePokemonList] 加载 ${pokemonId} 时出错:`, err)
             return null
           }
-          
-          const detailData: PokemonDetailData = await detailResponse.json()
-          
-          // 转换数据格式，使用index.json中的icon字段
-          const forms: FormEntry[] = detailData.forms.map((form) => ({
-            id: form.id,
-            formIndex: form.formIndex,
-            variantIndex: form.variantIndex,
-            thumbnail: `/${directory.value}/${detailData.id}/${form.id}/${form.icon}`
-          }))
-          
-          // 使用第一个形态的缩略图作为宝可梦的缩略图
-          const thumbnail = forms.length > 0 ? forms[0].thumbnail : ''
-          
-          return {
-            id: detailData.id,
-            number: detailData.number,
-            forms,
-            thumbnail
-          } as PokemonEntry
-          
-        } catch (err) {
-          console.warn(`[usePokemonList] 加载 ${pokemonId} 详细信息失败:`, err)
-          return null
-        }
-      })
+        })
+        
+        // 等待这一批加载完成
+        const batchResults = await Promise.all(batchPromises)
+        
+        // 过滤掉加载失败的宝可梦
+        const validPokemons = batchResults.filter((pokemon): pokemon is PokemonEntry => pokemon !== null)
+        
+        // 添加到总列表
+        pokemonList.push(...validPokemons)
+        
+        // 更新响应式状态，让 UI 可以逐步显示
+        pokemons.value = [...pokemonList]
+        
+        console.log(`[usePokemonList] 第 ${Math.floor(i / BATCH_SIZE) + 1} 批加载完成，当前共 ${pokemonList.length} 个宝可梦`)
+      }
       
-      // 等待所有宝可梦加载完成
-      const pokemonList = (await Promise.all(pokemonPromises)).filter((pokemon): pokemon is PokemonEntry => pokemon !== null)
-      
-      // 按图鉴编号排序
+      // 最终按图鉴编号排序
       pokemonList.sort((a, b) => a.number - b.number)
-      
       pokemons.value = pokemonList
       
-      console.log(`[usePokemonList] 加载了 ${pokemonList.length} 个宝可梦`)
+      console.log(`[usePokemonList] 所有宝可梦加载完成，共 ${pokemonList.length} 个`)
       
     } catch (err) {
       const errorMessage = formatError(err)

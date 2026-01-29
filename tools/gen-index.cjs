@@ -226,6 +226,22 @@ function generateIndex() {
   // 按宝可梦编号排序
   pokemonIds.sort((a, b) => parsePokemonId(a) - parsePokemonId(b));
 
+  // 收集所有宝可梦的详细信息
+  const allPokemonData = [];
+  for (const pokemonId of pokemonIds) {
+    const pokemonPath = path.join(POKEMON_DIR, pokemonId);
+    const pokemonIndexFile = path.join(pokemonPath, 'index.json');
+    
+    if (fs.existsSync(pokemonIndexFile)) {
+      try {
+        const pokemonData = JSON.parse(fs.readFileSync(pokemonIndexFile, 'utf8'));
+        allPokemonData.push(pokemonData);
+      } catch (error) {
+        console.warn(`⚠️  警告: 无法读取 ${pokemonIndexFile}: ${error.message}`);
+      }
+    }
+  }
+
   const indexData = {
     pokemonIds: pokemonIds
   };
