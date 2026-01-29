@@ -1,76 +1,87 @@
 <script setup lang="ts">
 /**
  * App.vue - 宝可梦模型浏览器根组件
- * 
+ *
  * 负责：
  * - 集成 PokemonBrowser 和 ThreeViewer 组件
  * - 管理选中的宝可梦和形态状态
  * - 实现组件间通信
- * 
+ *
  * @validates 需求 6.3: 用户点击宝可梦时加载并显示该宝可梦的 3D 模型
  * @validates 需求 6.5: 用户选择不同形态时切换显示对应形态的模型
  */
-import { ref } from 'vue'
-import PokemonBrowser from './components/PokemonBrowser.vue'
-import ThreeViewer from './components/ThreeViewer.vue'
+import { ref, defineAsyncComponent } from "vue";
+
+// 异步加载组件以优化初始加载性能
+const PokemonBrowser = defineAsyncComponent(
+  () => import("./components/PokemonBrowser.vue"),
+);
+const ThreeViewer = defineAsyncComponent(
+  () => import("./components/ThreeViewer.vue"),
+);
 
 // 当前选中的宝可梦 ID
-const selectedPokemon = ref<string | null>(null)
+const selectedPokemon = ref<string | null>(null);
 
 // 当前选中的形态 ID
-const selectedForm = ref<string | null>(null)
+const selectedForm = ref<string | null>(null);
 
 // 模型加载进度 (0-100)
-const loadingProgress = ref(0)
+const loadingProgress = ref(0);
 
 // 是否正在加载模型
-const isModelLoading = ref(false)
+const isModelLoading = ref(false);
 
 // 模型加载错误信息
-const modelError = ref<string | null>(null)
+const modelError = ref<string | null>(null);
 
 // 当前选择的目录
-const selectedDirectory = ref<string>('SCVI')
+const selectedDirectory = ref<string>("SCVI");
 
 // 当前宝可梦的动画数据
-const currentAnimations = ref<Record<string, string[]> | null>(null)
+const currentAnimations = ref<Record<string, string[]> | null>(null);
 
 // 组件挂载时不需要额外加载数据，PokemonBrowser 会处理
 
 /**
  * 处理宝可梦选择事件
  * 当用户在 PokemonBrowser 中选择宝可梦或形态时触发
- * 
+ *
  * @param pokemonId - 宝可梦 ID，如 "pm0001"
  * @param formId - 形态 ID，如 "pm0001_00_00"
  * @validates 需求 6.3: 用户点击宝可梦时加载并显示该宝可梦的 3D 模型
  * @validates 需求 6.5: 用户选择不同形态时切换显示对应形态的模型
  */
-async function handlePokemonSelect(pokemonId: string, formId: string): Promise<void> {
-  console.log(`App: 选择宝可梦 ${pokemonId}, 形态 ${formId}`)
-  selectedPokemon.value = pokemonId
-  selectedForm.value = formId
+async function handlePokemonSelect(
+  pokemonId: string,
+  formId: string,
+): Promise<void> {
+  console.log(`App: 选择宝可梦 ${pokemonId}, 形态 ${formId}`);
+  selectedPokemon.value = pokemonId;
+  selectedForm.value = formId;
   // 清除之前的错误
-  modelError.value = null
-  
+  modelError.value = null;
+
   // 获取当前形态的动画数据
   try {
-    const response = await fetch(`/${selectedDirectory.value}/${pokemonId}/index.json`)
+    const response = await fetch(
+      `/${selectedDirectory.value}/${pokemonId}/index.json`,
+    );
     if (response.ok) {
-      const pokemonData = await response.json()
-      const form = pokemonData.forms.find((f: any) => f.id === formId)
+      const pokemonData = await response.json();
+      const form = pokemonData.forms.find((f: any) => f.id === formId);
       if (form && form.animations) {
-        currentAnimations.value = form.animations
+        currentAnimations.value = form.animations;
       } else {
-        currentAnimations.value = null
+        currentAnimations.value = null;
       }
     } else {
-      console.warn(`App: 无法加载 ${pokemonId} 的详细信息`)
-      currentAnimations.value = null
+      console.warn(`App: 无法加载 ${pokemonId} 的详细信息`);
+      currentAnimations.value = null;
     }
   } catch (error) {
-    console.error('App: 加载宝可梦详细信息失败:', error)
-    currentAnimations.value = null
+    console.error("App: 加载宝可梦详细信息失败:", error);
+    currentAnimations.value = null;
   }
 }
 
@@ -79,7 +90,7 @@ async function handlePokemonSelect(pokemonId: string, formId: string): Promise<v
  * @param loading - 是否正在加载
  */
 function handleLoadingChange(loading: boolean): void {
-  isModelLoading.value = loading
+  isModelLoading.value = loading;
 }
 
 /**
@@ -87,7 +98,7 @@ function handleLoadingChange(loading: boolean): void {
  * @param progress - 加载进度 (0-100)
  */
 function handleProgressChange(progress: number): void {
-  loadingProgress.value = progress
+  loadingProgress.value = progress;
 }
 
 /**
@@ -95,8 +106,8 @@ function handleProgressChange(progress: number): void {
  * @param directory - 新的目录名
  */
 function handleDirectoryChange(directory: string): void {
-  console.log(`App: 切换目录到 ${directory}`)
-  selectedDirectory.value = directory
+  console.log(`App: 切换目录到 ${directory}`);
+  selectedDirectory.value = directory;
 }
 
 /**
@@ -104,7 +115,16 @@ function handleDirectoryChange(directory: string): void {
  * @param formId - 加载完成的形态 ID
  */
 function handleModelLoaded(formId: string): void {
-  console.log(`App: 模型加载完成 - ${formId}`)
+  console.log(`App: 模型加载完成 - ${formId}`);
+}
+
+/**
+ * 处理模型加载错误
+ * @param error - 错误信息
+ */
+function handleError(error: string | null): void {
+  console.error(`App: 模型加载错误 - ${error}`);
+  modelError.value = error;
 }
 </script>
 
@@ -120,7 +140,7 @@ function handleModelLoaded(formId: string): void {
         @directory-change="handleDirectoryChange"
       />
     </aside>
-    
+
     <!-- 右侧：3D 查看器 -->
     <main class="viewer-panel">
       <ThreeViewer
