@@ -95,6 +95,12 @@ function formatFormName(form: FormEntry): string {
  * @validates 需求 6.3: 用户点击宝可梦时加载并显示该宝可梦的 3D 模型
  */
 function handlePokemonClick(pokemon: PokemonEntry): void {
+  // 如果宝可梦信息还未加载完成，忽略点击
+  if (!pokemon.loaded || pokemon.forms.length === 0) {
+    console.log(`[PokemonBrowser] ${pokemon.id} 信息还未加载完成，忽略点击`)
+    return
+  }
+  
   currentPokemon.value = pokemon
   
   // 默认选择第一个形态
@@ -284,11 +290,16 @@ onMounted(async () => {
         <!-- 左侧图标 -->
         <div class="pokemon-icon">
           <img
+            v-if="pokemon.loaded && pokemon.thumbnail"
             :src="pokemon.thumbnail"
             :alt="`Pokemon ${pokemon.number}`"
             loading="lazy"
             @error="handleThumbnailError"
           />
+          <div v-else class="pokemon-icon-placeholder">
+            <div v-if="!pokemon.loaded" class="loading-spinner"></div>
+            <span v-else>?</span>
+          </div>
         </div>
         
         <!-- 右侧信息 -->
@@ -299,7 +310,7 @@ onMounted(async () => {
           </div>
           
           <!-- 形态选择器 -->
-          <div v-if="pokemon.forms.length > 1" class="pokemon-form-selector">
+          <div v-if="pokemon.loaded && pokemon.forms.length > 1" class="pokemon-form-selector">
             <select
               :value="currentPokemon?.id === pokemon.id ? currentFormId : pokemon.forms[0].id"
               class="form-select"
@@ -479,6 +490,28 @@ onMounted(async () => {
   max-height: 100%;
   object-fit: contain;
   image-rendering: pixelated;
+}
+
+.pokemon-icon-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #0f3460;
+  border-radius: 4px;
+  color: #666;
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+.loading-spinner {
+  width: 20px;
+  height: 20px;
+  border: 2px solid #0f3460;
+  border-top-color: #e94560;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
 }
 
 /* 右侧信息 */
