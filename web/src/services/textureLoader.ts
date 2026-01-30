@@ -7,7 +7,25 @@
  */
 
 import * as THREE from "three";
-import { type TRMTR, type Material as TRMTRMaterial } from "../parsers";
+import { UVWrapMode, type TRMTR, type Material as TRMTRMaterial } from "../parsers";
+
+/**
+ * 将UVWrapMode转换为Three.js纹理wrapping常量
+ *
+ * @param wrapMode - UVWrapMode枚举值
+ * @returns Three.js wrapping常量
+ */
+function getThreeWrapMode(wrapMode: UVWrapMode): THREE.Wrapping {
+  switch (wrapMode) {
+    case UVWrapMode.CLAMP: //不知道为什么CLAMP模式表现和REPEAT一样
+      return THREE.RepeatWrapping;
+    case UVWrapMode.MIRROR:
+      return THREE.MirroredRepeatWrapping;
+    case UVWrapMode.WRAP:
+    default:
+      return THREE.RepeatWrapping;
+  }
+}
 import { resolveResourcePath } from "./resourceLoader";
 import {
   getTextureType,
@@ -203,8 +221,6 @@ export async function loadTexture(path: string): Promise<THREE.Texture> {
       (texture) => {
         // 设置纹理参数
         texture.colorSpace = THREE.SRGBColorSpace;
-        texture.wrapS = THREE.RepeatWrapping;
-        texture.wrapT = THREE.RepeatWrapping;
         texture.minFilter = THREE.LinearMipmapLinearFilter;
         texture.magFilter = THREE.LinearFilter;
         texture.generateMipmaps = true;
@@ -237,6 +253,7 @@ export async function loadTexture(path: string): Promise<THREE.Texture> {
 export async function loadTextures(
   textures: TextureReference[],
   basePath: string,
+  material?: TRMTRMaterial,
 ): Promise<Map<string, THREE.Texture>> {
   const textureMap = new Map<string, THREE.Texture>();
 
@@ -250,6 +267,16 @@ export async function loadTextures(
       // 设置纹理颜色空间
       if (textureRef.type === "normal" || textureRef.type === "roughness" || textureRef.type === "metalness" || textureRef.type === "ao") {
         texture.colorSpace = THREE.LinearSRGBColorSpace;
+      }
+
+      // 设置纹理wrapping模式
+      if (material) {
+        const sampler = material.samplers(textureRef.slot);
+        if (sampler) {
+          texture.wrapS = getThreeWrapMode(sampler.repeatU());
+          texture.wrapT = getThreeWrapMode(sampler.repeatV());
+          console.log(`[TextureLoader] 设置纹理包装模式: ${textureRef.filename}, wrapS: ${texture.wrapS}, wrapT: ${texture.wrapT}`);
+        }
       }
 
       return { name: textureRef.filename, texture };
@@ -342,8 +369,7 @@ export function extractTextureReferences(
     if (!textureFile) continue;
 
     const textureName = texture.textureName() || "";
-    const textureSlot = texture.textureSlot();
-
+    const textureSlot = texture.textureSlot() || 0;
     // 将 .bntx 扩展名转换为 .png
     const pngFilename = convertBntxToPng(textureFile);
 
@@ -431,6 +457,11 @@ export async function createMaterial(
     return await createNonDirectionalMaterial(material, basePath, mergedOptions);
   }
 
+  // 如果是IkCharacter，使用自定义IkCharacter材质
+  if (shaderName === "IkCharacter") {
+    return await createIkCharacterMaterial(material, basePath, mergedOptions);
+  }
+
   // 提取纹理引用
   const textureRefs = extractTextureReferences(material);
 
@@ -445,7 +476,7 @@ export async function createMaterial(
   }
 
   // 加载所有纹理
-  const textureMap = await loadTextures(textureRefs, basePath);
+  const textureMap = await loadTextures(textureRefs, basePath, material);
 
   // 如果所有纹理都加载失败，返回默认材质
   // @validates 需求 8.3: 纹理加载失败时继续渲染模型但使用默认材质
@@ -470,6 +501,10 @@ export async function createMaterial(
   // 从材质数据中读取粗糙度和金属度参数
   const roughness = getFloatParameter(material, "Roughness", 0.7);
   const metalness = getFloatParameter(material, "Metallic", 0.0);
+
+  // 获取UV缩放和平移参数
+  const uvScaleOffset = getColorParameter(material, "UVScaleOffset", new THREE.Vector4(1.0, 1.0, 0.0, 0.0));
+  const uvScaleOffsetNormal = getColorParameter(material, "UVScaleOffsetNormal", new THREE.Vector4(1.0, 1.0, 0.0, 0.0));
 
   threeMaterial.roughness = roughness;
   threeMaterial.metalness = metalness;
@@ -504,7 +539,7 @@ export async function createMaterial(
     if (!isEnabled) continue;
 
     // 根据属性名设置纹理
-    applyTextureToMaterial(threeMaterial, propertyName, texture, mergedOptions);
+    applyTextureToMaterial(threeMaterial, propertyName, texture, mergedOptions, textureRef.type === "normal" ? uvScaleOffsetNormal : uvScaleOffset);
   }
 
   // 设置材质名称
@@ -536,7 +571,12 @@ function applyTextureToMaterial(
   propertyName: MaterialPropertyName,
   texture: THREE.Texture,
   options: MaterialOptions,
+  uvScaleOffset: THREE.Vector4,
 ): void {
+  // 应用UV变换到纹理
+  texture.repeat.set(uvScaleOffset.x, uvScaleOffset.y);
+  texture.offset.set(uvScaleOffset.z, uvScaleOffset.w);
+
   switch (propertyName) {
     case "map":
       material.map = texture;
@@ -743,7 +783,7 @@ export async function createEyeClearCoatMaterial(
 
   // 提取纹理引用
   const textureRefs = extractTextureReferences(material);
-  const textureMap = await loadTextures(textureRefs, basePath);
+  const textureMap = await loadTextures(textureRefs, basePath, material);
 
   // 获取LayerMaskMap纹理
   const layerMaskTexture = findTextureByName(material, textureMap, "LayerMaskMap");
@@ -776,6 +816,10 @@ export async function createEyeClearCoatMaterial(
   const emissionIntensityLayer3 = getFloatParameter(material, "EmissionIntensityLayer3", 0.5);
   const emissionIntensityLayer4 = getFloatParameter(material, "EmissionIntensityLayer4", 0.5);
 
+  // 获取UV缩放和平移参数
+  const uvScaleOffset = getColorParameter(material, "UVScaleOffset", new THREE.Vector4(1.0, 1.0, 0.0, 0.0));
+  const uvScaleOffsetNormal = getColorParameter(material, "UVScaleOffsetNormal", new THREE.Vector4(1.0, 1.0, 0.0, 0.0));
+
   // 创建MeshStandardMaterial，使用内置着色器
   const eyeClearCoatMaterial = new THREE.MeshStandardMaterial({
     side: mergedOptions.doubleSide ? THREE.DoubleSide : THREE.FrontSide,
@@ -785,15 +829,27 @@ export async function createEyeClearCoatMaterial(
   // 设置纹理
   if (layerMaskTexture) {
     eyeClearCoatMaterial.userData.layerMaskMap = layerMaskTexture;
+    // 应用UV变换到LayerMask纹理
+    layerMaskTexture.repeat.set(uvScaleOffset.x, uvScaleOffset.y);
+    layerMaskTexture.offset.set(uvScaleOffset.z, uvScaleOffset.w);
   }
   if (highlightMaskTexture) {
     eyeClearCoatMaterial.userData.highlightMaskMap = highlightMaskTexture;
+    // 应用UV变换到HighlightMask纹理
+    highlightMaskTexture.repeat.set(uvScaleOffset.x, uvScaleOffset.y);
+    highlightMaskTexture.offset.set(uvScaleOffset.z, uvScaleOffset.w);
   }
   if (normalTexture) {
     eyeClearCoatMaterial.normalMap = normalTexture;
+    // 应用UV变换到法线纹理
+    normalTexture.repeat.set(uvScaleOffsetNormal.x, uvScaleOffsetNormal.y);
+    normalTexture.offset.set(uvScaleOffsetNormal.z, uvScaleOffsetNormal.w);
   }
   if (normalTexture1) {
     eyeClearCoatMaterial.userData.normalMap1 = normalTexture1;
+    // 应用UV变换到第二套法线纹理
+    normalTexture1.repeat.set(uvScaleOffsetNormal.x, uvScaleOffsetNormal.y);
+    normalTexture1.offset.set(uvScaleOffsetNormal.z, uvScaleOffsetNormal.w);
   }
 
   // 存储EyeClearCoat参数
@@ -814,6 +870,8 @@ export async function createEyeClearCoatMaterial(
     emissionIntensityLayer2,
     emissionIntensityLayer3,
     emissionIntensityLayer4,
+    uvScaleOffset,
+    uvScaleOffsetNormal,
   };
 
   // 使用onBeforeCompile修改片段着色器
@@ -978,7 +1036,7 @@ export async function createFireMaterial(
 
   // 提取纹理引用
   const textureRefs = extractTextureReferences(material);
-  const textureMap = await loadTextures(textureRefs, basePath);
+  const textureMap = await loadTextures(textureRefs, basePath, material);
 
   // 获取纹理
   const baseColorTexture = findTextureByName(material, textureMap, "BaseColorMap");
@@ -995,6 +1053,9 @@ export async function createFireMaterial(
 
   const emissionIntensity = getFloatParameter(material, "EmissionIntensity", 1.0);
 
+  // 获取UV缩放和平移参数
+  const uvScaleOffset = getColorParameter(material, "UVScaleOffset", new THREE.Vector4(1.0, 1.0, 0.0, 0.0));
+
   // 创建MeshBasicMaterial，使用内置着色器
   const fireMaterial = new THREE.MeshBasicMaterial({
     side: mergedOptions.doubleSide ? THREE.DoubleSide : THREE.FrontSide,
@@ -1004,12 +1065,21 @@ export async function createFireMaterial(
   // 设置纹理
   if (baseColorTexture) {
     fireMaterial.map = baseColorTexture;
+    // 应用UV变换到BaseColor纹理
+    baseColorTexture.repeat.set(uvScaleOffset.x, uvScaleOffset.y);
+    baseColorTexture.offset.set(uvScaleOffset.z, uvScaleOffset.w);
   }
   if (layerMaskTexture) {
     fireMaterial.userData.layerMaskMap = layerMaskTexture;
+    // 应用UV变换到LayerMask纹理
+    layerMaskTexture.repeat.set(uvScaleOffset.x, uvScaleOffset.y);
+    layerMaskTexture.offset.set(uvScaleOffset.z, uvScaleOffset.w);
   }
   if (displacementTexture) {
     fireMaterial.userData.displacementMap = displacementTexture;
+    // 应用UV变换到Displacement纹理
+    displacementTexture.repeat.set(uvScaleOffset.x, uvScaleOffset.y);
+    displacementTexture.offset.set(uvScaleOffset.z, uvScaleOffset.w);
   }
 
   // 存储Fire参数
@@ -1020,6 +1090,7 @@ export async function createFireMaterial(
     baseColorLayer3,
     baseColorLayer4,
     emissionIntensity,
+    uvScaleOffset,
   };
 
   // 使用onBeforeCompile修改片段着色器
@@ -1144,7 +1215,7 @@ export async function createNonDirectionalMaterial(
 
   // 提取纹理引用
   const textureRefs = extractTextureReferences(material);
-  const textureMap = await loadTextures(textureRefs, basePath);
+  const textureMap = await loadTextures(textureRefs, basePath, material);
 
   // 获取纹理
   const baseColorTexture = findTextureByName(material, textureMap, "BaseColorMap");
@@ -1166,6 +1237,9 @@ export async function createNonDirectionalMaterial(
   const emissionIntensity = getFloatParameter(material, "EmissionIntensity", 1.0);
   const discardValue = getFloatParameter(material, "DiscardValue", 0.0);
 
+  // 获取UV缩放和平移参数
+  const uvScaleOffset = getColorParameter(material, "UVScaleOffset", new THREE.Vector4(1.0, 1.0, 0.0, 0.0));
+
   // 创建MeshBasicMaterial，使用内置着色器
   const nonDirectionalMaterial = new THREE.MeshBasicMaterial({
     side: mergedOptions.doubleSide ? THREE.DoubleSide : THREE.FrontSide,
@@ -1178,12 +1252,21 @@ export async function createNonDirectionalMaterial(
   // 设置纹理
   if (baseColorTexture) {
     nonDirectionalMaterial.map = baseColorTexture;
+    // 应用UV变换到BaseColor纹理
+    baseColorTexture.repeat.set(uvScaleOffset.x, uvScaleOffset.y);
+    baseColorTexture.offset.set(uvScaleOffset.z, uvScaleOffset.w);
   }
   if (layerMaskTexture) {
     nonDirectionalMaterial.userData.layerMaskMap = layerMaskTexture;
+    // 应用UV变换到LayerMask纹理
+    layerMaskTexture.repeat.set(uvScaleOffset.x, uvScaleOffset.y);
+    layerMaskTexture.offset.set(uvScaleOffset.z, uvScaleOffset.w);
   }
   if (displacementTexture) {
     nonDirectionalMaterial.userData.displacementMap = displacementTexture;
+    // 应用UV变换到Displacement纹理
+    displacementTexture.repeat.set(uvScaleOffset.x, uvScaleOffset.y);
+    displacementTexture.offset.set(uvScaleOffset.z, uvScaleOffset.w);
   }
 
   // 存储NonDirectional参数
@@ -1199,6 +1282,7 @@ export async function createNonDirectionalMaterial(
     displacementHeight,
     emissionIntensity,
     discardValue,
+    uvScaleOffset,
   };
 
   // 使用onBeforeCompile修改片段着色器
@@ -1330,4 +1414,182 @@ export async function createNonDirectionalMaterial(
   }
 
   return nonDirectionalMaterial;
+}
+
+/**
+ * 创建IkCharacter材质
+ *
+ * IkCharacter是一种多层PBR材质，使用LayerMaskMap的RGBA通道作为四层蒙版
+ * 每一层都有独立的颜色，支持法线贴图、AO等PBR特性
+ *
+ * @param material - TRMTR 材质数据
+ * @param basePath - 纹理文件基础路径
+ * @param options - 材质选项
+ * @returns Promise<THREE.MeshStandardMaterial> IkCharacter材质
+ */
+export async function createIkCharacterMaterial(
+  material: TRMTRMaterial,
+  basePath: string,
+  options: MaterialOptions = {},
+): Promise<THREE.MeshStandardMaterial> {
+  const mergedOptions = { ...DEFAULT_MATERIAL_OPTIONS, ...options };
+
+  // 提取纹理引用
+  const textureRefs = extractTextureReferences(material);
+  const textureMap = await loadTextures(textureRefs, basePath, material);
+
+  // 获取纹理
+  const baseColorTexture = findTextureByName(material, textureMap, "BaseColorMap");
+  const normalTexture = findTextureByName(material, textureMap, "NormalMap");
+  const occlusionTexture = findTextureByName(material, textureMap, "OcclusionMap");
+  const layerMaskTexture = findTextureByName(material, textureMap, "LayerMaskMap");
+
+  // 获取各层的参数（如果没有则使用默认值）
+  const baseColorLayer1 = getColorParameter(material, "BaseColorLayer1", new THREE.Vector4(1.0, 1.0, 1.0, 1.0));
+  const baseColorLayer2 = getColorParameter(material, "BaseColorLayer2", new THREE.Vector4(1.0, 1.0, 1.0, 1.0));
+  const baseColorLayer3 = getColorParameter(material, "BaseColorLayer3", new THREE.Vector4(1.0, 1.0, 1.0, 1.0));
+  const baseColorLayer4 = getColorParameter(material, "BaseColorLayer4", new THREE.Vector4(1.0, 1.0, 1.0, 1.0));
+
+  const baseColor = getColorParameter(material, "BaseColor", new THREE.Vector4(1.0, 1.0, 1.0, 1.0));
+  const roughness = getFloatParameter(material, "Roughness", 0.7);
+  const metalness = getFloatParameter(material, "Metallic", 0.0);
+  const emissionIntensity = getFloatParameter(material, "EmissionIntensity", 1.0);
+
+  // 获取UV缩放和平移参数
+  const uvScaleOffset = getColorParameter(material, "UVScaleOffset", new THREE.Vector4(1.0, 1.0, 0.0, 0.0));
+
+  // 创建MeshStandardMaterial
+  const ikCharacterMaterial = new THREE.MeshStandardMaterial({
+    roughness,
+    metalness,
+    side: mergedOptions.doubleSide ? THREE.DoubleSide : THREE.FrontSide,
+    transparent: mergedOptions.transparent,
+  });
+
+  // 设置纹理
+  if (baseColorTexture) {
+    ikCharacterMaterial.map = baseColorTexture;
+    // 应用UV变换
+    baseColorTexture.repeat.set(uvScaleOffset.x, uvScaleOffset.y);
+    baseColorTexture.offset.set(uvScaleOffset.z, uvScaleOffset.w);
+  }
+  if (normalTexture) {
+    ikCharacterMaterial.normalMap = normalTexture;
+    // 应用UV变换
+    normalTexture.repeat.set(uvScaleOffset.x, uvScaleOffset.y);
+    normalTexture.offset.set(uvScaleOffset.z, uvScaleOffset.w);
+  }
+  if (occlusionTexture) {
+    ikCharacterMaterial.aoMap = occlusionTexture;
+    ikCharacterMaterial.aoMapIntensity = 1.0;
+    // 应用UV变换
+    occlusionTexture.repeat.set(uvScaleOffset.x, uvScaleOffset.y);
+    occlusionTexture.offset.set(uvScaleOffset.z, uvScaleOffset.w);
+  }
+  if (layerMaskTexture) {
+    ikCharacterMaterial.userData.layerMaskMap = layerMaskTexture;
+    // 应用UV变换
+    layerMaskTexture.repeat.set(uvScaleOffset.x, uvScaleOffset.y);
+    layerMaskTexture.offset.set(uvScaleOffset.z, uvScaleOffset.w);
+  }
+
+  // 存储IkCharacter参数
+  ikCharacterMaterial.userData.ikCharacterParams = {
+    baseColor,
+    baseColorLayer1,
+    baseColorLayer2,
+    baseColorLayer3,
+    baseColorLayer4,
+    emissionIntensity,
+    uvScaleOffset,
+  };
+
+  // 如果有LayerMaskMap，使用onBeforeCompile修改片段着色器
+  if (layerMaskTexture) {
+    ikCharacterMaterial.onBeforeCompile = (shader) => {
+      // 添加uniforms
+      shader.uniforms.layerMaskMap = { value: layerMaskTexture || null };
+      shader.uniforms.baseColor = { value: baseColor };
+      shader.uniforms.baseColorLayer1 = { value: baseColorLayer1 };
+      shader.uniforms.baseColorLayer2 = { value: baseColorLayer2 };
+      shader.uniforms.baseColorLayer3 = { value: baseColorLayer3 };
+      shader.uniforms.baseColorLayer4 = { value: baseColorLayer4 };
+      shader.uniforms.emissionIntensity = { value: emissionIntensity };
+
+      // 修改片段着色器，添加IkCharacter多层混合逻辑
+      const fragmentShader = shader.fragmentShader;
+
+      // 在片段着色器的开头添加uniform声明和varying
+      const additions = `
+        uniform sampler2D layerMaskMap;
+        uniform vec4 baseColor;
+        uniform vec4 baseColorLayer1;
+        uniform vec4 baseColorLayer2;
+        uniform vec4 baseColorLayer3;
+        uniform vec4 baseColorLayer4;
+        uniform float emissionIntensity;
+        varying vec2 vUv;
+      `;
+
+      // 替换片段着色器，在main函数前添加
+      shader.fragmentShader = fragmentShader.replace(
+        '#include <common>',
+        '#include <common>\n' + additions
+      );
+
+      // 确保顶点着色器有varying vec2 vUv;
+      if (!shader.vertexShader.includes('varying vec2 vUv;')) {
+        shader.vertexShader = shader.vertexShader.replace(
+          '#include <common>',
+          '#include <common>\nvarying vec2 vUv;'
+        );
+      }
+
+      // 找到片段着色器的main函数，并修改颜色计算部分
+      const mainFunctionRegex = /void main\(\) \{([\s\S]*?)\}/;
+      const mainFunctionMatch = fragmentShader.match(mainFunctionRegex);
+
+      if (mainFunctionMatch) {
+        let mainFunctionBody = mainFunctionMatch[1];
+
+        // 查找diffuseColor的赋值
+        const diffuseColorAssignmentRegex = /(diffuseColor\s*=.*;)/;
+        const diffuseColorMatch = mainFunctionBody.match(diffuseColorAssignmentRegex);
+
+        if (diffuseColorMatch) {
+          // 在diffuseColor赋值之后添加IkCharacter多层混合逻辑
+          const ikCharacterLogic = `
+            // IkCharacter 多层混合逻辑
+            vec4 layerMask = texture2D(layerMaskMap, vUv);
+            float weight1 = layerMask.r;
+            float weight2 = layerMask.g;
+            float weight3 = layerMask.b;
+            float weight4 = layerMask.a;
+
+            vec4 layerColor = baseColorLayer1 * weight1 +
+                             baseColorLayer2 * weight2 +
+                             baseColorLayer3 * weight3 +
+                             baseColorLayer4 * weight4;
+
+            // 应用层颜色到diffuseColor
+            diffuseColor *= layerColor;
+          `;
+
+          // 在diffuseColor赋值之后插入逻辑
+          mainFunctionBody = mainFunctionBody.replace(diffuseColorMatch[0], diffuseColorMatch[0] + ikCharacterLogic);
+        }
+
+        // 重新构建main函数
+        shader.fragmentShader = shader.fragmentShader.replace(mainFunctionMatch[0], `void main() {${mainFunctionBody}}`);
+      }
+    };
+  }
+
+  // 设置材质名称
+  const materialName = material.name();
+  if (materialName) {
+    ikCharacterMaterial.name = materialName;
+  }
+
+  return ikCharacterMaterial;
 }
