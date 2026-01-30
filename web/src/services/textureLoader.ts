@@ -8,6 +8,7 @@
 
 import * as THREE from "three";
 import { type TRMTR, type Material as TRMTRMaterial } from "../parsers";
+import { resolveResourcePath } from "./resourceLoader";
 import {
   getTextureType,
   getTextureTypeFromName,
@@ -194,10 +195,11 @@ function getTextureLoader(): THREE.TextureLoader {
  */
 export async function loadTexture(path: string): Promise<THREE.Texture> {
   const loader = getTextureLoader();
+  const resolvedPath = resolveResourcePath(path);
 
   return new Promise((resolve, reject) => {
     loader.load(
-      path,
+      resolvedPath,
       (texture) => {
         // 设置纹理参数
         texture.colorSpace = THREE.SRGBColorSpace;
@@ -211,7 +213,7 @@ export async function loadTexture(path: string): Promise<THREE.Texture> {
       },
       undefined, // onProgress 回调（不使用）
       (error) => {
-        reject(new Error(`Failed to load texture: ${path} - ${error}`));
+        reject(new Error(`Failed to load texture: ${resolvedPath} - ${error}`));
       },
     );
   });

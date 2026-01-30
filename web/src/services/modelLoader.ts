@@ -8,6 +8,7 @@
 
 import { flatbuffers, TRMDL, TRMSH, TRMBF, TRMTR, TRMMT, TRSKL } from '../parsers'
 import { getPokemonIdFromFormId } from '../utils/pokemonPath'
+import { loadBinaryResource } from './resourceLoader'
 
 /**
  * 模型文件类型
@@ -106,10 +107,10 @@ export function getModelFilePath(formId: string, fileType: ModelFileType, direct
  */
 async function loadFile(path: string): Promise<ArrayBuffer> {
   try {
-    const response = await fetch(path)
-    
-    if (!response.ok) {
-      if (response.status === 404) {
+    return await loadBinaryResource(path)
+  } catch (error) {
+    if (error instanceof Error) {
+      if (error.message.includes('404') || error.message.includes('not found')) {
         throw new ModelLoadError(
           `模型文件未找到: ${path}`,
           'file_not_found',
@@ -117,20 +118,14 @@ async function loadFile(path: string): Promise<ArrayBuffer> {
         )
       }
       throw new ModelLoadError(
-        `加载文件失败: ${path} (HTTP ${response.status})`,
+        `加载文件失败: ${path} - ${error.message}`,
         'network_error',
         path
       )
     }
     
-    return await response.arrayBuffer()
-  } catch (error) {
-    if (error instanceof ModelLoadError) {
-      throw error
-    }
-    
     throw new ModelLoadError(
-      `网络请求失败: ${path} - ${error instanceof Error ? error.message : String(error)}`,
+      `网络请求失败: ${path} - ${String(error)}`,
       'network_error',
       path
     )

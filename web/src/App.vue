@@ -11,6 +11,7 @@
  * @validates 需求 6.5: 用户选择不同形态时切换显示对应形态的模型
  */
 import { ref, defineAsyncComponent } from "vue";
+import { loadJsonResource, setResourceLoaderConfig } from "./services/resourceLoader";
 
 // 异步加载组件以优化初始加载性能
 const PokemonBrowser = defineAsyncComponent(
@@ -41,6 +42,9 @@ const selectedDirectory = ref<string>("SCVI");
 // 当前宝可梦的动画数据
 const currentAnimations = ref<Record<string, string[]> | null>(null);
 
+// 资源加载模式：本地或远程
+const useRemoteAssets = ref(import.meta.env.VITE_USE_REMOTE_ASSETS === 'true');
+
 // 组件挂载时不需要额外加载数据，PokemonBrowser 会处理
 
 /**
@@ -64,19 +68,11 @@ async function handlePokemonSelect(
 
   // 获取当前形态的动画数据
   try {
-    const response = await fetch(
-      `/${selectedDirectory.value}/${pokemonId}/index.json`,
-    );
-    if (response.ok) {
-      const pokemonData = await response.json();
-      const form = pokemonData.forms.find((f: any) => f.id === formId);
-      if (form && form.animations) {
-        currentAnimations.value = form.animations;
-      } else {
-        currentAnimations.value = null;
-      }
+    const pokemonData = await loadJsonResource(`${selectedDirectory.value}/${pokemonId}/index.json`);
+    const form = pokemonData.forms.find((f: any) => f.id === formId);
+    if (form && form.animations) {
+      currentAnimations.value = form.animations;
     } else {
-      console.warn(`App: 无法加载 ${pokemonId} 的详细信息`);
       currentAnimations.value = null;
     }
   } catch (error) {
@@ -111,6 +107,15 @@ function handleDirectoryChange(directory: string): void {
 }
 
 /**
+ * 处理资源模式切换
+ * @param useRemote - 是否使用远程资源
+ */
+function handleResourceModeChange(useRemote: boolean): void {
+  useRemoteAssets.value = useRemote;
+  setResourceLoaderConfig({ useRemote });
+}
+
+/**
  * 处理模型加载完成
  * @param formId - 加载完成的形态 ID
  */
@@ -132,6 +137,18 @@ function handleError(error: string | null): void {
   <div class="app-container">
     <!-- 左侧：宝可梦浏览器 -->
     <aside class="browser-panel">
+      <!-- 资源模式切换开关 -->
+      <div class="resource-mode-toggle">
+        <label class="toggle-label">
+          <input
+            type="checkbox"
+            :checked="useRemoteAssets"
+            @change="handleResourceModeChange(($event.target as HTMLInputElement).checked)"
+          />
+          使用远程资源
+        </label>
+      </div>
+
       <PokemonBrowser
         :selected-pokemon="selectedPokemon"
         :selected-form="selectedForm"
@@ -174,6 +191,28 @@ function handleError(error: string | null): void {
   flex-shrink: 0;
   border-right: 1px solid #0f3460;
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* 资源模式切换开关 */
+.resource-mode-toggle {
+  padding: 10px;
+  border-bottom: 1px solid #0f3460;
+  background-color: #16213e;
+}
+
+.toggle-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #e94560;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.toggle-label input[type="checkbox"] {
+  margin: 0;
 }
 
 /* 右侧查看器面板 - 填充剩余空间 */

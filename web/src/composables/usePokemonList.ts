@@ -10,6 +10,8 @@
  */
 
 import { ref, type Ref } from 'vue'
+import { loadJsonResource } from '../services/resourceLoader'
+import { resolveResourcePath } from '../services/resourceLoader'
 
 /**
  * 形态条目
@@ -148,13 +150,7 @@ export function usePokemonList(directory: Ref<string> = ref('SCVI')): UsePokemon
     
     try {
       // 1. 先加载宝可梦 ID 列表
-      const response = await fetch(`/${directory.value}/index.json`)
-      
-      if (!response.ok) {
-        throw new Error(`加载宝可梦列表失败: HTTP ${response.status}`)
-      }
-      
-      const data: PokemonIndexData = await response.json()
+      const data: PokemonIndexData = await loadJsonResource(`${directory.value}/index.json`)
       const pokemonIds = data.pokemonIds
       
       console.log(`[usePokemonList] 发现 ${pokemonIds.length} 个宝可梦，开始分批加载...`)
@@ -170,20 +166,14 @@ export function usePokemonList(directory: Ref<string> = ref('SCVI')): UsePokemon
         // 并行加载这一批的宝可梦数据
         const batchPromises = batch.map(async (pokemonId) => {
           try {
-            const pokemonResponse = await fetch(`/${directory.value}/${pokemonId}/index.json`)
-            if (!pokemonResponse.ok) {
-              console.warn(`[usePokemonList] 加载 ${pokemonId} 失败: HTTP ${pokemonResponse.status}`)
-              return null
-            }
-            
-            const pokemonData: PokemonDetailData = await pokemonResponse.json()
+            const pokemonData: PokemonDetailData = await loadJsonResource(`${directory.value}/${pokemonId}/index.json`)
             
             // 转换形态数据
             const forms: FormEntry[] = pokemonData.forms.map((form) => ({
               id: form.id,
               formIndex: form.formIndex,
               variantIndex: form.variantIndex,
-              thumbnail: `/${directory.value}/${pokemonData.id}/${form.id}/${form.icon}`
+              thumbnail: resolveResourcePath(`${directory.value}/${pokemonData.id}/${form.id}/${form.icon}`)
             }))
             
             // 使用第一个形态的缩略图作为宝可梦的缩略图

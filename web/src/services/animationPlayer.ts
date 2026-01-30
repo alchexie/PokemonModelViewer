@@ -23,6 +23,7 @@ import {
   unionToVectorTrack,
   unionToRotationTrack,
 } from "../parsers";
+import { loadBinaryResource } from "./resourceLoader";
 
 /**
  * 动画状态接口
@@ -90,12 +91,7 @@ export class AnimationPlayer {
    */
   async loadAnimation(animationUrl: string): Promise<void> {
     try {
-      const response = await fetch(animationUrl);
-      if (!response.ok) {
-        throw new Error(`Failed to load animation: ${response.statusText}`);
-      }
-
-      const buffer = await response.arrayBuffer();
+      const buffer = await loadBinaryResource(animationUrl);
       const bytes = new Uint8Array(buffer);
       const bb = new flatbuffers.ByteBuffer(bytes);
 

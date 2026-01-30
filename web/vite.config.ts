@@ -9,6 +9,14 @@ export default defineConfig(({ mode }) => ({
   server: {
     host: '0.0.0.0',
     proxy: {
+      // 代理远程资源请求到COS，避免CORS问题
+      // 注意：这个规则必须在/SCVI和/LZA之前定义，以确保优先匹配
+      '/remote-assets': {
+        target: 'https://pokemon-model-1400264169.cos.ap-beijing.myqcloud.com',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/remote-assets/, ''),
+      },
+      // 本地资源代理（仅在不使用远程资源时生效）
       '/SCVI': {
         target: 'http://localhost:5002',
         changeOrigin: true,

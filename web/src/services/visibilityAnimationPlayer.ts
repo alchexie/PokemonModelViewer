@@ -17,6 +17,7 @@ import {
   Framed16BoolTrack,
   Framed8BoolTrack,
 } from "../parsers";
+import { loadBinaryResource } from "./resourceLoader";
 
 /**
  * 可见性动画状态接口
@@ -64,12 +65,7 @@ export class VisibilityAnimationPlayer {
    */
   async loadAnimation(animationUrl: string): Promise<void> {
     try {
-      const response = await fetch(animationUrl);
-      if (!response.ok) {
-        throw new Error(`Failed to load visibility animation: ${response.statusText}`);
-      }
-
-      const buffer = await response.arrayBuffer();
+      const buffer = await loadBinaryResource(animationUrl);
       const bb = new flatbuffers.ByteBuffer(new Uint8Array(buffer));
       this.tracmData = TRACM.getRootAsTRACM(bb);
 
