@@ -166,7 +166,7 @@ export function usePokemonList(directory: Ref<string> = ref('SCVI')): UsePokemon
         // 并行加载这一批的宝可梦数据
         const batchPromises = batch.map(async (pokemonId) => {
           try {
-            const pokemonData: PokemonDetailData = await loadJsonResource(`${directory.value}/${pokemonId}/index.json`)
+            const pokemonData: PokemonDetailData = await loadJsonResource(`${directory.value}/${pokemonId}.json`)
             
             // 转换形态数据
             const forms: FormEntry[] = pokemonData.forms.map((form) => ({
