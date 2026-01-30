@@ -1,3 +1,6 @@
+namespace Titan.Shader;
+file_extension "trsha";
+
 table SlotMapping {
     string_value: string;
     uint_value: uint32;

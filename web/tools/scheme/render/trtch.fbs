@@ -1,3 +1,5 @@
+namespace Titan.Shader;
+
 table Technique {
     param_name: string;
     shader_name: string;
