@@ -20,8 +20,8 @@ const path = require("path");
 const args = process.argv.slice(2);
 const targetDir =
   args.length > 0 && !args[0].startsWith("--") ? args[0] : "SCVI";
-const POKEMON_DIR = path.join(__dirname, "..", "..", "assets", targetDir);
-const INDEX_FILE = path.join(POKEMON_DIR, "index.json");
+const POKEMON_DIR = path.join(__dirname, "..", "..", "assets", "models", targetDir);
+const INDEX_FILE = path.join(__dirname, "..", "..", "assets", "model-index", targetDir, "index.json");
 
 /**
  * 显示帮助信息
@@ -42,8 +42,8 @@ function showHelp() {
 - 形态文件夹: pmXXXX_YY_ZZ (如 pm0001_00_00, pm0003_01_00)
 
 生成的配置文件：
-- 外层 index.json: 包含 pokemonIds 列表
-- 每个 pmXXXX/index.json: 包含该宝可梦的详细信息 (id, number, forms 等)
+- 外层 index.json: assets/model-index/{directory}/index.json 包含 pokemonIds 列表
+- 每个 pmXXXX.json: assets/model-index/{directory}/pmXXXX.json 包含该宝可梦的详细信息 (id, number, forms 等)
 `);
 }
 
@@ -194,6 +194,12 @@ function generateIndex() {
     process.exit(1);
   }
 
+  // 确保输出目录存在
+  const modelIndexDir = path.join(__dirname, "..", "..", "assets", "model-index", targetDir);
+  if (!fs.existsSync(modelIndexDir)) {
+    fs.mkdirSync(modelIndexDir, { recursive: true });
+  }
+
   const pokemonIds = [];
   const entries = fs.readdirSync(POKEMON_DIR, { withFileTypes: true });
 
@@ -223,7 +229,7 @@ function generateIndex() {
       forms: forms,
     };
 
-    const pokemonIndexFile = path.join(pokemonPath, "index.json");
+    const pokemonIndexFile = path.join(__dirname, "..", "..", "assets", "model-index", targetDir, `${pokemonId}.json`);
     fs.writeFileSync(
       pokemonIndexFile,
       JSON.stringify(pokemonData, null, 2),
@@ -249,8 +255,7 @@ function generateIndex() {
   // 收集所有宝可梦的详细信息
   const allPokemonData = [];
   for (const pokemonId of pokemonIds) {
-    const pokemonPath = path.join(POKEMON_DIR, pokemonId);
-    const pokemonIndexFile = path.join(pokemonPath, "index.json");
+    const pokemonIndexFile = path.join(__dirname, "..", "..", "assets", "model-index", targetDir, `${pokemonId}.json`);
 
     if (fs.existsSync(pokemonIndexFile)) {
       try {
