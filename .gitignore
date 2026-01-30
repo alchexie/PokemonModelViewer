@@ -41,20 +41,16 @@ refer/
 
 
 web/tools/json_output/
-# Ignore Pokemon files with number > 10
-assets/SCVI/*
-!assets/SCVI/pm0000/
-!assets/SCVI/pm0001/
-!assets/SCVI/pm0002/
-!assets/SCVI/pm0003/
-!assets/SCVI/pm0004/
-!assets/SCVI/pm0005/
-!assets/SCVI/pm0006/
-!assets/SCVI/pm0007/
-!assets/SCVI/pm0008/
-!assets/SCVI/pm0009/
 
-assets/LZA/*
-assets/SWSH/*
-assets/BDSP/*
-assets/LA/*
+# Ignore Pokemon files with number > 10
+# assets/*
+# !assets/models/SCVI/pm0000/
+# !assets/models/SCVI/pm0001/
+# !assets/models/SCVI/pm0002/
+# !assets/models/SCVI/pm0003/
+# !assets/models/SCVI/pm0004/
+# !assets/models/SCVI/pm0005/
+# !assets/models/SCVI/pm0006/
+# !assets/models/SCVI/pm0007/
+# !assets/models/SCVI/pm0008/
+# !assets/models/SCVI/pm0009/

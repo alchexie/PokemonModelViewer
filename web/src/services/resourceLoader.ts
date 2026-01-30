@@ -13,18 +13,28 @@ interface ResourceLoaderConfig {
   /** 是否使用远程资源 */
   useRemote: boolean;
   /** 远程资源基础URL */
-  remoteBaseUrl: string;
-  /** 本地资源基础路径 */
-  localBasePath: string;
+  // remoteBaseUrl: string;
+  // /** 本地资源基础路径 */
+  // localBasePath: string;
+  // /** 模型资源基础路径 */
+  modelBasePath: string;
+  /** 模型资源远程路径 */
+  modelRemotePath: string;
+  /** 模型索引基础路径 */
+  indexBasePath: string;
 }
 
 /**
  * 默认配置
  */
+const env = import.meta.env;
 const DEFAULT_CONFIG: ResourceLoaderConfig = {
-  useRemote: import.meta.env.VITE_USE_REMOTE_ASSETS === 'true',
-  remoteBaseUrl: 'https://pokemon-model-1400264169.cos.ap-beijing.myqcloud.com',
-  localBasePath: '', // 本地模式下不添加额外路径前缀，因为http-server已经serve assets作为根目录
+  useRemote: env.VITE_USE_REMOTE_ASSETS === 'true',
+  // remoteBaseUrl: 'https://pokemon-model-1400264169.cos.ap-beijing.myqcloud.com',
+  // localBasePath: '', // 本地模式下不添加额外路径前缀，因为http-server已经serve assets作为根目录
+  modelBasePath: env.VITE_MODEL_BASE_PATH,
+  modelRemotePath: env.VITE_MODEL_REMOTE_PATH,
+  indexBasePath: env.VITE_INDEX_BASE_PATH,
 };
 
 /**
@@ -62,20 +72,13 @@ export function resolveResourcePath(path: string): string {
 
   // JSON文件始终从本地加载
   if (cleanPath.endsWith('.json')) {
-    return `${currentConfig.localBasePath}/${cleanPath}`;
+    return `${currentConfig.indexBasePath}/${cleanPath}`;
   }
 
   if (currentConfig.useRemote) {
-    // 在开发环境下使用代理路径避免CORS问题
-    if (import.meta.env.DEV) {
-      return `/remote-assets/${cleanPath}`;
-    } else {
-      // 生产环境下直接使用COS URL
-      return `${currentConfig.remoteBaseUrl}/${cleanPath}`;
-    }
+    return `${currentConfig.modelRemotePath}/${cleanPath}`;
   } else {
-    // 本地路径
-    return `${currentConfig.localBasePath}/${cleanPath}`;
+    return `${currentConfig.modelBasePath}/${cleanPath}`;
   }
 }
 
@@ -86,11 +89,13 @@ export function resolveResourcePath(path: string): string {
  * @returns Promise<string> 文本内容
  */
 export async function loadTextResource(path: string): Promise<string> {
-  const resolvedPath = resolveResourcePath(path);
+  const resolvedPath = path;
 
   const response = await fetch(resolvedPath);
   if (!response.ok) {
-    throw new Error(`Failed to load text resource: ${resolvedPath} (HTTP ${response.status})`);
+    throw new Error(
+      `Failed to load text resource: ${resolvedPath} (HTTP ${response.status})`,
+    );
   }
 
   return response.text();
@@ -107,7 +112,9 @@ export async function loadBinaryResource(path: string): Promise<ArrayBuffer> {
 
   const response = await fetch(resolvedPath);
   if (!response.ok) {
-    throw new Error(`Failed to load binary resource: ${resolvedPath} (HTTP ${response.status})`);
+    throw new Error(
+      `Failed to load binary resource: ${resolvedPath} (HTTP ${response.status})`,
+    );
   }
 
   return response.arrayBuffer();
@@ -120,7 +127,8 @@ export async function loadBinaryResource(path: string): Promise<ArrayBuffer> {
  * @returns Promise<any> 解析后的JSON对象
  */
 export async function loadJsonResource(path: string): Promise<any> {
-  const text = await loadTextResource(path);
+  const resolvedPath = resolveResourcePath(path);
+  const text = await loadTextResource(resolvedPath);
   try {
     return JSON.parse(text);
   } catch (error) {

@@ -3,9 +3,7 @@ import vue from '@vitejs/plugin-vue';
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
-  plugins: [
-    vue()
-  ],
+  plugins: [vue()],
   server: {
     host: '0.0.0.0',
     proxy: {
@@ -16,19 +14,14 @@ export default defineConfig(({ mode }) => ({
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/remote-assets/, ''),
       },
-      // 本地资源代理（仅在不使用远程资源时生效）
-      '/SCVI': {
+      '/model-index': {
         target: 'http://localhost:5002',
         changeOrigin: true,
       },
-      '/LZA': {
-        target: 'http://localhost:5002',
-        changeOrigin: true,
-      },
-      '/pokemon.json': {
+      '/models': {
         target: 'http://localhost:5002',
         changeOrigin: true,
       },
     },
-  }
+  },
 }));

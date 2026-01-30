@@ -127,7 +127,7 @@ function handleFormChangeForItem(event: Event, pokemon: PokemonEntry): void {
  */
 async function loadPokemonNames(): Promise<void> {
   try {
-    const response = await fetch('/pokemon.json')
+    const response = await fetch('/model-index/pokemon.json')
     if (!response.ok) {
       throw new Error(`加载宝可梦名字失败: HTTP ${response.status}`)
     }

@@ -68,7 +68,7 @@ async function handlePokemonSelect(
 
   // 获取当前形态的动画数据
   try {
-    const pokemonData = await loadJsonResource(`${selectedDirectory.value}/${pokemonId}/index.json`);
+    const pokemonData = await loadJsonResource(`${selectedDirectory.value}/${pokemonId}.json`);
     const form = pokemonData.forms.find((f: any) => f.id === formId);
     if (form && form.animations) {
       currentAnimations.value = form.animations;
@@ -102,6 +102,7 @@ function handleProgressChange(progress: number): void {
  * @param directory - 新的目录名
  */
 function handleDirectoryChange(directory: string): void {
+  console.log(directory)
   console.log(`App: 切换目录到 ${directory}`);
   selectedDirectory.value = directory;
 }
