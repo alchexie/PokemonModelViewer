@@ -316,6 +316,32 @@ watch(() => props.animations, (newAnimations) => {
   }
 }, { immediate: true })
 
+// 监听宝可梦ID和形态ID变化
+watch([() => props.pokemonId, () => props.formId], ([newPokemonId, newFormId]) => {
+  if (newPokemonId && newFormId) {
+    // 有新的宝可梦和形态，加载模型
+    loadAndDisplayModel(newPokemonId, newFormId)
+  } else {
+    // 宝可梦或形态被清空，移除当前模型
+    if (currentModel.value) {
+      removeFromScene(currentModel.value)
+      currentModel.value = null
+      currentFormId.value = null
+      currentParsedData.value = null
+    }
+    // 停止动画播放
+    animationPlayer.stop()
+    visibilityAnimationPlayer.stop()
+    isAnimationPlaying.value = false
+    selectedAnimation.value = ''
+    // 清空选择状态
+    selectedTriangle.value = null
+    selectedBone.value = null
+    highlightSelectedTriangle(null, null)
+    highlightSelectedBone(null)
+  }
+}, { immediate: true })
+
 /**
  * 调整摄像机到最佳位置
  */

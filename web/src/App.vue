@@ -105,6 +105,12 @@ function handleDirectoryChange(directory: string): void {
   console.log(directory)
   console.log(`App: 切换目录到 ${directory}`);
   selectedDirectory.value = directory;
+  
+  // 清空当前选择的宝可梦和形态
+  selectedPokemon.value = null;
+  selectedForm.value = null;
+  currentAnimations.value = null;
+  modelError.value = null;
 }
 
 /**
